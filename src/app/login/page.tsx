@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { signUp } from '@/server/actions/auth';
+import { signUp, signIn } from '@/server/actions/auth';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -18,8 +17,6 @@ export default function LoginPage() {
         fullName: '',
     });
     const [successMessage, setSuccessMessage] = useState('');
-
-    const supabase = createClient();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -51,31 +48,26 @@ export default function LoginPage() {
                     }
                     // For signup success (immediate login case), we still rely on server action's session
                     setSuccessMessage('Success! Redirecting to dashboard...');
-                    router.refresh(); // Refresh server components to see new session
                     setTimeout(() => {
-                        router.push('/dashboard');
+                        window.location.href = '/dashboard';
                     }, 1000);
                 } else {
                     setError(result.error || 'An error occurred during signup');
                     setIsLoading(false);
                 }
             } else {
-                // Client-side Sign In
-                const { error } = await supabase.auth.signInWithPassword({
-                    email: formData.email,
-                    password: formData.password,
-                });
+                // Server-side Sign In
+                const result = await signIn(formData.email, formData.password);
 
-                if (error) {
-                    setError(error.message || 'Invalid credentials');
+                if (!result.success) {
+                    setError(result.error || 'Invalid credentials');
                     setIsLoading(false);
                     return;
                 }
 
                 setSuccessMessage('Success! Redirecting to dashboard...');
-                router.refresh(); // Refresh server components to see new session
                 setTimeout(() => {
-                    router.push('/dashboard');
+                    window.location.href = '/dashboard';
                 }, 1000);
             }
         } catch (err) {

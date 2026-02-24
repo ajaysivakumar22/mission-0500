@@ -29,6 +29,7 @@ export async function signUp(
         const supabase = await createServerActionClient();
 
         // Sign up with Supabase Auth
+        console.log('Attempting Supabase signup for:', email);
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password,
@@ -39,7 +40,10 @@ export async function signUp(
             },
         });
 
+        console.log('Signup result:', { authError, session: !!authData?.session, user: !!authData?.user });
+
         if (authError || !authData.user) {
+            console.error('Signup failed:', authError);
             return { success: false, error: authError?.message || 'Signup failed' };
         }
 

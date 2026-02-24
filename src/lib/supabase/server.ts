@@ -39,9 +39,14 @@ export async function createServerActionClient() {
                     return cookieStore.getAll();
                 },
                 setAll(cookiesToSet: { name: string; value: string; options?: CookieOptions }[]) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        cookieStore.set(name, value, options)
-                    );
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            cookieStore.set({ name, value, ...options })
+                        );
+                    } catch (error) {
+                        // The `setAll` method was called from a Server Component.
+                        // Can be ignored if you have middleware refreshing user sessions.
+                    }
                 },
             },
         }

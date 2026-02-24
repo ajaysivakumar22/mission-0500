@@ -6,6 +6,8 @@ import { calculateRank } from '@/lib/utils/xp';
 import DashboardClient from './DashboardClient';
 
 export default async function DashboardPage() {
+    // logic and redirecting paused for now to focus on UI
+    /*
     const session = await getServerSession();
     if (!session?.user) {
         redirect('/login');
@@ -20,10 +22,13 @@ export default async function DashboardPage() {
 
     const totalXP = xpResult.success && xpResult.data !== undefined ? xpResult.data : 0;
     const rank = calculateRank(totalXP);
+    */
+    const totalXP = 0;
+    const rank = calculateRank(totalXP);
 
     return (
         <DashboardClient
-            stats={statsResult.success ? statsResult.data ?? null : null}
+            stats={null}
             totalXP={totalXP}
             rank={rank}
         />

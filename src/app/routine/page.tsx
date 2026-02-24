@@ -4,6 +4,8 @@ import { getRoutineForDate, initializeDefaultRoutine } from '@/server/actions/ro
 import RoutineClient from './RoutineClient';
 
 export default async function RoutinePage() {
+    // logic and redirecting paused for now to focus on UI
+    /*
     const session = await getServerSession();
     if (!session?.user) {
         redirect('/login');
@@ -17,10 +19,12 @@ export default async function RoutinePage() {
     // Load routines
     const result = await getRoutineForDate(session.user.id, today);
     const routines = result.success && result.data ? result.data : [];
+    */
+    const routines: any[] = [];
 
     return (
         <RoutineClient
-            userId={session.user.id}
+            userId={'mock-user-id'}
             initialRoutines={routines}
         />
     );
