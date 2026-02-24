@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updateUserProfile, signOut } from '@/server/actions/auth';
@@ -39,10 +41,21 @@ export default function SettingsClient({ userId, fullName, email }: SettingsClie
 
     return (
         <MainLayout>
-            <div className="max-w-2xl space-y-8">
+            <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <PageHeader
+                    title="Configuration Protocol"
+                    subtitle="Manage your identity. True power comes from knowing yourself."
+                />
+
+                <InspirationalQuote
+                    quote="Those who cannot acknowledge themselves will eventually fail."
+                    author="Itachi Uchiha"
+                    bgImageUrl="https://images.unsplash.com/photo-1518774780287-f823f669e46a?q=80&w=2670&auto=format&fit=crop"
+                />
+
                 {/* Profile Section */}
-                <div className="rounded-xl border border-[#1E3A2A] bg-[#162B20] p-6">
-                    <h2 className="mb-6 text-xl font-bold text-[#E8E8E8]">Profile Settings</h2>
+                <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-8 backdrop-blur-md shadow-lg">
+                    <h2 className="mb-6 text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] uppercase tracking-wide">Officer Profile</h2>
 
                     <form onSubmit={handleSaveProfile} className="space-y-4">
                         <Input
@@ -71,10 +84,10 @@ export default function SettingsClient({ userId, fullName, email }: SettingsClie
                 </div>
 
                 {/* Danger Zone */}
-                <div className="rounded-xl border border-red-800 bg-red-900/20 p-6">
-                    <h2 className="mb-4 text-lg font-bold text-red-200">Danger Zone</h2>
-                    <p className="mb-4 text-sm text-red-300">
-                        Once you sign out, you&apos;ll need to sign in again to access your account.
+                <div className="rounded-2xl border border-red-500/30 bg-red-900/10 p-8 backdrop-blur-md shadow-lg transition-all hover:border-red-500/50">
+                    <h2 className="mb-4 text-xl font-black text-red-400 uppercase tracking-wide">Danger Zone</h2>
+                    <p className="mb-6 text-sm text-red-300 font-medium">
+                        Once you sign out, you&apos;ll need to establish clearance again.
                     </p>
                     <form action={async () => { await signOut(); }}>
                         <Button

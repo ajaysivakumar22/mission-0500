@@ -40,18 +40,14 @@ export default function LoginPage() {
                 }
                 const result = await signUp(formData.email, formData.password, formData.fullName);
 
-                if (result.success) {
+                // If we reach here, signUp didn't redirect (meaning it failed or returned an error obj, or email confirmation is required)
+                if (result && result.success) {
                     if (result.data?.emailConfirmationRequired) {
                         setSuccessMessage('Account created! Please check your email to confirm your account before logging in.');
                         setIsLoading(false);
                         return;
                     }
-                    // For signup success (immediate login case), we still rely on server action's session
-                    setSuccessMessage('Success! Redirecting to dashboard...');
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1000);
-                } else {
+                } else if (result && !result.success) {
                     setError(result.error || 'An error occurred during signup');
                     setIsLoading(false);
                 }
@@ -59,18 +55,18 @@ export default function LoginPage() {
                 // Server-side Sign In
                 const result = await signIn(formData.email, formData.password);
 
-                if (!result.success) {
+                // If we reach here, signIn didn't redirect (meaning it failed or returned an error obj)
+                if (result && !result.success) {
                     setError(result.error || 'Invalid credentials');
                     setIsLoading(false);
                     return;
                 }
-
-                setSuccessMessage('Success! Redirecting to dashboard...');
-                setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 1000);
             }
-        } catch (err) {
+        } catch (err: any) {
+            // NEXT_REDIRECT errors are expected and should be thrown so Next can handle the redirect
+            if (err.message && err.message.includes('NEXT_REDIRECT')) {
+                throw err;
+            }
             console.error(err);
             setError('An unexpected error occurred. Please try again.');
             setIsLoading(false);
@@ -78,98 +74,132 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B1D13] px-4">
-            {/* Logo */}
-            <div className="mb-8 text-center">
-                <h1 className="text-4xl font-bold text-[#FFD60A]">MISSION 0500</h1>
-                <p className="mt-2 text-[#9CA3AF]">Personal Discipline Command Center</p>
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+            {/* Background Image */}
+            <div
+                className="absolute inset-0 z-0 bg-cover bg-center"
+                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1544893700-1c759530db8f?q=80&w=2670&auto=format&fit=crop")' }}
+            >
+                {/* Dark Overlay for readability */}
+                <div className="absolute inset-0 bg-[#0B1D13]/80 backdrop-blur-[2px]"></div>
             </div>
 
-            {/* Login Card */}
-            <div className="w-full max-w-md rounded-xl border border-[#1E3A2A] bg-[#162B20] p-8">
-                <h2 className="mb-6 text-center text-2xl font-bold text-[#E8E8E8]">
-                    {isSignUp ? 'Join the Mission' : 'Command Center'}
-                </h2>
+            <div className="relative z-10 flex flex-col items-center justify-center w-full px-4 max-w-7xl mx-auto lg:flex-row lg:gap-16">
 
-                {error && (
-                    <div className="mb-4 rounded-lg bg-red-900 p-3 text-sm text-red-200">
-                        {error}
+                {/* Motivational Left Side (Visible primarily on desktop but stacks on mobile) */}
+                <div className="mb-12 text-center lg:mb-0 lg:w-1/2 lg:text-left">
+                    <h1 className="text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] tracking-tight drop-shadow-lg mb-4">
+                        MISSION<br /><span className="text-[#FFD60A]">0500</span>
+                    </h1>
+                    <p className="mt-4 text-xl text-[#E8E8E8] font-medium tracking-wide max-w-lg mx-auto lg:mx-0">
+                        Personal Discipline Command Center
+                    </p>
+
+                    <div className="mt-8 lg:mt-16 hidden lg:block">
+                        <blockquote className="text-3xl font-serif italic text-white leading-relaxed mb-4 text-shadow-sm border-l-4 border-[#FFD60A] pl-6">
+                            &quot;Yeh Dil Maange More!&quot;
+                        </blockquote>
+                        <span className="text-xl font-bold text-[#FFD60A] tracking-widest uppercase drop-shadow-md ml-6 block">
+                            — Captain Vikram Batra
+                        </span>
                     </div>
-                )}
+                </div>
 
-                {successMessage && (
-                    <div className="mb-4 rounded-lg bg-green-900 p-3 text-sm text-green-200 font-medium animate-pulse">
-                        {successMessage}
+                {/* Login Card Right Side */}
+                <div className="w-full max-w-md lg:w-1/2 rounded-2xl border border-white/10 bg-[#0B1D13]/60 p-8 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20">
+                    <div className="lg:hidden mb-8 text-center">
+                        <blockquote className="text-xl font-serif italic text-white leading-relaxed mb-2 text-shadow-sm">
+                            &quot;Yeh Dil Maange More!&quot;
+                        </blockquote>
+                        <span className="text-sm font-bold text-[#FFD60A] tracking-widest uppercase">
+                            — Captain Vikram Batra
+                        </span>
                     </div>
-                )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {isSignUp && (
-                        <Input
-                            label="Full Name"
-                            name="fullName"
-                            type="text"
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            placeholder="Enter your full name"
-                            required
-                        />
+                    <h2 className="mb-6 text-center text-3xl font-black text-white tracking-tight uppercase">
+                        {isSignUp ? 'Join the Mission' : 'Command Center'}
+                    </h2>
+
+                    {error && (
+                        <div className="mb-4 rounded-lg bg-red-900 p-3 text-sm text-red-200">
+                            {error}
+                        </div>
                     )}
 
-                    <Input
-                        label="Email Address"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="your@email.com"
-                        required
-                    />
+                    {successMessage && (
+                        <div className="mb-4 rounded-lg bg-green-900 p-3 text-sm text-green-200 font-medium animate-pulse">
+                            {successMessage}
+                        </div>
+                    )}
 
-                    <Input
-                        label="Password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        placeholder="••••••••"
-                        required
-                    />
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {isSignUp && (
+                            <Input
+                                label="Full Name"
+                                name="fullName"
+                                type="text"
+                                value={formData.fullName}
+                                onChange={handleInputChange}
+                                placeholder="Enter your full name"
+                                required
+                            />
+                        )}
 
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        size="lg"
-                        isLoading={isLoading}
-                        className="w-full"
-                    >
-                        {isSignUp ? 'Create Account' : 'Login'}
-                    </Button>
-                </form>
+                        <Input
+                            label="Email Address"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="your@email.com"
+                            required
+                        />
 
-                <div className="mt-6 text-center">
-                    <p className="text-sm text-[#9CA3AF]">
-                        {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsSignUp(!isSignUp);
-                            setError('');
-                            setFormData({ email: '', password: '', fullName: '' });
-                        }}
-                        className="mt-2 text-[#FFD60A] hover:text-[#FFE366] font-medium"
-                    >
-                        {isSignUp ? 'Sign In' : 'Create Account'}
-                    </button>
+                        <Input
+                            label="Password"
+                            name="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            placeholder="••••••••"
+                            required
+                        />
+
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            size="lg"
+                            isLoading={isLoading}
+                            className="w-full"
+                        >
+                            {isSignUp ? 'Create Account' : 'Login'}
+                        </Button>
+                    </form>
+
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-[#9CA3AF]">
+                            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsSignUp(!isSignUp);
+                                setError('');
+                                setFormData({ email: '', password: '', fullName: '' });
+                            }}
+                            className="mt-2 text-[#FFD60A] hover:text-white transition-colors font-bold tracking-wide uppercase text-sm"
+                        >
+                            {isSignUp ? 'Proceed to Sign In' : 'Initiate Enlistment (Sign Up)'}
+                        </button>
+                    </div>
                 </div>
+
             </div>
 
             {/* Footer Info */}
-            <div className="mt-8 max-w-md text-center">
-                <p className="text-xs text-[#6B7280]">
-                    MISSION 0500 is a personal discipline tracking system.
-                    Your data is secure and private.
+            <div className="absolute bottom-4 left-0 right-0 text-center z-10 w-full">
+                <p className="text-xs text-white/50 tracking-widest uppercase font-semibold">
+                    Touch the Sky with Glory
                 </p>
             </div>
         </div>

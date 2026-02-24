@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { TaskCard } from '@/components/cards/TaskCard';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,7 +11,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/ui/Dialog';
 import { addTask, updateTask, deleteTask } from '@/server/actions/tasks';
-import { Plus } from 'lucide-react';
+import { Plus, Target } from 'lucide-react';
 import type { DailyTask } from '@/types';
 
 interface TasksClientProps {
@@ -74,12 +76,23 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
 
     return (
         <MainLayout>
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in duration-500">
+                <PageHeader
+                    title="Daily Operations"
+                    subtitle="Execute your tasks with precision and unwavering discipline."
+                />
+
+                <InspirationalQuote
+                    quote="Bring on the hardship. It's preferred in a path of carnage."
+                    author="Roronoa Zoro"
+                    bgImageUrl="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2669&auto=format&fit=crop"
+                />
+
                 {/* Completion Status */}
-                <div className="rounded-xl border border-[#1E3A2A] bg-[#162B20] p-6">
+                <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-6 backdrop-blur-md shadow-lg">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-[#E8E8E8]">Today&apos;s Tasks</h2>
-                        <span className="text-3xl font-bold text-[#FFD60A]">{completionPercentage}%</span>
+                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] uppercase tracking-wide">Today's Objectives</h2>
+                        <span className="text-4xl font-black text-[#FFD60A] drop-shadow-md">{completionPercentage}%</span>
                     </div>
                     <div className="h-3 rounded-full bg-[#0B1D13] overflow-hidden">
                         <div
@@ -95,7 +108,15 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                 {/* Task Items */}
                 <div className="space-y-3">
                     {tasks.length === 0 ? (
-                        <p className="text-center text-[#9CA3AF]">No tasks for today</p>
+                        <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-8 text-center backdrop-blur-sm">
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
+                                <Target className="h-6 w-6 text-[#9CA3AF]" />
+                            </div>
+                            <h3 className="mb-2 text-lg font-bold text-white uppercase tracking-wider">No Active Directives</h3>
+                            <p className="text-sm text-[#9CA3AF] max-w-md mx-auto font-medium">
+                                Your mission log is empty, Aspirant. An officer is always prepared—draft your first objective now.
+                            </p>
+                        </div>
                     ) : (
                         tasks.map(task => (
                             <TaskCard

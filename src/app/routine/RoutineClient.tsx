@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { RoutineCard } from '@/components/cards/RoutineCard';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,7 +13,7 @@ import {
     updateRoutineItem,
     deleteRoutineItem,
 } from '@/server/actions/routine';
-import { Plus } from 'lucide-react';
+import { Plus, RotateCcw } from 'lucide-react';
 import type { DailyRoutine } from '@/types';
 
 interface RoutineClientProps {
@@ -74,12 +76,23 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
 
     return (
         <MainLayout>
-            <div className="space-y-6">
+            <div className="space-y-6 animate-in fade-in duration-500">
+                <PageHeader
+                    title="Daily Routine"
+                    subtitle="Consistency builds the foundation of an elite officer."
+                />
+
+                <InspirationalQuote
+                    quote="A genius, huh? What does that mean? 'Genius'? So I was not born with a whole lot of natural talent... but I work hard and I never give up! That is my gift, that is my ninja way!"
+                    author="Rock Lee"
+                    bgImageUrl="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop"
+                />
+
                 {/* Completion Status */}
-                <div className="rounded-xl border border-[#1E3A2A] bg-[#162B20] p-6">
+                <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-6 backdrop-blur-md shadow-lg">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-[#E8E8E8]">Today&apos;s Routine</h2>
-                        <span className="text-3xl font-bold text-[#FFD60A]">{completionPercentage}%</span>
+                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] uppercase tracking-wide">Today's Routine</h2>
+                        <span className="text-4xl font-black text-[#FFD60A] drop-shadow-md">{completionPercentage}%</span>
                     </div>
                     <div className="h-3 rounded-full bg-[#0B1D13] overflow-hidden">
                         <div
@@ -95,7 +108,15 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
                 {/* Routine Items */}
                 <div className="space-y-3">
                     {routines.length === 0 ? (
-                        <p className="text-center text-[#9CA3AF]">No routine items for today</p>
+                        <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-8 text-center backdrop-blur-sm">
+                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/5">
+                                <RotateCcw className="h-6 w-6 text-[#9CA3AF]" />
+                            </div>
+                            <h3 className="mb-2 text-lg font-bold text-white uppercase tracking-wider">No Routine Established</h3>
+                            <p className="text-sm text-[#9CA3AF] max-w-md mx-auto font-medium">
+                                Excellence is not an act, but a habit. Forge your daily discipline by adding your first routine item.
+                            </p>
+                        </div>
                     ) : (
                         routines.map(routine => (
                             <RoutineCard

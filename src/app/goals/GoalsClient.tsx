@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { GoalCard } from '@/components/cards/GoalCard';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,7 +11,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/ui/Dialog';
 import { createGoal, deleteGoal, archiveGoal } from '@/server/actions/goals';
-import { Plus } from 'lucide-react';
+import { Plus, Target } from 'lucide-react';
 import type { Goal } from '@/types';
 
 interface GoalsClientProps {
@@ -76,7 +78,19 @@ export default function GoalsClient({ userId, initialGoals }: GoalsClientProps) 
 
     return (
         <MainLayout>
-            <div className="space-y-8">
+            <div className="space-y-8 animate-in fade-in duration-500">
+                <PageHeader
+                    title="Strategic Objectives"
+                    subtitle="Define your targets. Relentlessly pursue them until victory is achieved."
+                />
+
+                <InspirationalQuote
+                    quote="I decided to become an Air Force Officer. I don't care if I die for it."
+                    author="Monkey D. Luffy"
+                    context="(Adapted)"
+                    bgImageUrl="https://images.unsplash.com/photo-1544894389-724d2da632bd?q=80&w=2670&auto=format&fit=crop"
+                />
+
                 {/* Add Button */}
                 <Button
                     onClick={() => setIsDialogOpen(true)}
@@ -94,7 +108,10 @@ export default function GoalsClient({ userId, initialGoals }: GoalsClientProps) 
                     </h2>
                     <div className="space-y-3">
                         {categorized.short_term.length === 0 ? (
-                            <p className="text-center text-[#9CA3AF]">No short-term goals</p>
+                            <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-center backdrop-blur-sm">
+                                <Target className="h-6 w-6 text-[#9CA3AF] mx-auto mb-2 opacity-50" />
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">No Short-Term Objectives</p>
+                            </div>
                         ) : (
                             categorized.short_term.map(goal => (
                                 <GoalCard
@@ -115,7 +132,10 @@ export default function GoalsClient({ userId, initialGoals }: GoalsClientProps) 
                     </h2>
                     <div className="space-y-3">
                         {categorized.mid_term.length === 0 ? (
-                            <p className="text-center text-[#9CA3AF]">No mid-term goals</p>
+                            <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-center backdrop-blur-sm">
+                                <Target className="h-6 w-6 text-[#9CA3AF] mx-auto mb-2 opacity-50" />
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">No Mid-Term Objectives</p>
+                            </div>
                         ) : (
                             categorized.mid_term.map(goal => (
                                 <GoalCard
@@ -136,7 +156,10 @@ export default function GoalsClient({ userId, initialGoals }: GoalsClientProps) 
                     </h2>
                     <div className="space-y-3">
                         {categorized.long_term.length === 0 ? (
-                            <p className="text-center text-[#9CA3AF]">No long-term goals</p>
+                            <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-center backdrop-blur-sm">
+                                <Target className="h-6 w-6 text-[#9CA3AF] mx-auto mb-2 opacity-50" />
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">No Long-Term Objectives</p>
+                            </div>
                         ) : (
                             categorized.long_term.map(goal => (
                                 <GoalCard

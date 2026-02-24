@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { createReport } from '@/server/actions/reports';
@@ -46,10 +48,21 @@ export default function ReportClient({ userId, initialReport }: ReportClientProp
 
     return (
         <MainLayout>
-            <div className="max-w-2xl">
-                <div className="rounded-xl border border-[#1E3A2A] bg-[#162B20] p-6">
-                    <p className="mb-6 text-sm text-[#9CA3AF]">
-                        Reflect on your day and document your progress. Be honest with yourself.
+            <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <PageHeader
+                    title="After Action Report"
+                    subtitle="Analyze your performance. Embrace your failures as stepping stones to mastery."
+                />
+
+                <InspirationalQuote
+                    quote="A person grows up when he's able to overcome hardships. Protection is important, but there are some things that a person must learn on his own."
+                    author="Jiraiya"
+                    bgImageUrl="https://images.unsplash.com/photo-1497215968147-3bd0234a4282?q=80&w=2670&auto=format&fit=crop"
+                />
+
+                <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-8 backdrop-blur-md shadow-lg">
+                    <p className="mb-8 text-[#9CA3AF] text-lg font-medium tracking-wide">
+                        Reflect on your day and document your progress. Be brutally honest with yourself.
                     </p>
 
                     <form onSubmit={handleSaveReport} className="space-y-6">

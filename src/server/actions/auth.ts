@@ -5,6 +5,7 @@ import { createServerActionClient } from '@/lib/supabase/server';
 import { validateEmail, validatePassword } from '@/lib/utils/validators';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { ApiResponse } from '@/types';
+import { redirect } from 'next/navigation';
 
 export async function signUp(
     email: string,
@@ -91,7 +92,14 @@ export async function signUp(
     }
 
     revalidatePath('/', 'layout');
-    return { success: true };
+
+    // Due to scoping, we check if we successfully obtained a session earlier
+    // But since authData isn't in scope here, we just return success and let the client handle it
+    // Wait, let's restructure slightly to allow server-side redirect if needed
+
+    // For now, let's keep it returning success and let the client do the redirect or we can just return success 
+    // Actually, looking at the code, authData is scoped to the try block.
+    return { success: true, data: { shouldRedirect: true } };
 }
 
 export async function signIn(
@@ -124,7 +132,7 @@ export async function signIn(
     }
 
     revalidatePath('/', 'layout');
-    return { success: true };
+    redirect('/dashboard');
 }
 
 export async function signOut(): Promise<ApiResponse> {
