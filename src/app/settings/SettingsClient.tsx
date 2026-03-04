@@ -41,7 +41,7 @@ export default function SettingsClient({ userId, fullName, email }: SettingsClie
 
     return (
         <MainLayout>
-            <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
+            <div className="w-full space-y-8 animate-in fade-in duration-500">
                 <PageHeader
                     title="Configuration Protocol"
                     subtitle="Manage your identity. True power comes from knowing yourself."
