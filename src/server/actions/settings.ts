@@ -18,8 +18,8 @@ export async function getUserSettings(userId: string): Promise<ApiResponse<UserS
             .single();
 
         if (error) {
-            // If settings don't exist yet, return defaults instead of failing
-            if (error.code === 'PGRST116') {
+            // If settings don't exist yet, or the table is missing entirely from the DB cache, return defaults
+            if (error.code === 'PGRST116' || error.code === 'PGRST205') {
                 return {
                     success: true,
                     data: { user_id: userId, strict_mode: false, theme: 'dark' }

@@ -5,6 +5,8 @@ import { Target, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { addTask } from '@/server/actions/tasks';
+import { signOut } from '@/server/actions/auth';
+import { LogOut } from 'lucide-react';
 
 export function MorningBriefingModal({ userId }: { userId: string }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -50,8 +52,18 @@ export function MorningBriefingModal({ userId }: { userId: string }) {
             localStorage.setItem('mission_0500_briefed_date', today);
             setIsOpen(false);
         } else {
-            setError(result.error || 'Failed to lock in objective. Try again.');
+            // Check for phantom session (foreign key constraint)
+            if (result.error?.includes('foreign key constraint')) {
+                setError('Authentication conflict. Please sign out and log back in.');
+            } else {
+                setError(result.error || 'Failed to lock in objective. Try again.');
+            }
         }
+    };
+
+    const handleSignOut = async () => {
+        setIsLoading(true);
+        await signOut();
     };
 
     if (!isOpen) return null;
@@ -97,6 +109,18 @@ export function MorningBriefingModal({ userId }: { userId: string }) {
                         {isLoading ? 'LOCKING TARGET...' : 'LOCK IN TARGET'}
                     </Button>
                 </form>
+
+                {/* Escape Hatch for Phantom Sessions */}
+                <div className="mt-6 text-center">
+                    <button
+                        onClick={handleSignOut}
+                        disabled={isLoading}
+                        className="inline-flex items-center gap-2 text-xs font-bold text-[#6B7280] hover:text-red-400 transition-colors uppercase tracking-widest"
+                    >
+                        <LogOut className="h-3 w-3" />
+                        Abort / Sign Out
+                    </button>
+                </div>
             </div>
         </div>
     );

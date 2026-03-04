@@ -11,6 +11,10 @@ export async function checkAndAwardMedals(userId: string, stats: DashboardStats)
             .eq('user_id', userId);
 
         if (fetchError) {
+            if (fetchError.code === 'PGRST205') {
+                console.warn('user_medals table missing from schema cache - skipping background award logic');
+                return;
+            }
             console.error('Failed to fetch earned medals', fetchError);
             return;
         }
@@ -85,6 +89,10 @@ export async function getEarnedMedals(userId: string) {
             .order('earned_at', { ascending: false });
 
         if (error) {
+            if (error.code === 'PGRST205') {
+                console.warn('user_medals table missing, returning empty array');
+                return { success: true, data: [] };
+            }
             return { success: false, error: error.message };
         }
 

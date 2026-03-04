@@ -34,13 +34,8 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(redirectUrl);
     }
 
-    // Redirect authenticated users away from the login page
-    if (hasAuthCookie && pathname === '/login') {
-        console.log('[MIDDLEWARE] Auth cookie found, redirecting to /dashboard from /login');
-        const redirectUrl = request.nextUrl.clone();
-        redirectUrl.pathname = '/dashboard';
-        return NextResponse.redirect(redirectUrl);
-    }
+    // Redirect authenticated users away from the login page is handled client-side now
+    // to prevent infinite redirect loops caused by stale edge-case cookies.
 
     return supabaseResponse;
 }
