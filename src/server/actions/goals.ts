@@ -1,13 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createServerActionClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateGoalTitle } from '@/lib/utils/validators';
 import type { ApiResponse, Goal, GoalCreateInput, GoalUpdateInput, GoalLog, GoalLogCreateInput } from '@/types';
 
 export async function getAllGoals(userId: string): Promise<ApiResponse<Goal[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('goals')
@@ -31,7 +31,7 @@ export async function getGoalsByCategory(
     category: string
 ): Promise<ApiResponse<Goal[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('goals')
@@ -53,7 +53,7 @@ export async function getGoalsByCategory(
 
 export async function getActiveGoalsCount(userId: string): Promise<ApiResponse<number>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { count, error } = await supabase
             .from('goals')
@@ -80,7 +80,7 @@ export async function createGoal(
             return { success: false, error: 'Invalid goal title' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('goals')
@@ -112,7 +112,7 @@ export async function updateGoal(
     input: GoalUpdateInput
 ): Promise<ApiResponse<Goal>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         if (input.title && !validateGoalTitle(input.title)) {
             return { success: false, error: 'Invalid goal title' };
@@ -156,7 +156,7 @@ export async function deleteGoal(
     goalId: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // First delete all goal logs
         await supabase
@@ -188,7 +188,7 @@ export async function archiveGoal(
     goalId: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { error } = await supabase
             .from('goals')
@@ -211,7 +211,7 @@ export async function archiveGoal(
 
 export async function getGoalLogs(goalId: string): Promise<ApiResponse<GoalLog[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('goal_logs')
@@ -238,7 +238,7 @@ export async function addGoalLog(
             return { success: false, error: 'Goal log entry is required' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Verify the goal belongs to the user
         const { data: goal, error: goalError } = await supabase
@@ -300,7 +300,7 @@ export async function deleteGoalLog(
     logId: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { error } = await supabase
             .from('goal_logs')

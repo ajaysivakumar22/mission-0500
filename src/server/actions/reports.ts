@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createServerActionClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateDisciplineScore, validateEnergyScore } from '@/lib/utils/validators';
 import type { ApiResponse, DailyReport, ReportCreateInput, ReportUpdateInput } from '@/types';
 
@@ -10,7 +10,7 @@ export async function getReportForDate(
     date: string
 ): Promise<ApiResponse<DailyReport | null>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_reports')
@@ -36,7 +36,7 @@ export async function getReportForDate(
 
 export async function getAllReports(userId: string): Promise<ApiResponse<DailyReport[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_reports')
@@ -60,7 +60,7 @@ export async function getReportsForDateRange(
     endDate: string
 ): Promise<ApiResponse<DailyReport[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_reports')
@@ -94,7 +94,7 @@ export async function createReport(
             return { success: false, error: 'Invalid energy score (must be 1-10)' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Check if report already exists for this date
         const { data: existing } = await supabase
@@ -150,7 +150,7 @@ export async function updateReport(
             return { success: false, error: 'Invalid energy score (must be 1-10)' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const updateData: Partial<DailyReport> = {};
 
@@ -185,7 +185,7 @@ export async function deleteReport(
     reportId: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { error } = await supabase
             .from('daily_reports')
@@ -215,7 +215,7 @@ export async function getWeeklyAverageScores(
     }>
 > {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Get last 7 days
         const startDate = new Date(endDate);

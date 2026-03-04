@@ -1,12 +1,12 @@
 'use server';
 
-import { createServerActionClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateRank, type Rank } from '@/lib/utils/xp';
 import type { ApiResponse, XPRecord } from '@/types';
 
 export async function getTotalXP(userId: string): Promise<ApiResponse<number>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase.rpc('get_user_total_xp', {
             user_id_param: userId,
@@ -24,7 +24,7 @@ export async function getTotalXP(userId: string): Promise<ApiResponse<number>> {
 
 export async function getXPRecords(userId: string, limit = 10): Promise<ApiResponse<XPRecord[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('xp_records')
@@ -64,7 +64,7 @@ export async function getXPForDate(
     date: string
 ): Promise<ApiResponse<number>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('xp_records')
@@ -89,7 +89,7 @@ export async function getXPTrendForWeek(
     endDate: string
 ): Promise<ApiResponse<Record<string, number>>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const startDate = new Date(endDate);
         startDate.setDate(startDate.getDate() - 6);
@@ -125,7 +125,7 @@ export async function awardXP(
     relatedDate?: string
 ): Promise<void> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         await supabase.from('xp_records').insert({
             user_id: userId,

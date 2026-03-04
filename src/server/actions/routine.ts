@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createServerActionClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateRoutineItem } from '@/lib/utils/validators';
 import { XP_CONFIG } from '@/lib/utils/xp';
 import { awardXP } from '@/server/services/xp-service';
@@ -12,7 +12,7 @@ export async function getRoutineForDate(
     date: string
 ): Promise<ApiResponse<DailyRoutine[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_routines')
@@ -40,7 +40,7 @@ export async function addRoutineItem(
             return { success: false, error: 'Invalid routine item name' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Get max order for this date
         const { data: existing } = await supabase
@@ -82,7 +82,7 @@ export async function updateRoutineItem(
     input: RoutineUpdateInput
 ): Promise<ApiResponse<DailyRoutine>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Get the current item first
         const { data: currentItem, error: fetchError } = await supabase
@@ -153,7 +153,7 @@ export async function deleteRoutineItem(
     itemId: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { error } = await supabase
             .from('daily_routines')
@@ -177,7 +177,7 @@ export async function getRoutineCompletionPercentage(
     date: string
 ): Promise<ApiResponse<number>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase.rpc(
             'get_routine_completion_percentage',
@@ -201,7 +201,7 @@ async function checkAndAwardFullDayBonus(
     date: string
 ): Promise<void> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Get all routines for this date
         const { data: routines } = await supabase
@@ -243,7 +243,7 @@ export async function initializeDefaultRoutine(
     date: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
         const { DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
 
         // Check if routine already exists for this date

@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerActionClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateRank } from '@/lib/utils/xp';
 import type { ApiResponse, DashboardStats } from '@/types';
 
@@ -9,7 +9,7 @@ export async function getDashboardStats(
     date: string
 ): Promise<ApiResponse<DashboardStats>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Get routine completion percentage
         const routinePercentageResult = await supabase.rpc(
@@ -67,7 +67,7 @@ export async function updateStreakForDate(
     date: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Check if all routines are completed for this date
         const { data: routines } = await supabase

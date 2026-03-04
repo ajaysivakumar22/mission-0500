@@ -1,11 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createServerActionClient } from '@/lib/supabase/server';
 import { validateEmail, validatePassword } from '@/lib/utils/validators';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import type { ApiResponse } from '@/types';
-import { redirect } from 'next/navigation';
 
 export async function signUp(
     email: string,
@@ -27,7 +25,7 @@ export async function signUp(
             return { success: false, error: 'Full name is required' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = await createClient();
 
         // Sign up with Supabase Auth
         console.log('Attempting Supabase signup for:', email);
@@ -93,13 +91,7 @@ export async function signUp(
 
     revalidatePath('/', 'layout');
 
-    // Due to scoping, we check if we successfully obtained a session earlier
-    // But since authData isn't in scope here, we just return success and let the client handle it
-    // Wait, let's restructure slightly to allow server-side redirect if needed
-
-    // For now, let's keep it returning success and let the client do the redirect or we can just return success 
-    // Actually, looking at the code, authData is scoped to the try block.
-    return { success: true, data: { shouldRedirect: true } };
+    return { success: true };
 }
 
 export async function signIn(
@@ -111,7 +103,7 @@ export async function signIn(
             return { success: false, error: 'Invalid email format' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = await createClient();
 
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
@@ -132,18 +124,22 @@ export async function signIn(
     }
 
     revalidatePath('/', 'layout');
-    redirect('/dashboard');
+    return { success: true };
 }
 
 export async function signOut(): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
-        const { error } = await supabase.auth.signOut();
+        // Clear the Supabase auth cookies directly
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        const allCookies = cookieStore.getAll();
 
-        if (error) {
-            return { success: false, error: error.message };
-        }
-
+        // Delete all Supabase auth cookies
+        allCookies.forEach(cookie => {
+            if (cookie.name.startsWith('sb-')) {
+                cookieStore.delete(cookie.name);
+            }
+        });
     } catch (error: any) {
         console.error('Signout error:', error);
         return { success: false, error: error.message || 'Failed to sign out' };
@@ -155,17 +151,12 @@ export async function signOut(): Promise<ApiResponse> {
 
 export async function getCurrentSession() {
     try {
-        const supabase = await createServerActionClient();
-        const {
-            data: { user },
-            error,
-        } = await supabase.auth.getUser();
-
-        if (error || !user) {
-            return { success: false, error: error?.message || 'No session', data: null };
+        const { getServerSession } = await import('@/lib/supabase/server');
+        const session = await getServerSession();
+        if (!session) {
+            return { success: false, error: 'No session', data: null };
         }
-
-        return { success: true, data: { user } };
+        return { success: true, data: { user: session.user } };
     } catch (error) {
         return { success: false, error: 'Failed to get session', data: null };
     }
@@ -173,9 +164,7 @@ export async function getCurrentSession() {
 
 export async function getUserProfile(userId: string) {
     try {
-        const supabase = await createServerActionClient();
-
-        const { data: user, error } = await supabase
+        const { data: user, error } = await supabaseAdmin
             .from('users')
             .select('*')
             .eq('id', userId)
@@ -197,9 +186,7 @@ export async function updateUserProfile(
     avatarUrl?: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
-
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
             .from('users')
             .update({
                 full_name: fullName,

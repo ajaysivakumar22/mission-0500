@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createServerActionClient } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateTaskTitle } from '@/lib/utils/validators';
 import { XP_CONFIG } from '@/lib/utils/xp';
 import { awardXP } from '@/server/services/xp-service';
@@ -12,7 +12,7 @@ export async function getTasksForDate(
     date: string
 ): Promise<ApiResponse<DailyTask[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_tasks')
@@ -33,7 +33,7 @@ export async function getTasksForDate(
 
 export async function getAllTasks(userId: string): Promise<ApiResponse<DailyTask[]>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_tasks')
@@ -60,7 +60,7 @@ export async function addTask(
             return { success: false, error: 'Invalid task title' };
         }
 
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('daily_tasks')
@@ -92,7 +92,7 @@ export async function updateTask(
     input: TaskUpdateInput
 ): Promise<ApiResponse<DailyTask>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         // Get the current task
         const { data: currentTask, error: fetchError } = await supabase
@@ -162,7 +162,7 @@ export async function deleteTask(
     taskId: string
 ): Promise<ApiResponse> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { error } = await supabase
             .from('daily_tasks')
@@ -186,7 +186,7 @@ export async function getTaskCompletionPercentage(
     date: string
 ): Promise<ApiResponse<number>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { data, error } = await supabase.rpc(
             'get_task_completion_percentage',
@@ -205,7 +205,7 @@ export async function getTaskCompletionPercentage(
 
 export async function getCompletedTasksCount(userId: string): Promise<ApiResponse<number>> {
     try {
-        const supabase = await createServerActionClient();
+        const supabase = supabaseAdmin;
 
         const { count, error } = await supabase
             .from('daily_tasks')

@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { signUp, signIn } from '@/server/actions/auth';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
-    const router = useRouter();
+    const supabase = createClient();
     const [isSignUp, setIsSignUp] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -38,37 +37,87 @@ export default function LoginPage() {
                     setIsLoading(false);
                     return;
                 }
-                const result = await signUp(formData.email, formData.password, formData.fullName);
 
-                // If we reach here, signUp didn't redirect (meaning it failed or returned an error obj, or email confirmation is required)
-                if (result && result.success) {
-                    if (result.data?.emailConfirmationRequired) {
-                        setSuccessMessage('Account created! Please check your email to confirm your account before logging in.');
-                        setIsLoading(false);
-                        return;
-                    }
-                } else if (result && !result.success) {
-                    setError(result.error || 'An error occurred during signup');
-                    setIsLoading(false);
-                }
-            } else {
-                // Server-side Sign In
-                const result = await signIn(formData.email, formData.password);
+                console.log('[AUTH] Starting signup for:', formData.email);
 
-                // If we reach here, signIn didn't redirect (meaning it failed or returned an error obj)
-                if (result && !result.success) {
-                    setError(result.error || 'Invalid credentials');
+                // Sign up using the browser Supabase client
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: formData.email,
+                    password: formData.password,
+                    options: {
+                        data: {
+                            full_name: formData.fullName,
+                        },
+                    },
+                });
+
+                console.log('[AUTH] Signup result:', { error: authError?.message, hasSession: !!authData?.session, hasUser: !!authData?.user });
+
+                if (authError) {
+                    setError(authError.message);
                     setIsLoading(false);
                     return;
                 }
+
+                if (!authData.session) {
+                    // Email confirmation required
+                    setSuccessMessage('Account created! Please check your email to confirm your account before logging in.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Create profile via API route (runs server-side with admin client)
+                try {
+                    console.log('[AUTH] Creating profile...');
+                    await fetch('/api/profile', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: authData.user!.id,
+                            email: formData.email,
+                            fullName: formData.fullName,
+                        }),
+                    });
+                    console.log('[AUTH] Profile created');
+                } catch {
+                    console.warn('[AUTH] Profile creation via API failed, will retry on next login');
+                }
+
+                // Signup succeeded with session — full page navigation to pick up cookies
+                console.log('[AUTH] Redirecting to /dashboard...');
+                window.location.href = '/dashboard';
+                return;
+            } else {
+                console.log('[AUTH] Starting sign-in for:', formData.email);
+
+                // Sign in using the browser Supabase client
+                const { data, error: signInError } = await supabase.auth.signInWithPassword({
+                    email: formData.email,
+                    password: formData.password,
+                });
+
+                console.log('[AUTH] Sign-in result:', { error: signInError?.message, hasSession: !!data?.session, hasUser: !!data?.user });
+
+                if (signInError) {
+                    setError(signInError.message);
+                    setIsLoading(false);
+                    return;
+                }
+
+                if (!data.session) {
+                    setError('Login succeeded but no session was created. Please check your email verification.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Sign in succeeded — full page navigation to pick up cookies
+                console.log('[AUTH] Login successful! Redirecting to /dashboard...');
+                window.location.href = '/dashboard';
+                return;
             }
         } catch (err: any) {
-            // NEXT_REDIRECT errors are expected and should be thrown so Next can handle the redirect
-            if (err.message && err.message.includes('NEXT_REDIRECT')) {
-                throw err;
-            }
-            console.error(err);
-            setError('An unexpected error occurred. Please try again.');
+            console.error('[AUTH] Unexpected error:', err);
+            setError(err?.message || 'An unexpected error occurred. Please try again.');
             setIsLoading(false);
         }
     };
@@ -97,7 +146,7 @@ export default function LoginPage() {
 
                     <div className="mt-8 lg:mt-16 hidden lg:block">
                         <blockquote className="text-3xl font-serif italic text-white leading-relaxed mb-4 text-shadow-sm border-l-4 border-[#FFD60A] pl-6">
-                            &quot;Yeh Dil Maange More!&quot;
+                            &quot;Yeh Dil Maange Uniform!&quot;
                         </blockquote>
                         <span className="text-xl font-bold text-[#FFD60A] tracking-widest uppercase drop-shadow-md ml-6 block">
                             — Captain Vikram Batra
