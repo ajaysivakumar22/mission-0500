@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateTaskTitle } from '@/lib/utils/validators';
 import { XP_CONFIG } from '@/lib/utils/xp';
 import { awardXP } from '@/server/services/xp-service';
+import { getUserSettings } from '@/server/actions/settings';
 import type { ApiResponse, DailyTask, TaskCreateInput, TaskUpdateInput } from '@/types';
 
 export async function getTasksForDate(
@@ -131,9 +132,20 @@ export async function updateTask(
             updateData.is_completed = input.is_completed;
             updateData.completed_at = input.is_completed ? new Date().toISOString() : null;
 
-            // Award XP if completing
+            // Award XP if completing, or Punish if uncompleting in Strict Mode
             if (input.is_completed && !currentTask.is_completed) {
                 await awardXP(userId, XP_CONFIG.TASK_COMPLETION, `Completed task: ${currentTask.title}`, currentTask.task_date);
+            } else if (!input.is_completed && currentTask.is_completed) {
+                // Check if they are in Strict Mode
+                const settingsResult = await getUserSettings(userId);
+                if (settingsResult.success && settingsResult.data?.strict_mode) {
+                    await awardXP(
+                        userId,
+                        XP_CONFIG.PUNISHMENT_MISSED_DAY,
+                        `STRICT MODE PENALTY: Failed task ${currentTask.title}`,
+                        currentTask.task_date
+                    );
+                }
             }
         }
 

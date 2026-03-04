@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateRoutineItem } from '@/lib/utils/validators';
 import { XP_CONFIG } from '@/lib/utils/xp';
 import { awardXP } from '@/server/services/xp-service';
+import { getUserSettings } from '@/server/actions/settings';
 import type { ApiResponse, DailyRoutine, RoutineCreateInput, RoutineUpdateInput } from '@/types';
 
 export async function getRoutineForDate(
@@ -109,9 +110,20 @@ export async function updateRoutineItem(
             updateData.is_completed = input.is_completed;
             updateData.completed_at = input.is_completed ? new Date().toISOString() : null;
 
-            // Award XP if completing
+            // Award XP if completing, or Punish if uncompleting in Strict Mode
             if (input.is_completed && !currentItem.is_completed) {
                 await awardXP(userId, XP_CONFIG.ROUTINE_COMPLETION, `Completed routine: ${currentItem.item_name}`, currentItem.routine_date);
+            } else if (!input.is_completed && currentItem.is_completed) {
+                // Check if they are in Strict Mode
+                const settingsResult = await getUserSettings(userId);
+                if (settingsResult.success && settingsResult.data?.strict_mode) {
+                    await awardXP(
+                        userId,
+                        XP_CONFIG.PUNISHMENT_MISSED_DAY,
+                        `STRICT MODE PENALTY: Failed routine ${currentItem.item_name}`,
+                        currentItem.routine_date
+                    );
+                }
             }
         }
 

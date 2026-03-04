@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { getDashboardStats } from '@/server/services/dashboard-service';
 import { getTotalXP } from '@/server/services/xp-service';
+import { checkAndAwardMedals } from '@/server/services/medals-service';
 import { calculateRank } from '@/lib/utils/xp';
 import DashboardClient from './DashboardClient';
 
@@ -35,6 +36,11 @@ export default async function DashboardPage() {
 
         stats = statsResult?.success && statsResult?.data ? statsResult.data : null;
         totalXP = xpResult?.success && xpResult?.data !== undefined ? xpResult.data : 0;
+
+        // Check and award any new medals in the background
+        if (stats) {
+            checkAndAwardMedals(session.user.id, stats).catch(console.error);
+        }
     } catch (error) {
         console.warn('[DASHBOARD] Data fetch failed or timed out, showing empty dashboard:', error);
     }
@@ -43,6 +49,7 @@ export default async function DashboardPage() {
 
     return (
         <DashboardClient
+            userId={session.user.id}
             stats={stats}
             totalXP={totalXP}
             rank={rank}

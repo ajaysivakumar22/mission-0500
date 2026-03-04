@@ -11,6 +11,7 @@ import {
     FileText,
     Settings,
     LogOut,
+    Award,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
     { href: '/routine', label: 'Routine', icon: RotateCcw },
     { href: '/tasks', label: 'Tasks', icon: CheckSquare2 },
     { href: '/goals', label: 'Goals', icon: Target },
+    { href: '/medals', label: 'Medals', icon: Award },
     { href: '/report', label: 'Report', icon: FileText },
     { href: '/settings', label: 'Settings', icon: Settings },
 ];

@@ -2,6 +2,7 @@ export const XP_CONFIG = {
     ROUTINE_COMPLETION: 5,
     TASK_COMPLETION: 10,
     FULL_DAY_BONUS: 25,
+    PUNISHMENT_MISSED_DAY: -50, // Massive XP loss for breaking discipline in Hardcore out
 } as const;
 
 export const RANK_THRESHOLDS = {

@@ -45,9 +45,13 @@ export function RoutineCard({
 
     return (
         <div
-            className={`flex items-center gap-4 rounded-xl border border-[#1E3A2A] bg-[#162B20] p-4 transition-all ${item.is_completed ? 'opacity-60' : ''
+            className={`relative flex items-center gap-4 rounded-xl border p-4 transition-all duration-500 overflow-hidden ${item.is_completed
+                    ? 'border-[#FFD60A]/40 bg-[#162B20]/60 opacity-80 backdrop-blur-sm'
+                    : 'border-[#1E3A2A] bg-[#162B20] hover:border-[#1E3A2A]/80 hover:shadow-lg hover:-translate-y-0.5'
                 }`}
         >
+            {/* Visual Feedback Completion Glow */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-[#FFD60A]/20 to-transparent transition-opacity duration-700 pointer-events-none ${item.is_completed ? 'opacity-100' : 'opacity-0'}`} />
             <Checkbox
                 checked={item.is_completed}
                 onChange={handleToggle}
@@ -55,11 +59,11 @@ export function RoutineCard({
                 className="flex-shrink-0"
             />
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative z-10 transition-transform duration-300">
                 <p
                     className={`font-medium ${item.is_completed
-                            ? 'line-through text-[#6B7280]'
-                            : 'text-[#E8E8E8]'
+                        ? 'line-through text-[#6B7280]'
+                        : 'text-[#E8E8E8]'
                         }`}
                 >
                     {item.item_name}

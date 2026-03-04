@@ -7,16 +7,19 @@ import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updateUserProfile, signOut } from '@/server/actions/auth';
-import { LogOut, Save } from 'lucide-react';
+import { updateUserSettings } from '@/server/actions/settings';
+import { LogOut, Save, ShieldAlert } from 'lucide-react';
 
 interface SettingsClientProps {
     userId: string;
     fullName: string;
     email: string;
+    initialStrictMode: boolean;
 }
 
-export default function SettingsClient({ userId, fullName, email }: SettingsClientProps) {
+export default function SettingsClient({ userId, fullName, email, initialStrictMode }: SettingsClientProps) {
     const [isSaving, setIsSaving] = useState(false);
+    const [strictMode, setStrictMode] = useState(initialStrictMode);
     const [formData, setFormData] = useState({
         full_name: fullName,
         email: email,
@@ -28,11 +31,12 @@ export default function SettingsClient({ userId, fullName, email }: SettingsClie
 
         try {
             const result = await updateUserProfile(userId, formData.full_name);
+            const settingsResult = await updateUserSettings(userId, { strict_mode: strictMode });
 
-            if (result.success) {
-                alert('Profile updated successfully');
+            if (result.success && settingsResult.success) {
+                alert('Profile & Settings updated successfully');
             } else {
-                alert(result.error || 'Failed to update profile');
+                alert(result.error || settingsResult.error || 'Failed to update system');
             }
         } finally {
             setIsSaving(false);
@@ -81,6 +85,35 @@ export default function SettingsClient({ userId, fullName, email }: SettingsClie
                             Save Changes
                         </Button>
                     </form>
+                </div>
+
+                {/* Accountability Protocols */}
+                <div className="rounded-2xl border border-[#FFD60A]/30 bg-[#162B20]/80 p-8 backdrop-blur-md shadow-lg transition-all hover:border-[#FFD60A]/50">
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <ShieldAlert className={`h-6 w-6 ${strictMode ? 'text-red-500' : 'text-[#FFD60A]'}`} />
+                                <h2 className="text-xl font-black text-[#E8E8E8] uppercase tracking-wide">
+                                    Strict Accountability Mode
+                                </h2>
+                            </div>
+                            <p className="max-w-xl text-sm font-medium text-[#9CA3AF] mb-6">
+                                Enabling Strict Mode introduces severe consequences for failure. Breaking a routine streak will deal massive XP damage. This mode is only for aspirants seeking absolute discipline.
+                            </p>
+                        </div>
+
+                        {/* Toggle Switch UI */}
+                        <div
+                            onClick={() => setStrictMode(!strictMode)}
+                            className={`relative inline-flex h-8 w-16 cursor-pointer items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFD60A] focus:ring-offset-2 focus:ring-offset-[#0B1D13] ${strictMode ? 'bg-red-600' : 'bg-gray-700'
+                                }`}
+                        >
+                            <span
+                                className={`inline-block h-6 w-6 transform rounded-full bg-white transition duration-300 ${strictMode ? 'translate-x-9' : 'translate-x-1'
+                                    } shadow-md`}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {/* Danger Zone */}

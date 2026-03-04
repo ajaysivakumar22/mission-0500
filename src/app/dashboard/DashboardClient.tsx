@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { VisionBoardGrid } from '@/components/ui/VisionBoardGrid';
+import { MorningBriefingModal } from '@/components/ui/MorningBriefingModal';
 import { StatCard } from '@/components/cards/StatCard';
 import { getRankEmoji, RANK_THRESHOLDS, getXPForNextRank } from '@/lib/utils/xp';
 import { Zap, Target, Award, RotateCcw, CheckSquare, Flame, Shield, ArrowUpRight } from 'lucide-react';
@@ -11,12 +12,13 @@ import type { DashboardStats } from '@/types';
 import type { Rank } from '@/lib/utils/xp';
 
 interface DashboardClientProps {
+    userId: string;
     stats: DashboardStats | null;
     totalXP: number;
     rank: Rank;
 }
 
-export default function DashboardClient({ stats, totalXP, rank }: DashboardClientProps) {
+export default function DashboardClient({ userId, stats, totalXP, rank }: DashboardClientProps) {
     const nextRankXP = getXPForNextRank(rank);
     const currentRankXP = RANK_THRESHOLDS[rank];
     const progressXP = totalXP - currentRankXP;
@@ -32,6 +34,7 @@ export default function DashboardClient({ stats, totalXP, rank }: DashboardClien
 
     return (
         <MainLayout>
+            <MorningBriefingModal userId={userId} />
             <div className="space-y-8 animate-in fade-in duration-500">
                 <PageHeader
                     title="Command Headquarters"
