@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { getReportForDate, getAllReports } from '@/server/actions/reports';
 import { getUserSettings } from '@/server/actions/settings';
+import { getServerDate } from '@/server/utils/timezone';
 import ReportClient from './ReportClient';
 
 export default async function ReportPage() {
@@ -10,7 +11,7 @@ export default async function ReportPage() {
         redirect('/login');
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = await getServerDate(session.user.id);
 
     // Fetch today's report, historical reports, and user settings concurrently
     const [todayResult, historyResult, settingsResult] = await Promise.all([

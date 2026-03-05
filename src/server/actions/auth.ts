@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { validateEmail, validatePassword } from '@/lib/utils/validators';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import type { ApiResponse } from '@/types';
 
 export async function signUp(

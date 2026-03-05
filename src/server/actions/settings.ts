@@ -5,8 +5,10 @@ import type { ApiResponse } from '@/types';
 
 export interface UserSettings {
     user_id: string;
-    strict_mode: boolean;
-    theme: string;
+    strict_mode?: boolean;
+    theme?: string;
+    timezone?: string;
+    onboarding_completed?: boolean;
     is_premium?: boolean;
 }
 

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { getRoutineForDate, initializeDefaultRoutine } from '@/server/actions/routine';
+import { getServerDate } from '@/server/utils/timezone';
 import RoutineClient from './RoutineClient';
 
 export default async function RoutinePage() {
@@ -9,7 +10,7 @@ export default async function RoutinePage() {
         redirect('/login');
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = await getServerDate(session.user.id);
 
     // Initialize default routine if needed
     await initializeDefaultRoutine(session.user.id, today);

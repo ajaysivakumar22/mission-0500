@@ -125,7 +125,7 @@ export default function ReportClient({ userId, initialReport, allReports, isPrem
                                     }`}
                             >
                                 <ShieldCheck className="h-5 w-5" />
-                                Today's Debrief
+                                Today&apos;s Debrief
                             </button>
                             <button
                                 onClick={() => setActiveTab('history')}

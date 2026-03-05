@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { getTasksForDate } from '@/server/actions/tasks';
+import { getServerDate } from '@/server/utils/timezone';
 import TasksClient from './TasksClient';
 
 export default async function TasksPage() {
@@ -9,7 +10,7 @@ export default async function TasksPage() {
         redirect('/login');
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = await getServerDate(session.user.id);
     const result = await getTasksForDate(session.user.id, today);
     const tasks = result.success && result.data ? result.data : [];
 

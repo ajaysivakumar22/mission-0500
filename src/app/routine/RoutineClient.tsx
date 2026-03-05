@@ -87,7 +87,7 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
                 {/* Completion Status */}
                 <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-6 backdrop-blur-md shadow-lg">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] uppercase tracking-wide">Today's Routine</h2>
+                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] uppercase tracking-wide">Today&apos;s Routine</h2>
                         <span className="text-4xl font-black text-[#FFD60A] drop-shadow-md">{completionPercentage}%</span>
                     </div>
                     <div className="h-3 rounded-full bg-[#0B1D13] overflow-hidden">

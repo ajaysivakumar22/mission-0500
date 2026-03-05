@@ -47,7 +47,7 @@ export function InspirationalQuote(props: InspirationalQuoteProps) {
                 </div>
                 <div>
                     <blockquote className="text-xl md:text-2xl font-serif italic text-textMain leading-relaxed mb-4 text-shadow-sm">
-                        "{data.quote}"
+                        &quot;{data.quote}&quot;
                     </blockquote>
                     <div className="flex flex-col">
                         <span className="text-lg font-bold text-accent tracking-widest uppercase shadow-black drop-shadow-md">— {data.author}</span>

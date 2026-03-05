@@ -20,6 +20,7 @@
     "@supabase/supabase-js": "^2.44.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "date-fns": "^4.1.0",
     "dnd-kit": "^0.0.2",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.344.0",

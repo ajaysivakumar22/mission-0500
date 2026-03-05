@@ -138,3 +138,62 @@ export async function updateStreakForDate(
         return { success: false, error: 'Failed to update streak' };
     }
 }
+
+export async function getHeatmapData(
+    userId: string,
+    days: number = 30
+): Promise<ApiResponse<{ date: string; value: number }[]>> {
+    try {
+        const supabase = supabaseAdmin;
+        
+        // Use a simple date offset approach
+        // Create an array of the last `days` dates
+        const historyData: { date: string; value: number }[] = [];
+        
+        const end = new Date();
+        const start = new Date(end);
+        start.setDate(end.getDate() - days + 1);
+        
+        const startDateStr = start.toISOString().split('T')[0];
+        
+        // Fetch all routines within the range
+        const { data: routines } = await supabase
+            .from('daily_routines')
+            .select('routine_date, is_completed')
+            .eq('user_id', userId)
+            .gte('routine_date', startDateStr);
+
+        // Fetch all tasks within the range
+        const { data: tasks } = await supabase
+            .from('daily_tasks')
+            .select('task_date, is_completed')
+            .eq('user_id', userId)
+            .gte('task_date', startDateStr);
+            
+        // Process data day by day
+        for (let i = 0; i < days; i++) {
+            const d = new Date(start);
+            d.setDate(start.getDate() + i);
+            const dateStr = d.toISOString().split('T')[0];
+            
+            const dayRoutines = routines?.filter(r => r.routine_date === dateStr) || [];
+            const dayTasks = tasks?.filter(t => t.task_date === dateStr) || [];
+            
+            let totalItems = dayRoutines.length + dayTasks.length;
+            let completedItems = dayRoutines.filter(r => r.is_completed).length + 
+                                 dayTasks.filter(t => t.is_completed).length;
+                                 
+            // Calculate a score from 0 to 100
+            let score = 0;
+            if (totalItems > 0) {
+                score = Math.round((completedItems / totalItems) * 100);
+            }
+            
+            historyData.push({ date: dateStr, value: score });
+        }
+
+        return { success: true, data: historyData };
+    } catch (error) {
+        return { success: false, error: 'Failed to fetch heatmap data' };
+    }
+}

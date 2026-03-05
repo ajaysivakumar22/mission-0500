@@ -8,6 +8,7 @@ import { MorningBriefingModal } from '@/components/ui/MorningBriefingModal';
 import { StatCard } from '@/components/cards/StatCard';
 import { getRankEmoji, RANK_THRESHOLDS, getXPForNextRank } from '@/lib/utils/xp';
 import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
+import { DisciplineHeatmap } from '@/components/ui/DisciplineHeatmap';
 import { Zap, Target, Award, RotateCcw, CheckSquare, Flame, Shield, ArrowUpRight } from 'lucide-react';
 import type { DashboardStats } from '@/types';
 import type { Rank } from '@/lib/utils/xp';
@@ -17,9 +18,10 @@ interface DashboardClientProps {
     stats: DashboardStats | null;
     totalXP: number;
     rank: Rank;
+    heatmapData?: { date: string; value: number }[];
 }
 
-export default function DashboardClient({ userId, stats, totalXP, rank }: DashboardClientProps) {
+export default function DashboardClient({ userId, stats, totalXP, rank, heatmapData }: DashboardClientProps) {
     const nextRankXP = getXPForNextRank(rank);
     const currentRankXP = RANK_THRESHOLDS[rank];
     const progressXP = totalXP - currentRankXP;
@@ -45,6 +47,13 @@ export default function DashboardClient({ userId, stats, totalXP, rank }: Dashbo
                 <div className="mb-8">
                     <VisionBoardGrid />
                 </div>
+                
+                {/* 30-Day Discipline Heatmap */}
+                {heatmapData && heatmapData.length > 0 && (
+                    <div className="mb-8">
+                        <DisciplineHeatmap data={heatmapData} />
+                    </div>
+                )}
 
                 {/* Rank Section */}
                 <div className="relative overflow-hidden rounded-2xl border border-[#FFD60A]/30 bg-gradient-to-br from-[#162B20] to-[#0B1D13] p-8 text-center shadow-[0_0_30px_rgba(255,214,10,0.05)]">

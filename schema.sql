@@ -200,6 +200,8 @@ CREATE TABLE user_settings (
   countdown_target TEXT,
   countdown_date DATE,
   notifications_enabled BOOLEAN DEFAULT TRUE,
+  timezone TEXT DEFAULT 'UTC',
+  onboarding_completed BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

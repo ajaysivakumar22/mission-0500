@@ -1,9 +1,11 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
-import { getDashboardStats } from '@/server/services/dashboard-service';
+import { getDashboardStats, getHeatmapData } from '@/server/services/dashboard-service';
 import { getTotalXP } from '@/server/services/xp-service';
 import { checkAndAwardMedals } from '@/server/services/medals-service';
 import { calculateRank } from '@/lib/utils/xp';
+import { getUserSettings } from '@/server/actions/settings';
+import { getServerDate } from '@/server/utils/timezone';
 import DashboardClient from './DashboardClient';
 
 export default async function DashboardPage() {
@@ -12,12 +14,18 @@ export default async function DashboardPage() {
         redirect('/login');
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const { data: userSettings } = await getUserSettings(session.user.id);
+    if (userSettings && !userSettings.onboarding_completed) {
+        redirect('/onboarding');
+    }
+
+    const today = await getServerDate(session.user.id);
 
     // Wrap data fetching with a timeout to prevent hanging when
     // the server cannot reach Supabase (network connectivity issue).
     let stats = null;
     let totalXP = 0;
+    let heatmapData = null;
 
     try {
         const timeoutPromise = new Promise((_, reject) =>
@@ -27,15 +35,17 @@ export default async function DashboardPage() {
         const dataPromise = Promise.all([
             getDashboardStats(session.user.id, today),
             getTotalXP(session.user.id),
+            getHeatmapData(session.user.id, 30),
         ]);
 
-        const [statsResult, xpResult] = await Promise.race([
+        const [statsResult, xpResult, heatmapResult] = await Promise.race([
             dataPromise,
             timeoutPromise.then(() => { throw new Error('timeout'); }),
         ]) as any;
 
         stats = statsResult?.success && statsResult?.data ? statsResult.data : null;
         totalXP = xpResult?.success && xpResult?.data !== undefined ? xpResult.data : 0;
+        heatmapData = heatmapResult?.success && heatmapResult?.data ? heatmapResult.data : [];
 
         // Check and award any new medals in the background
         if (stats) {
@@ -53,6 +63,7 @@ export default async function DashboardPage() {
             stats={stats}
             totalXP={totalXP}
             rank={rank}
+            heatmapData={heatmapData}
         />
     );
 }
