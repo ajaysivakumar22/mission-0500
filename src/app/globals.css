@@ -2,6 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* 1. The Operator (Military/Current) */
+    --theme-background: #0B1D13;
+    --theme-surface: #162B20;
+    --theme-border: #1E3A2A;
+    --theme-primary: #1B4332;
+    --theme-accent: #FFD60A;
+    /* Gold */
+    --theme-text-main: #E8E8E8;
+    --theme-text-muted: #9CA3AF;
+  }
+
+  /* 2. The Scholar (Minimalist/Focus) */
+  .theme-scholar {
+    --theme-background: #0B0E14;
+    --theme-surface: #151B24;
+    --theme-border: #232D3B;
+    --theme-primary: #1D2A3B;
+    --theme-accent: #60A5FA;
+    /* Clean Blue */
+    --theme-text-main: #F1F5F9;
+    --theme-text-muted: #94A3B8;
+  }
+
+  /* 3. The Athlete (High Energy) */
+  .theme-athlete {
+    --theme-background: #000000;
+    --theme-surface: #111111;
+    --theme-border: #222222;
+    --theme-primary: #2A0800;
+    --theme-accent: #FF3B30;
+    /* Aggressive Red */
+    --theme-text-main: #FFFFFF;
+    --theme-text-muted: #A1A1AA;
+  }
+
+  /* 4. The Protagonist (Anime/Story) */
+  .theme-protagonist {
+    --theme-background: #0D0814;
+    --theme-surface: #1A1025;
+    --theme-border: #2A183D;
+    --theme-primary: #3D1C5D;
+    --theme-accent: #D946EF;
+    /* Anime Purple/Pink */
+    --theme-text-main: #FAFAFA;
+    --theme-text-muted: #A78BFA;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,12 +60,14 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--theme-background);
 }
 
 body {
-  background-color: #0B1D13;
-  color: #E8E8E8;
+  background-color: var(--theme-background);
+  color: var(--theme-text-main);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 /* Scrollbar styling */
@@ -25,22 +77,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B1D13;
+  background: var(--theme-background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E3A2A;
+  background: var(--theme-border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1B4332;
+  background: var(--theme-primary);
 }
 
 /* Selection */
 ::selection {
-  background-color: #1B4332;
-  color: #FFD60A;
+  background-color: var(--theme-primary);
+  color: var(--theme-accent);
 }
 
 /* Animations */
@@ -49,6 +101,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

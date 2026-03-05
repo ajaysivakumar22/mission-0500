@@ -9,11 +9,11 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, showHeader = true }: MainLayoutProps) {
     return (
-        <div className="flex h-screen flex-col bg-[#051009] text-[#E8E8E8] relative">
+        <div className="flex h-screen flex-col bg-background text-textMain relative">
             {/* Global Background Elements for Military Premium Feel */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1B4332]/20 via-transparent to-transparent opacity-60 blur-3xl rounded-full translate-x-1/3 -translate-y-1/3"></div>
-                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-[#051009] via-transparent to-transparent opacity-90"></div>
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-60 blur-3xl rounded-full translate-x-1/3 -translate-y-1/3"></div>
+                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-background via-transparent to-transparent opacity-90"></div>
             </div>
 
             {/* Main Content Area */}

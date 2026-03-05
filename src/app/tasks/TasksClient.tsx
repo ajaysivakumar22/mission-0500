@@ -82,11 +82,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                     subtitle="Execute your tasks with precision and unwavering discipline."
                 />
 
-                <InspirationalQuote
-                    quote="Bring on the hardship. It's preferred in a path of carnage."
-                    author="Roronoa Zoro"
-                    bgImageUrl="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2669&auto=format&fit=crop"
-                />
+                <InspirationalQuote />
 
                 {/* Completion Status */}
                 <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-6 backdrop-blur-md shadow-lg">

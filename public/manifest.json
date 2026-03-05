@@ -1,0 +1,16 @@
+{
+    "name": "MISSION 0500",
+    "short_name": "MISSION 0500",
+    "description": "Personal Command Center & Discipline Tracker",
+    "start_url": "/dashboard",
+    "display": "standalone",
+    "background_color": "#051009",
+    "theme_color": "#FFD60A",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

@@ -11,6 +11,7 @@ export default async function SettingsPage() {
 
     const settingsResult = await getUserSettings(session.user.id);
     const initialStrictMode = settingsResult.success ? settingsResult.data?.strict_mode || false : false;
+    const isPremium = settingsResult.success ? settingsResult.data?.is_premium || false : false;
 
     return (
         <SettingsClient
@@ -18,6 +19,7 @@ export default async function SettingsPage() {
             fullName={session.user.user_metadata?.full_name || 'Officer'}
             email={session.user.email || ''}
             initialStrictMode={initialStrictMode}
+            isPremium={isPremium}
         />
     );
 }

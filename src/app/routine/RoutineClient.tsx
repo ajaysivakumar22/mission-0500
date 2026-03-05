@@ -82,11 +82,7 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
                     subtitle="Consistency builds the foundation of an elite officer."
                 />
 
-                <InspirationalQuote
-                    quote="A genius, huh? What does that mean? 'Genius'? So I was not born with a whole lot of natural talent... but I work hard and I never give up! That is my gift, that is my ninja way!"
-                    author="Rock Lee"
-                    bgImageUrl="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop"
-                />
+                <InspirationalQuote />
 
                 {/* Completion Status */}
                 <div className="rounded-2xl border border-white/10 bg-[#162B20]/80 p-6 backdrop-blur-md shadow-lg">

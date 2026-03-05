@@ -8,11 +8,13 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#1B4332',
-                accent: '#FFD60A',
-                background: '#0B1D13',
-                surface: '#162B20',
-                border: '#1E3A2A',
+                primary: 'var(--theme-primary)',
+                accent: 'var(--theme-accent)',
+                background: 'var(--theme-background)',
+                surface: 'var(--theme-surface)',
+                border: 'var(--theme-border)',
+                textMain: 'var(--theme-text-main)',
+                textMuted: 'var(--theme-text-muted)',
             },
             fontSize: {
                 xs: ['0.75rem', { lineHeight: '1rem' }],

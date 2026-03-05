@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <!-- Dark Military Green Background -->
+    <rect width="512" height="512" rx="112" fill="#0B1D13"/>
+    
+    <!-- Outer Gold Ring -->
+    <circle cx="256" cy="256" r="180" fill="none" stroke="#FFD60A" stroke-width="24" stroke-dasharray="16 16"/>
+    
+    <!-- Solid Inner Gold Ring -->
+    <circle cx="256" cy="256" r="140" fill="none" stroke="#FFD60A" stroke-width="8"/>
+    
+    <!-- Central Aim / Crosshair -->
+    <path d="M 256 160 L 256 352 M 160 256 L 352 256" stroke="#FFD60A" stroke-width="24" stroke-linecap="round"/>
+    
+    <!-- Center Dot -->
+    <circle cx="256" cy="256" r="24" fill="#FFD60A"/>
+</svg>

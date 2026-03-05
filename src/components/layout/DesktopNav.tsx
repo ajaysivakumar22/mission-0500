@@ -11,6 +11,7 @@ import {
     FileText,
     Settings,
     LogOut,
+    Award
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
     { href: '/tasks', label: 'Tasks', icon: CheckSquare2 },
     { href: '/goals', label: 'Goals', icon: Target },
     { href: '/report', label: 'Report', icon: FileText },
+    { href: '/medals', label: 'Medals', icon: Award },
     { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -26,11 +28,11 @@ export function DesktopNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="hidden w-64 flex-col border-r border-[#1E3A2A] bg-[#0B1D13] px-4 py-6 lg:flex">
+        <nav className="hidden w-64 flex-col border-r border-border bg-background px-4 py-6 lg:flex">
             {/* Logo */}
             <div className="mb-8 px-4">
-                <h1 className="text-xl font-bold text-[#FFD60A]">MISSION 0500</h1>
-                <p className="text-xs text-[#6B7280]">Personal Command Center</p>
+                <h1 className="text-xl font-bold text-accent">MISSION 0500</h1>
+                <p className="text-xs text-textMuted">Personal Command Center</p>
             </div>
 
             {/* Navigation Items */}
@@ -44,8 +46,8 @@ export function DesktopNav() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${isActive
-                                ? 'bg-[#1B4332] text-[#FFD60A]'
-                                : 'text-[#9CA3AF] hover:bg-[#162B20] hover:text-[#E8E8E8]'
+                                ? 'bg-primary text-accent'
+                                : 'text-textMuted hover:bg-surface hover:text-textMain'
                                 }`}
                         >
                             <Icon className="mr-3 h-5 w-5" />
@@ -59,7 +61,7 @@ export function DesktopNav() {
             <form action={async () => { await signOut(); }}>
                 <button
                     type="submit"
-                    className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-[#9CA3AF] hover:bg-[#162B20] hover:text-[#E8E8E8]"
+                    className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-textMuted hover:bg-surface hover:text-textMain"
                 >
                     <LogOut className="mr-3 h-5 w-5" />
                     Logout

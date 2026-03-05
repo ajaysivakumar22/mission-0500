@@ -7,6 +7,7 @@ import { VisionBoardGrid } from '@/components/ui/VisionBoardGrid';
 import { MorningBriefingModal } from '@/components/ui/MorningBriefingModal';
 import { StatCard } from '@/components/cards/StatCard';
 import { getRankEmoji, RANK_THRESHOLDS, getXPForNextRank } from '@/lib/utils/xp';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Zap, Target, Award, RotateCcw, CheckSquare, Flame, Shield, ArrowUpRight } from 'lucide-react';
 import type { DashboardStats } from '@/types';
 import type { Rank } from '@/lib/utils/xp';
@@ -103,11 +104,7 @@ export default function DashboardClient({ userId, stats, totalXP, rank }: Dashbo
                         unit="%"
                         icon={<CheckSquare className="h-8 w-8" />}
                     />
-                    <StatCard
-                        label="Active Goals"
-                        value={stats?.active_goals_count || 0}
-                        icon={<Target className="h-8 w-8" />}
-                    />
+                    <InspirationalQuote />
                     <div className={`relative ${isBurning ? 'animate-pulse' : ''}`}>
                         {isBurning && <div className="absolute inset-0 bg-orange-500/10 blur-xl rounded-xl"></div>}
                         <StatCard
