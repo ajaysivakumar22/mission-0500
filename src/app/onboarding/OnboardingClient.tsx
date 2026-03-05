@@ -41,12 +41,19 @@ export default function OnboardingClient({ userId }: Props) {
             });
 
             // Mark onboarding completed and set theme
-            await updateUserSettings(userId, {
+            // Try with onboarding_completed first, fall back to just theme if column doesn't exist
+            const result = await updateUserSettings(userId, {
                 theme,
                 onboarding_completed: true
             });
 
-            router.push('/dashboard');
+            // If the update failed (column missing), try without onboarding_completed
+            if (!result.success) {
+                await updateUserSettings(userId, { theme });
+            }
+
+            // Use window.location for a full page reload to pick up server-side changes
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error('Failed Onboarding', error);
             setLoading(false);

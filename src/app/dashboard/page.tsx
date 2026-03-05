@@ -6,6 +6,7 @@ import { checkAndAwardMedals } from '@/server/services/medals-service';
 import { calculateRank } from '@/lib/utils/xp';
 import { getUserSettings } from '@/server/actions/settings';
 import { getServerDate } from '@/server/utils/timezone';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import DashboardClient from './DashboardClient';
 
 export default async function DashboardPage() {
@@ -15,8 +16,21 @@ export default async function DashboardPage() {
     }
 
     const { data: userSettings } = await getUserSettings(session.user.id);
-    if (userSettings && !userSettings.onboarding_completed) {
-        redirect('/onboarding');
+    
+    // Only redirect to onboarding if the column exists and is explicitly false
+    // Also check if user already has data (returning user before onboarding was added)
+    if (userSettings && userSettings.onboarding_completed === false) {
+        // Check if user already has existing routines/goals (pre-onboarding user)
+        const { count } = await supabaseAdmin
+            .from('daily_routines')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', session.user.id)
+            .limit(1);
+        
+        // Only redirect if this is a truly new user with no data
+        if (!count || count === 0) {
+            redirect('/onboarding');
+        }
     }
 
     const today = await getServerDate(session.user.id);

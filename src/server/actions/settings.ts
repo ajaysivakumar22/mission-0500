@@ -36,13 +36,22 @@ export async function getUserSettings(userId: string): Promise<ApiResponse<UserS
             if (settingsResponse.error.code === 'PGRST116' || settingsResponse.error.code === 'PGRST205') {
                 return {
                     success: true,
-                    data: { user_id: userId, strict_mode: false, theme: 'operator', is_premium: isPremium }
+                    data: { user_id: userId, strict_mode: false, theme: 'operator', onboarding_completed: false, is_premium: isPremium }
                 };
             }
             return { success: false, error: settingsResponse.error.message };
         }
 
-        return { success: true, data: { ...settingsResponse.data, is_premium: isPremium } };
+        // Ensure onboarding_completed has a value even if column doesn't exist in DB yet
+        const settingsData = settingsResponse.data;
+        return {
+            success: true,
+            data: {
+                ...settingsData,
+                onboarding_completed: settingsData.onboarding_completed ?? false,
+                is_premium: isPremium
+            }
+        };
 
 
     } catch (error) {
