@@ -1,6 +1,7 @@
 ﻿import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import LandingPage from './LandingPage';
 
 export default async function RootPage() {
     const session = await getServerSession();
@@ -12,7 +13,7 @@ export default async function RootPage() {
         } else {
             redirect('/dashboard');
         }
-    } else {
-        redirect('/login');
     }
+
+    return <LandingPage />;
 }
