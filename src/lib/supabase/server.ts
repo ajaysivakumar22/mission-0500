@@ -46,14 +46,41 @@ function parseJwtPayload(token: string): any {
 }
 
 /**
- * Get the user session by reading the Supabase auth cookies directly.
- * Does NOT make any network calls — reads and decodes the JWT locally.
+ * Get the user session by validating the JWT with Supabase servers.
+ * Uses supabase.auth.getUser() for proper server-side validation.
+ * Falls back to local JWT parsing if the network call fails.
  */
 export async function getServerSession() {
+    try {
+        const supabase = await createClient();
+        const { data: { user }, error } = await supabase.auth.getUser();
+
+        if (error || !user) {
+            return null;
+        }
+
+        return {
+            user: {
+                id: user.id,
+                email: user.email || '',
+                user_metadata: user.user_metadata || {},
+                role: user.role || 'authenticated',
+            }
+        };
+    } catch {
+        // Fallback to local JWT parsing if network is unavailable
+        return getServerSessionFromJwt();
+    }
+}
+
+/**
+ * Fallback: Parse JWT from cookies locally (no network call).
+ * Only used when supabase.auth.getUser() fails due to network issues.
+ */
+async function getServerSessionFromJwt() {
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
 
-    // Find auth token cookies (may be chunked into .0, .1, etc.)
     const authCookies = allCookies
         .filter(c => c.name.startsWith(`sb-${SUPABASE_PROJECT_REF}-auth-token`))
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -62,46 +89,33 @@ export async function getServerSession() {
         return null;
     }
 
-    // Reassemble the token value (handles both single and chunked cookies)
     let tokenValue = authCookies.map(c => c.value).join('');
 
     try {
-        // The cookie value is a JSON-encoded array: [access_token, refresh_token, ...]
-        // or a base64-encoded session object
         let accessToken: string | null = null;
 
-        // Try parsing as JSON array first (Supabase SSR format)
         try {
             const parsed = JSON.parse(decodeURIComponent(tokenValue));
             if (Array.isArray(parsed) && parsed.length > 0) {
-                accessToken = parsed[0]; // First element is the access token
+                accessToken = parsed[0];
             } else if (parsed.access_token) {
                 accessToken = parsed.access_token;
             }
         } catch {
-            // Might be a raw JWT token
             if (tokenValue.includes('.')) {
                 accessToken = tokenValue;
             }
         }
 
-        if (!accessToken) {
-            return null;
-        }
+        if (!accessToken) return null;
 
-        // Decode the JWT to get user info (no verification needed — just reading claims)
         const payload = parseJwtPayload(accessToken);
-        if (!payload || !payload.sub) {
-            return null;
-        }
+        if (!payload || !payload.sub) return null;
 
-        // Check expiry
         if (payload.exp && payload.exp * 1000 < Date.now()) {
-            console.log('[SERVER] Access token expired');
             return null;
         }
 
-        // Return a session-like object for backward compatibility
         return {
             user: {
                 id: payload.sub,
@@ -110,8 +124,7 @@ export async function getServerSession() {
                 role: payload.role || 'authenticated',
             }
         };
-    } catch (error) {
-        console.error('[SERVER] Error parsing session:', error);
+    } catch {
         return null;
     }
 }
