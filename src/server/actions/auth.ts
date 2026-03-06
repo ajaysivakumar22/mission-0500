@@ -68,22 +68,8 @@ export async function signUp(
             return { success: false, error: `Failed to create user profile: ${profileError.message}` };
         }
 
-        // Initialize default routine items for today using Admin client
-        const today = new Date().toISOString().split('T')[0];
-        const { DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
-
-        const routineItems = DEFAULT_ROUTINE_ITEMS.map(item => ({
-            user_id: authData.user!.id,
-            routine_date: today,
-            item_name: item.name,
-            item_order: item.order,
-        }));
-
-        // Upsert standard routine items (skips duplicates)
-        await supabaseAdmin.from('daily_routines').upsert(
-            routineItems,
-            { onConflict: 'user_id, routine_date, item_name' }
-        );
+        // Routines are initialized during onboarding archetype selection
+        // or on first visit to /routine via initializeDefaultRoutine()
 
     } catch (error: any) {
         console.error('Signup error:', error);

@@ -4,9 +4,18 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateUserSettings } from '@/server/actions/settings';
 import { createGoal } from '@/server/actions/goals';
+import { initializeRoutineFromTemplate } from '@/server/actions/routine';
+import { ROUTINE_TEMPLATES, type ArchetypeKey } from '@/lib/constants/xp-config';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Shield, Target, FileSignature, CheckCircle } from 'lucide-react';
+import { Shield, Target, FileSignature, CheckCircle, BookOpen, Rocket, Dumbbell } from 'lucide-react';
+
+const ARCHETYPE_ICONS = {
+    Shield,
+    BookOpen,
+    Rocket,
+    Dumbbell,
+} as const;
 
 interface Props {
     userId: string;
@@ -15,12 +24,12 @@ interface Props {
 export default function OnboardingClient({ userId }: Props) {
     const router = useRouter();
     const [step, setStep] = useState(1);
-    const [theme, setTheme] = useState('dark');
+    const [archetype, setArchetype] = useState<ArchetypeKey>('operator');
     const [goalTitle, setGoalTitle] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleThemeSelect = (selectedTheme: string) => {
-        setTheme(selectedTheme);
+    const handleArchetypeSelect = (key: ArchetypeKey) => {
+        setArchetype(key);
         setStep(2);
     };
 
@@ -40,16 +49,18 @@ export default function OnboardingClient({ userId }: Props) {
                 category: 'long_term',
             });
 
+            // Initialize routines from selected archetype template
+            await initializeRoutineFromTemplate(userId, archetype);
+
             // Mark onboarding completed and set theme
-            // Try with onboarding_completed first, fall back to just theme if column doesn't exist
             const result = await updateUserSettings(userId, {
-                theme,
+                theme: 'dark',
                 onboarding_completed: true
             });
 
             // If the update failed (column missing), try without onboarding_completed
             if (!result.success) {
-                await updateUserSettings(userId, { theme });
+                await updateUserSettings(userId, { theme: 'dark' });
             }
 
             // Use window.location for a full page reload to pick up server-side changes
@@ -86,28 +97,38 @@ export default function OnboardingClient({ userId }: Props) {
                     ))}
                 </div>
 
-                {/* Step 1: Theme/Archetype */}
+                {/* Step 1: Archetype Selection */}
                 {step === 1 && (
                     <div className="animate-in fade-in slide-in-from-right-4 duration-500 text-center">
                         <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-wide">Choose Your Archetype</h2>
-                        <p className="text-[#9CA3AF] mb-8">Select your operating environment. This dictates the UI elements and tone.</p>
+                        <p className="text-[#9CA3AF] mb-8">Select your operating profile. This sets up your daily routine template.</p>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button 
-                                onClick={() => handleThemeSelect('dark')}
-                                className="p-6 border-2 border-[#1E3A2A] rounded-xl hover:border-[#FFD60A] transition text-left group bg-[#162B20]"
-                            >
-                                <h3 className="text-xl font-bold text-white group-hover:text-[#FFD60A] mb-2 uppercase">Operator (Dark)</h3>
-                                <p className="text-sm text-[#9CA3AF]">Stealthy, high contrast, distraction-free. For deep focus ops.</p>
-                            </button>
-                            <button 
-                                onClick={() => handleThemeSelect('light')}
-                                className="p-6 border-2 border-[#1E3A2A] rounded-xl hover:border-[#FFD60A] transition text-left group bg-[#D1D5DB] opacity-50 cursor-not-allowed"
-                                disabled // You can enable this if light theme is supported
-                            >
-                                <h3 className="text-xl font-bold text-[#1F2937] mb-2 uppercase">Commander (Light)</h3>
-                                <p className="text-sm text-[#4B5563]">Bright, tactical overviews, analytical focus. [PROTOTYPE]</p>
-                            </button>
+                            {(Object.entries(ROUTINE_TEMPLATES) as [ArchetypeKey, typeof ROUTINE_TEMPLATES[ArchetypeKey]][]).map(([key, template]) => {
+                                const IconComponent = ARCHETYPE_ICONS[template.icon as keyof typeof ARCHETYPE_ICONS];
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => handleArchetypeSelect(key)}
+                                        className="p-6 border-2 border-[#1E3A2A] rounded-xl hover:border-[#FFD60A] transition text-left group bg-[#162B20]"
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            {IconComponent && <IconComponent className="w-6 h-6 text-[#FFD60A] opacity-70 group-hover:opacity-100 transition" />}
+                                            <h3 className="text-xl font-bold text-white group-hover:text-[#FFD60A] uppercase">{template.label}</h3>
+                                        </div>
+                                        <p className="text-sm text-[#9CA3AF] mb-3">{template.description}</p>
+                                        <div className="text-xs text-[#6B7280] space-y-0.5">
+                                            {template.items.slice(0, 3).map((item, i) => (
+                                                <div key={i} className="flex items-center gap-1.5">
+                                                    <span className="w-1 h-1 rounded-full bg-[#FFD60A] opacity-50"></span>
+                                                    {item.name}
+                                                </div>
+                                            ))}
+                                            <div className="text-[#4B5563]">+ {template.items.length - 3} more...</div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

@@ -268,7 +268,6 @@ export async function initializeDefaultRoutine(
 ): Promise<ApiResponse> {
     try {
         const supabase = supabaseAdmin;
-        const { DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
 
         // Check if routine already exists for this date
         const { data: existing } = await supabase
@@ -282,9 +281,81 @@ export async function initializeDefaultRoutine(
             return { success: true }; // Already initialized
         }
 
-        const routineItems = DEFAULT_ROUTINE_ITEMS.map(item => ({
+        // Try copying from the most recent previous day's routine
+        const { data: previousRoutine } = await supabase
+            .from('daily_routines')
+            .select('item_name, item_order')
+            .eq('user_id', userId)
+            .lt('routine_date', date)
+            .order('routine_date', { ascending: false })
+            .order('item_order', { ascending: true })
+            .limit(20);
+
+        let itemsToInsert;
+
+        if (previousRoutine && previousRoutine.length > 0) {
+            // Deduplicate by item_name (in case of multiple dates returned)
+            const seen = new Set<string>();
+            const uniqueItems = previousRoutine.filter(item => {
+                if (seen.has(item.item_name)) return false;
+                seen.add(item.item_name);
+                return true;
+            });
+            itemsToInsert = uniqueItems.map(item => ({
+                user_id: userId,
+                routine_date: date,
+                item_name: item.item_name,
+                item_order: item.item_order,
+            }));
+        } else {
+            // Fallback to default template for brand-new users
+            const { DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
+            itemsToInsert = DEFAULT_ROUTINE_ITEMS.map(item => ({
+                user_id: userId,
+                routine_date: date,
+                item_name: item.name,
+                item_order: item.order,
+            }));
+        }
+
+        const { error } = await supabase
+            .from('daily_routines')
+            .insert(itemsToInsert);
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        revalidatePath('/routine');
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: 'Failed to initialize routine' };
+    }
+}
+
+export async function initializeRoutineFromTemplate(
+    userId: string,
+    archetypeKey: string
+): Promise<ApiResponse> {
+    try {
+        const supabase = supabaseAdmin;
+        const { ROUTINE_TEMPLATES, DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
+
+        const template = ROUTINE_TEMPLATES[archetypeKey as keyof typeof ROUTINE_TEMPLATES];
+        const items = template?.items || DEFAULT_ROUTINE_ITEMS;
+
+        const today = new Date().toISOString().split('T')[0];
+
+        // Delete any existing routines for today (in case signUp already created defaults)
+        await supabase
+            .from('daily_routines')
+            .delete()
+            .eq('user_id', userId)
+            .eq('routine_date', today);
+
+        const routineItems = items.map(item => ({
             user_id: userId,
-            routine_date: date,
+            routine_date: today,
             item_name: item.name,
             item_order: item.order,
         }));
@@ -297,9 +368,8 @@ export async function initializeDefaultRoutine(
             return { success: false, error: error.message };
         }
 
-        revalidatePath('/routine');
         return { success: true };
     } catch (error) {
-        return { success: false, error: 'Failed to initialize routine' };
+        return { success: false, error: 'Failed to initialize routine from template' };
     }
 }
