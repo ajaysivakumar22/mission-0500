@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { updateUserProfile, signOut } from '@/server/actions/auth';
 import { updateUserSettings } from '@/server/actions/settings';
 import { submitFeedback } from '@/server/actions/feedback';
@@ -21,9 +23,19 @@ interface SettingsClientProps {
 }
 
 export default function SettingsClient({ userId, fullName, email, initialStrictMode, isPremium }: SettingsClientProps) {
+    const { toast } = useToast();
     const { theme, setTheme } = useTheme();
+    const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState<'config' | 'elite' | 'feedback'>('config');
     const [isSaving, setIsSaving] = useState(false);
+
+    // Handle ?tab=elite from Goals page redirect
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab === 'elite' || tab === 'feedback') {
+            setActiveTab(tab);
+        }
+    }, [searchParams]);
     const [strictMode, setStrictMode] = useState(initialStrictMode);
     const [formData, setFormData] = useState({
         full_name: fullName,
@@ -62,9 +74,9 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
             const settingsResult = await updateUserSettings(userId, { strict_mode: strictMode });
 
             if (result.success && settingsResult.success) {
-                alert('Profile & Settings updated successfully');
+                toast('Profile & Settings updated successfully', 'success');
             } else {
-                alert(result.error || settingsResult.error || 'Failed to update system');
+                toast(result.error || settingsResult.error || 'Failed to update system', 'error');
             }
         } finally {
             setIsSaving(false);
@@ -280,8 +292,9 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
                                 <Button
                                     variant="primary"
                                     className="px-12 py-6 text-lg font-black tracking-wider uppercase transition-transform hover:scale-105"
+                                    onClick={() => toast('Elite Protocol payment integration launching soon. Stay ready, Soldier!', 'info')}
                                 >
-                                    Initiate Elite Upgrade (₹100/mo)
+                                    Initiate Elite Upgrade (₹399/mo)
                                 </Button>
                             </div>
                         </div>

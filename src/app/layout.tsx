@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/lib/context/ThemeContext';
+import { ToastProvider } from '@/components/ui/Toast';
 import { getServerSession } from '@/lib/supabase/server';
 import { SystemSyncer } from '@/components/layout/SystemSyncer';
 import './globals.css';
@@ -25,7 +26,9 @@ export default async function RootLayout({
             <body className={inter.className}>
                 {session?.user && <SystemSyncer userId={session.user.id} />}
                 <ThemeProvider>
-                    {children}
+                    <ToastProvider>
+                        {children}
+                    </ToastProvider>
                 </ThemeProvider>
             </body>
         </html>

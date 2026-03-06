@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
     const supabase = createClient();
+    const searchParams = useSearchParams();
     const [isSignUp, setIsSignUp] = useState(false);
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
@@ -16,6 +19,18 @@ export default function LoginPage() {
         fullName: '',
     });
     const [successMessage, setSuccessMessage] = useState('');
+
+    // Handle callback errors and success params
+    useEffect(() => {
+        const errorParam = searchParams.get('error');
+        const verified = searchParams.get('verified');
+        if (errorParam === 'auth_callback_failed') {
+            setError('Email verification failed or link expired. Please try again.');
+        }
+        if (verified === 'true') {
+            setSuccessMessage('Email verified successfully! You can now sign in.');
+        }
+    }, [searchParams]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -29,6 +44,25 @@ export default function LoginPage() {
         setIsLoading(true);
         setError('');
         setSuccessMessage('');
+
+        // Handle forgot password
+        if (isForgotPassword) {
+            if (!formData.email.trim()) {
+                setError('Please enter your email address');
+                setIsLoading(false);
+                return;
+            }
+            const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
+                redirectTo: `${window.location.origin}/login`,
+            });
+            if (resetError) {
+                setError(resetError.message);
+            } else {
+                setSuccessMessage('Password reset link sent! Check your email inbox.');
+            }
+            setIsLoading(false);
+            return;
+        }
 
         try {
             if (isSignUp) {
@@ -170,7 +204,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-md lg:w-1/2 rounded-2xl border border-white/10 bg-[#0B1D13]/60 p-8 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20">
                     <div className="lg:hidden mb-8 text-center">
                         <blockquote className="text-xl font-serif italic text-white leading-relaxed mb-2 text-shadow-sm">
-                            &quot;Yeh Dil Maange More!&quot;
+                            &quot;Yeh Dil Maange Uniform!&quot;
                         </blockquote>
                         <span className="text-sm font-bold text-[#FFD60A] tracking-widest uppercase">
                             — Captain Vikram Batra
@@ -178,7 +212,7 @@ export default function LoginPage() {
                     </div>
 
                     <h2 className="mb-6 text-center text-3xl font-black text-white tracking-tight uppercase">
-                        {isSignUp ? 'Join the Mission' : 'Command Center'}
+                        {isForgotPassword ? 'Reset Password' : isSignUp ? 'Join the Mission' : 'Command Center'}
                     </h2>
 
                     {error && (
@@ -216,15 +250,17 @@ export default function LoginPage() {
                             required
                         />
 
-                        <Input
-                            label="Password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                            placeholder="••••••••"
-                            required
-                        />
+                        {!isForgotPassword && (
+                            <Input
+                                label="Password"
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                placeholder="••••••••"
+                                required
+                            />
+                        )}
 
                         <Button
                             type="submit"
@@ -233,24 +269,38 @@ export default function LoginPage() {
                             isLoading={isLoading}
                             className="w-full"
                         >
-                            {isSignUp ? 'Create Account' : 'Login'}
+                            {isForgotPassword ? 'Send Reset Link' : isSignUp ? 'Create Account' : 'Login'}
                         </Button>
                     </form>
 
+                    {!isSignUp && !isForgotPassword && (
+                        <div className="mt-3 text-center">
+                            <button
+                                type="button"
+                                onClick={() => { setIsForgotPassword(true); setError(''); setSuccessMessage(''); }}
+                                className="text-sm text-[#9CA3AF] hover:text-[#FFD60A] transition-colors"
+                            >
+                                Forgot Password?
+                            </button>
+                        </div>
+                    )}
+
                     <div className="mt-6 text-center">
                         <p className="text-sm text-[#9CA3AF]">
-                            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                            {isForgotPassword ? 'Remember your password?' : isSignUp ? 'Already have an account?' : "Don't have an account?"}
                         </p>
                         <button
                             type="button"
                             onClick={() => {
-                                setIsSignUp(!isSignUp);
+                                setIsSignUp(isForgotPassword ? false : !isSignUp);
+                                setIsForgotPassword(false);
                                 setError('');
+                                setSuccessMessage('');
                                 setFormData({ email: '', password: '', fullName: '' });
                             }}
                             className="mt-2 text-[#FFD60A] hover:text-white transition-colors font-bold tracking-wide uppercase text-sm"
                         >
-                            {isSignUp ? 'Proceed to Sign In' : 'Initiate Enlistment (Sign Up)'}
+                            {isForgotPassword ? 'Back to Sign In' : isSignUp ? 'Proceed to Sign In' : 'Initiate Enlistment (Sign Up)'}
                         </button>
                     </div>
                 </div>

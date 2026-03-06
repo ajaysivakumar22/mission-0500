@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
+import { useToast } from '@/components/ui/Toast';
 import { createReport } from '@/server/actions/reports';
 import { RadarTelemetry } from '@/components/ui/RadarTelemetry';
 import { Save, Crosshair, AlertTriangle, ShieldCheck, History, Download, Lock } from 'lucide-react';
@@ -19,6 +20,7 @@ interface ReportClientProps {
 }
 
 export default function ReportClient({ userId, initialReport, allReports, isPremium }: ReportClientProps) {
+    const { toast } = useToast();
     const [activeTab, setActiveTab] = useState<'today' | 'history'>('today');
     const [historyFilter, setHistoryFilter] = useState<'week1' | 'week2' | 'week3' | 'week4' | 'month'>('week1');
     const [isSaving, setIsSaving] = useState(false);
@@ -42,9 +44,9 @@ export default function ReportClient({ userId, initialReport, allReports, isPrem
             });
 
             if (result.success) {
-                alert('Report saved successfully');
+                toast('Report saved successfully', 'success');
             } else {
-                alert(result.error || 'Failed to save report');
+                toast(result.error || 'Failed to save report', 'error');
             }
         } finally {
             setIsSaving(false);
@@ -246,7 +248,7 @@ export default function ReportClient({ userId, initialReport, allReports, isPrem
                                         ))}
 
                                         <button
-                                            onClick={() => isPremium ? setHistoryFilter('month') : alert('Upgrade to Elite Protocol to view the 30-Day Monthly Progression.')}
+                                            onClick={() => isPremium ? setHistoryFilter('month') : toast('Upgrade to Elite Protocol to view the 30-Day Monthly Progression.', 'warning')}
                                             className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors relative ${historyFilter === 'month' ? 'bg-primary text-accent' : 'bg-surface text-textMuted hover:text-textMain'
                                                 }`}
                                         >

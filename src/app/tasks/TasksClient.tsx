@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/ui/Dialog';
+import { useToast } from '@/components/ui/Toast';
 import { addTask, updateTask, deleteTask } from '@/server/actions/tasks';
 import { Plus, Target } from 'lucide-react';
 import type { DailyTask } from '@/types';
@@ -20,6 +21,7 @@ interface TasksClientProps {
 }
 
 export default function TasksClient({ userId, initialTasks }: TasksClientProps) {
+    const { toast } = useToast();
     const [tasks, setTasks] = useState<DailyTask[]>(initialTasks);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -37,7 +39,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
         e?.preventDefault();
 
         if (!formData.title.trim()) {
-            alert('Please enter a task title');
+            toast('Please enter a task title', 'warning');
             return;
         }
 
@@ -54,7 +56,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
             setFormData({ title: '', description: '', priority: 'medium' });
             setIsDialogOpen(false);
         } else {
-            alert(result.error || 'Failed to add task');
+            toast(result.error || 'Failed to add task', 'error');
         }
     };
 

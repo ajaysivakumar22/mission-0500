@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/ui/Dialog';
+import { useToast } from '@/components/ui/Toast';
 import { createGoal, deleteGoal, archiveGoal } from '@/server/actions/goals';
 import { Plus, Target } from 'lucide-react';
 import type { Goal } from '@/types';
@@ -21,6 +22,7 @@ interface GoalsClientProps {
 }
 
 export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsClientProps) {
+    const { toast } = useToast();
     const [goals, setGoals] = useState<Goal[]>(initialGoals);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -34,7 +36,7 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
         e?.preventDefault();
 
         if (!formData.title.trim()) {
-            alert('Please enter a goal title');
+            toast('Please enter a goal title', 'warning');
             return;
         }
 
@@ -50,7 +52,7 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
             setFormData({ title: '', description: '', category: 'short_term', target_date: '' });
             setIsDialogOpen(false);
         } else {
-            alert(result.error || 'Failed to create goal');
+            toast(result.error || 'Failed to create goal', 'error');
         }
     };
 
@@ -107,7 +109,7 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
                             <Button
                                 variant="primary"
                                 className="px-10 py-5 text-xl font-black tracking-widest uppercase shadow-[0_0_20px_rgba(var(--theme-accent),0.3)] hover:shadow-[0_0_40px_rgba(var(--theme-accent),0.5)] transition-all hover:scale-105"
-                                onClick={() => window.location.href = '/settings'}
+                                onClick={() => window.location.href = '/settings?tab=elite'}
                             >
                                 Initiate Elite Upgrade
                             </Button>

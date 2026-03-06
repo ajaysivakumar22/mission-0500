@@ -8,6 +8,7 @@ import { RoutineCard } from '@/components/cards/RoutineCard';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Dialog } from '@/components/ui/Dialog';
+import { useToast } from '@/components/ui/Toast';
 import {
     addRoutineItem,
     updateRoutineItem,
@@ -22,6 +23,7 @@ interface RoutineClientProps {
 }
 
 export default function RoutineClient({ userId, initialRoutines }: RoutineClientProps) {
+    const { toast } = useToast();
     const [routines, setRoutines] = useState<DailyRoutine[]>(initialRoutines);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -38,7 +40,7 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
         e?.preventDefault();
 
         if (!formData.item_name.trim()) {
-            alert('Please enter a routine item name');
+            toast('Please enter a routine item name', 'warning');
             return;
         }
 
@@ -54,7 +56,7 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
             setFormData({ item_name: '', notes: '' });
             setIsDialogOpen(false);
         } else {
-            alert(result.error || 'Failed to add routine item');
+            toast(result.error || 'Failed to add routine item', 'error');
         }
     };
 
