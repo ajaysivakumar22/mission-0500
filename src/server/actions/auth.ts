@@ -130,17 +130,13 @@ export async function signIn(
 
 export async function signOut(): Promise<ApiResponse> {
     try {
-        // Clear the Supabase auth cookies directly
-        const { cookies } = await import('next/headers');
-        const cookieStore = await cookies();
-        const allCookies = cookieStore.getAll();
+        const supabase = await createClient();
+        const { error } = await supabase.auth.signOut();
 
-        // Delete all Supabase auth cookies
-        allCookies.forEach(cookie => {
-            if (cookie.name.startsWith('sb-')) {
-                cookieStore.delete(cookie.name);
-            }
-        });
+        if (error) {
+            console.error('Signout error:', error);
+            return { success: false, error: error.message };
+        }
     } catch (error: any) {
         console.error('Signout error:', error);
         return { success: false, error: error.message || 'Failed to sign out' };

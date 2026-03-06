@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updateUserProfile, signOut } from '@/server/actions/auth';
 import { updateUserSettings } from '@/server/actions/settings';
+import { submitFeedback } from '@/server/actions/feedback';
 import { useTheme } from '@/lib/context/ThemeContext';
-import { LogOut, Save, ShieldAlert, Crown, Paintbrush, Zap, BookOpen, User, Target, Activity } from 'lucide-react';
+import { LogOut, Save, ShieldAlert, Crown, Paintbrush, Zap, BookOpen, User, Target, Activity, MessageSquare } from 'lucide-react';
 
 interface SettingsClientProps {
     userId: string;
@@ -21,13 +22,36 @@ interface SettingsClientProps {
 
 export default function SettingsClient({ userId, fullName, email, initialStrictMode, isPremium }: SettingsClientProps) {
     const { theme, setTheme } = useTheme();
-    const [activeTab, setActiveTab] = useState<'config' | 'elite'>('config');
+    const [activeTab, setActiveTab] = useState<'config' | 'elite' | 'feedback'>('config');
     const [isSaving, setIsSaving] = useState(false);
     const [strictMode, setStrictMode] = useState(initialStrictMode);
     const [formData, setFormData] = useState({
         full_name: fullName,
         email: email,
     });
+    const [feedback, setFeedback] = useState({ category: 'general', message: '' });
+    const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+    const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+    const handleFeedbackSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmittingFeedback(true);
+        setFeedbackStatus('idle');
+        try {
+            const res = await submitFeedback(feedback);
+            if (res.success) {
+                setFeedbackStatus('success');
+                setFeedback({ category: 'general', message: '' });
+                setTimeout(() => setFeedbackStatus('idle'), 3000);
+            } else {
+                setFeedbackStatus('error');
+            }
+        } catch {
+            setFeedbackStatus('error');
+        } finally {
+            setIsSubmittingFeedback(false);
+        }
+    };
 
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -77,6 +101,16 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
                     >
                         <Crown className="h-4 w-4" />
                         Elite Status
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('feedback')}
+                        className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-bold transition-all ${activeTab === 'feedback'
+                            ? 'bg-primary text-textMain shadow-md border border-primary/30'
+                            : 'text-textMuted hover:text-textMain hover:bg-surface'
+                            }`}
+                    >
+                        <MessageSquare className="h-4 w-4" />
+                        Feedback
                     </button>
                 </div>
 
@@ -247,9 +281,66 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
                                     variant="primary"
                                     className="px-12 py-6 text-lg font-black tracking-wider uppercase transition-transform hover:scale-105"
                                 >
-                                    Initiate Elite Upgrade (₹399/mo)
+                                    Initiate Elite Upgrade (₹100/mo)
                                 </Button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Feedback Protocol Tab */}
+                {activeTab === 'feedback' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="rounded-2xl border border-white/10 bg-surface/80 p-8 backdrop-blur-md shadow-lg">
+                            <div className="flex items-center gap-3 mb-6">
+                                <MessageSquare className="h-6 w-6 text-primary" />
+                                <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-textMuted uppercase tracking-wide">Command Comms</h2>
+                            </div>
+                            <p className="text-sm text-textMuted mb-6">
+                                Transmit bug reports, feature requests, or general feedback directly to HIGH COMMAND. Your intelligence stream shapes the future of Mission 0500.
+                            </p>
+
+                            <form onSubmit={handleFeedbackSubmit} className="space-y-6">
+                                <div>
+                                    <label className="mb-2 block text-sm font-bold text-textMain uppercase tracking-wider">Classification</label>
+                                    <select
+                                        value={feedback.category}
+                                        onChange={(e) => setFeedback({ ...feedback, category: e.target.value })}
+                                        className="w-full rounded-xl border border-border bg-background p-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    >
+                                        <option value="general">General Transmission</option>
+                                        <option value="feature_request">Feature Request (Tactical Upgrade)</option>
+                                        <option value="bug">Bug Report (System Anomaly)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="mb-2 block text-sm font-bold text-textMain uppercase tracking-wider">Message Payload</label>
+                                    <textarea
+                                        value={feedback.message}
+                                        onChange={(e) => setFeedback({ ...feedback, message: e.target.value })}
+                                        className="w-full rounded-xl border border-border bg-background p-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[150px]"
+                                        placeholder="Enter your transmission payload here..."
+                                        required
+                                    ></textarea>
+                                </div>
+                                <Button 
+                                    type="submit" 
+                                    disabled={isSubmittingFeedback || !feedback.message.trim()} 
+                                    className="w-full flex justify-center items-center gap-2"
+                                >
+                                    {isSubmittingFeedback ? 'Transmitting...' : 'Transmit to Command'}
+                                </Button>
+                                {feedbackStatus === 'success' && (
+                                    <p className="text-center text-accent text-sm font-medium animate-pulse mt-2">
+                                        Transmission successful. Command acknowledges.
+                                    </p>
+                                )}
+                                {feedbackStatus === 'error' && (
+                                    <p className="text-center text-red-500 text-sm font-medium mt-2">
+                                        Transmission failed. Signal lost.
+                                    </p>
+                                )}
+                            </form>
                         </div>
                     </div>
                 )}

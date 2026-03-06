@@ -139,12 +139,24 @@ export async function updateTask(
                 // Check if they are in Strict Mode
                 const settingsResult = await getUserSettings(userId);
                 if (settingsResult.success && settingsResult.data?.strict_mode) {
-                    await awardXP(
-                        userId,
-                        XP_CONFIG.PUNISHMENT_MISSED_DAY,
-                        `STRICT MODE PENALTY: Failed task ${currentTask.title}`,
-                        currentTask.task_date
-                    );
+                    // Cooldown: Only 1 penalty per item per day
+                    const penaltyReason = `STRICT MODE PENALTY: Failed task ${currentTask.title}`;
+                    const { data: existing } = await supabase
+                        .from('xp_records')
+                        .select('id')
+                        .eq('user_id', userId)
+                        .eq('reason', penaltyReason)
+                        .eq('related_date', currentTask.task_date)
+                        .limit(1);
+
+                    if (!existing || existing.length === 0) {
+                        await awardXP(
+                            userId,
+                            XP_CONFIG.PUNISHMENT_MISSED_DAY,
+                            penaltyReason,
+                            currentTask.task_date
+                        );
+                    }
                 }
             }
         }

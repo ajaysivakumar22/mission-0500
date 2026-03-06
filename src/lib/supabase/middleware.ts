@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-const protectedRoutes = ['/dashboard', '/routine', '/tasks', '/goals', '/report', '/settings'];
+const protectedRoutes = ['/dashboard', '/routine', '/tasks', '/goals', '/report', '/settings', '/admin'];
 
-// Supabase project ref extracted from the URL
-const SUPABASE_PROJECT_REF = 'ybuilowmhnrwkzrfhbwb';
+// Extract project ref from the Supabase URL env var
+const SUPABASE_PROJECT_REF = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([^.]+)/)?.[1] || '';
 
 export async function updateSession(request: NextRequest) {
     const supabaseResponse = NextResponse.next({

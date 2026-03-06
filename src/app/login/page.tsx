@@ -111,7 +111,19 @@ export default function LoginPage() {
                 }
 
                 // Sign in succeeded — full page navigation to pick up cookies
-                console.log('[AUTH] Login successful! Redirecting to /dashboard...');
+                console.log('[AUTH] Login successful! Checking role...');
+                try {
+                    const { data: profile } = await supabase.from('users').select('role').eq('id', data.user!.id).single();
+                    if (profile?.role === 'admin') {
+                        console.log('[AUTH] Redirecting to /admin...');
+                        window.location.href = '/admin';
+                        return;
+                    }
+                } catch (e) {
+                    // Safe fail
+                }
+
+                console.log('[AUTH] Redirecting to /dashboard...');
                 window.location.href = '/dashboard';
                 return;
             }

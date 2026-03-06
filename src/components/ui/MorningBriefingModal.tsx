@@ -8,22 +8,29 @@ import { addTask } from '@/server/actions/tasks';
 import { signOut } from '@/server/actions/auth';
 import { LogOut } from 'lucide-react';
 
-export function MorningBriefingModal({ userId }: { userId: string }) {
+export function MorningBriefingModal({ userId, hasTodayObjective }: { userId: string; hasTodayObjective?: boolean }) {
     const [isOpen, setIsOpen] = useState(false);
     const [objective, setObjective] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Only run on the client side
+        // Server-side check is the primary guard
+        if (hasTodayObjective) {
+            // Sync localStorage with server truth
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('mission_0500_briefed_date', today);
+            return;
+        }
+
+        // Fallback: localStorage as secondary cache
         const today = new Date().toISOString().split('T')[0];
         const briefedDate = localStorage.getItem('mission_0500_briefed_date');
 
-        // Check if they haven't set their objective today
         if (briefedDate !== today) {
             setIsOpen(true);
         }
-    }, []);
+    }, [hasTodayObjective]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

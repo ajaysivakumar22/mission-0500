@@ -124,6 +124,12 @@ export async function awardXP(
     reason: string,
     relatedDate?: string
 ): Promise<void> {
+    // Security: Validate XP amount is within allowed range
+    if (amount < -100 || amount > 100) {
+        console.error(`Rejected XP award: amount ${amount} out of range (-100 to 100)`);
+        return;
+    }
+
     try {
         const supabase = supabaseAdmin;
 

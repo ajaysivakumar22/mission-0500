@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-const SUPABASE_PROJECT_REF = 'ybuilowmhnrwkzrfhbwb';
+const SUPABASE_PROJECT_REF = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([^.]+)/)?.[1] || '';
 
 export async function createClient() {
     const cookieStore = await cookies();

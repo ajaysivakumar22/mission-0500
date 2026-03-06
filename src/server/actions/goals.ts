@@ -254,6 +254,10 @@ export async function addGoalLog(
 
         // Update goal progress if increment provided
         if (input.progress_increment && input.progress_increment > 0) {
+            // Validate increment is within reasonable bounds
+            if (input.progress_increment > 100) {
+                return { success: false, error: 'Progress increment cannot exceed 100' };
+            }
             const { data: currentGoal } = await supabase
                 .from('goals')
                 .select('progress_percentage')

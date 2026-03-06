@@ -15,6 +15,12 @@ export default async function DashboardPage() {
         redirect('/login');
     }
 
+    // Check if admin is trying to access user dashboard
+    const { data: profile } = await supabaseAdmin.from('users').select('role').eq('id', session.user.id).single();
+    if (profile?.role === 'admin') {
+        redirect('/admin');
+    }
+
     const { data: userSettings } = await getUserSettings(session.user.id);
     
     // Only redirect to onboarding if the column exists and is explicitly false
@@ -71,6 +77,19 @@ export default async function DashboardPage() {
 
     const rank = calculateRank(totalXP);
 
+    // Check if user already set today's objective (server-side, not localStorage)
+    let hasTodayObjective = false;
+    try {
+        const { data: objectives } = await supabaseAdmin
+            .from('daily_tasks')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .eq('task_date', today)
+            .like('title', 'MAIN OBJECTIVE:%')
+            .limit(1);
+        hasTodayObjective = !!(objectives && objectives.length > 0);
+    } catch { /* fallback to not showing modal */ }
+
     return (
         <DashboardClient
             userId={session.user.id}
@@ -78,6 +97,7 @@ export default async function DashboardPage() {
             totalXP={totalXP}
             rank={rank}
             heatmapData={heatmapData}
+            hasTodayObjective={hasTodayObjective}
         />
     );
 }

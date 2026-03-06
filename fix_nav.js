@@ -1,4 +1,5 @@
-﻿'use client';
+﻿const fs = require('fs');
+let content = \'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -38,21 +39,25 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
                 {NAV_ITEMS.map(item => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
-                    const activeClass = isActive ? 'bg-surface shadow-[0_0_15px_rgba(var(--theme-accent),0.1)]' : 'hover:bg-surface/50';
-                    const iconClass = isActive ? 'text-accent' : 'text-textMuted group-hover:text-textMain';
 
                     return (
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={"group relative flex items-center justify-center rounded-xl p-3 transition-all duration-300 " + activeClass}
+                            className={"group relative flex items-center justify-center rounded-xl p-3 transition-all duration-300 " + (
+                                isActive
+                                    ? "bg-surface shadow-[0_0_15px_rgba(var(--theme-accent),0.1)]"
+                                    : "hover:bg-surface/50"
+                            )}
                         >
                             <div className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-accent/30 bg-background px-3 py-1.5 text-xs font-bold tracking-widest text-accent opacity-0 transition-all duration-300 group-hover:-top-12 group-hover:opacity-100 shadow-xl">
                                 {item.label}
                                 <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-accent/30 bg-background"></div>
                             </div>
 
-                            <Icon className={"h-6 w-6 transition-colors duration-300 " + iconClass} />
+                            <Icon className={"h-6 w-6 transition-colors duration-300 " + (
+                                isActive ? "text-accent" : "text-textMuted group-hover:text-textMain"
+                            )} />
                         </Link>
                     );
                 })}
@@ -75,4 +80,5 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
             </div>
         </nav>
     );
-}
+}\;
+fs.writeFileSync('src/components/layout/MobileNav.tsx', content);

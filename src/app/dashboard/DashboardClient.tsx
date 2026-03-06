@@ -19,9 +19,10 @@ interface DashboardClientProps {
     totalXP: number;
     rank: Rank;
     heatmapData?: { date: string; value: number }[];
+    hasTodayObjective?: boolean;
 }
 
-export default function DashboardClient({ userId, stats, totalXP, rank, heatmapData }: DashboardClientProps) {
+export default function DashboardClient({ userId, stats, totalXP, rank, heatmapData, hasTodayObjective }: DashboardClientProps) {
     const nextRankXP = getXPForNextRank(rank);
     const currentRankXP = RANK_THRESHOLDS[rank];
     const progressXP = totalXP - currentRankXP;
@@ -37,7 +38,7 @@ export default function DashboardClient({ userId, stats, totalXP, rank, heatmapD
 
     return (
         <MainLayout>
-            <MorningBriefingModal userId={userId} />
+            <MorningBriefingModal userId={userId} hasTodayObjective={hasTodayObjective} />
             <div className="space-y-8 animate-in fade-in duration-500">
                 <PageHeader
                     title="Command Headquarters"
