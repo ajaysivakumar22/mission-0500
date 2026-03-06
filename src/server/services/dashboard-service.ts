@@ -11,36 +11,14 @@ export async function getDashboardStats(
     try {
         const supabase = supabaseAdmin;
 
-        // Get routine completion percentage
-        const routinePercentageResult = await supabase.rpc(
-            'get_routine_completion_percentage',
-            { user_id_param: userId, target_date: date }
-        );
-
-        // Get task completion percentage
-        const taskPercentageResult = await supabase.rpc(
-            'get_task_completion_percentage',
-            { user_id_param: userId, target_date: date }
-        );
-
-        // Get active goals count
-        const { count: activeGoalsCount } = await supabase
-            .from('goals')
-            .select('id', { count: 'exact' })
-            .eq('user_id', userId)
-            .eq('is_archived', false);
-
-        // Get total XP
-        const totalXPResult = await supabase.rpc('get_user_total_xp', {
-            user_id_param: userId,
-        });
-
-        // Get current streak
-        const { data: streakData } = await supabase
-            .from('streaks')
-            .select('current_streak')
-            .eq('user_id', userId)
-            .single();
+        // Parallelize all 5 independent queries
+        const [routinePercentageResult, taskPercentageResult, goalsResult, totalXPResult, streakResult] = await Promise.all([
+            supabase.rpc('get_routine_completion_percentage', { user_id_param: userId, target_date: date }),
+            supabase.rpc('get_task_completion_percentage', { user_id_param: userId, target_date: date }),
+            supabase.from('goals').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('is_archived', false),
+            supabase.rpc('get_user_total_xp', { user_id_param: userId }),
+            supabase.from('streaks').select('current_streak').eq('user_id', userId).single(),
+        ]);
 
         const totalXP = totalXPResult.data || 0;
         const currentRank = calculateRank(totalXP);
@@ -51,8 +29,8 @@ export async function getDashboardStats(
                 date,
                 routine_completion_percentage: routinePercentageResult.data || 0,
                 task_completion_percentage: taskPercentageResult.data || 0,
-                active_goals_count: activeGoalsCount || 0,
-                current_streak: streakData?.current_streak || 0,
+                active_goals_count: goalsResult.count || 0,
+                current_streak: streakResult.data?.current_streak || 0,
                 total_xp: totalXP,
                 current_rank: currentRank,
             },
@@ -155,20 +133,23 @@ export async function getHeatmapData(
         start.setDate(end.getDate() - days + 1);
         
         const startDateStr = start.toISOString().split('T')[0];
+        const endDateStr = end.toISOString().split('T')[0];
         
-        // Fetch all routines within the range
-        const { data: routines } = await supabase
-            .from('daily_routines')
-            .select('routine_date, is_completed')
-            .eq('user_id', userId)
-            .gte('routine_date', startDateStr);
-
-        // Fetch all tasks within the range
-        const { data: tasks } = await supabase
-            .from('daily_tasks')
-            .select('task_date, is_completed')
-            .eq('user_id', userId)
-            .gte('task_date', startDateStr);
+        // Fetch routines and tasks in parallel with both bounds
+        const [{ data: routines }, { data: tasks }] = await Promise.all([
+            supabase
+                .from('daily_routines')
+                .select('routine_date, is_completed')
+                .eq('user_id', userId)
+                .gte('routine_date', startDateStr)
+                .lte('routine_date', endDateStr),
+            supabase
+                .from('daily_tasks')
+                .select('task_date, is_completed')
+                .eq('user_id', userId)
+                .gte('task_date', startDateStr)
+                .lte('task_date', endDateStr),
+        ]);
             
         // Process data day by day
         for (let i = 0; i < days; i++) {

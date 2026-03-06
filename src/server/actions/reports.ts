@@ -42,7 +42,8 @@ export async function getAllReports(userId: string): Promise<ApiResponse<DailyRe
             .from('daily_reports')
             .select('*')
             .eq('user_id', userId)
-            .order('report_date', { ascending: false });
+            .order('report_date', { ascending: false })
+            .limit(50);
 
         if (error) {
             return { success: false, error: error.message };
