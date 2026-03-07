@@ -17,9 +17,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         // Read from localStorage on mount so it doesn't SSR mismatch
-        const storedTheme = localStorage.getItem('mission_0500_theme') as ThemeType;
-        if (storedTheme) {
-            setThemeState(storedTheme);
+        const storedTheme = localStorage.getItem('mission_0500_theme');
+        const validThemes: ThemeType[] = ['operator', 'scholar', 'athlete', 'protagonist'];
+        if (storedTheme && validThemes.includes(storedTheme as ThemeType)) {
+            setThemeState(storedTheme as ThemeType);
         }
         setMounted(true);
     }, []);

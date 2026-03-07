@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateDisciplineScore, validateEnergyScore } from '@/lib/utils/validators';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
+import { sanitizeOptional } from '@/server/utils/sanitize';
 import type { ApiResponse, DailyReport, ReportCreateInput, ReportUpdateInput } from '@/types';
 
 export async function getReportForDate(
@@ -10,6 +12,9 @@ export async function getReportForDate(
     date: string
 ): Promise<ApiResponse<DailyReport | null>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -36,6 +41,9 @@ export async function getReportForDate(
 
 export async function getAllReports(userId: string): Promise<ApiResponse<DailyReport[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -61,6 +69,9 @@ export async function getReportsForDateRange(
     endDate: string
 ): Promise<ApiResponse<DailyReport[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -86,6 +97,9 @@ export async function createReport(
     input: ReportCreateInput
 ): Promise<ApiResponse<DailyReport>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         // Validate scores if provided
         if (input.discipline_score && !validateDisciplineScore(input.discipline_score)) {
             return { success: false, error: 'Invalid discipline score (must be 1-10)' };
@@ -115,9 +129,9 @@ export async function createReport(
             .insert({
                 user_id: userId,
                 report_date: input.report_date,
-                accomplishments: input.accomplishments,
-                failures: input.failures,
-                lessons_learned: input.lessons_learned,
+                accomplishments: sanitizeOptional(input.accomplishments),
+                failures: sanitizeOptional(input.failures),
+                lessons_learned: sanitizeOptional(input.lessons_learned),
                 discipline_score: input.discipline_score,
                 energy_score: input.energy_score,
             })
@@ -142,6 +156,9 @@ export async function updateReport(
     input: ReportUpdateInput
 ): Promise<ApiResponse<DailyReport>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         // Validate scores if provided
         if (input.discipline_score && !validateDisciplineScore(input.discipline_score)) {
             return { success: false, error: 'Invalid discipline score (must be 1-10)' };
@@ -155,9 +172,9 @@ export async function updateReport(
 
         const updateData: Partial<DailyReport> = {};
 
-        if (input.accomplishments !== undefined) updateData.accomplishments = input.accomplishments;
-        if (input.failures !== undefined) updateData.failures = input.failures;
-        if (input.lessons_learned !== undefined) updateData.lessons_learned = input.lessons_learned;
+        if (input.accomplishments !== undefined) updateData.accomplishments = sanitizeOptional(input.accomplishments);
+        if (input.failures !== undefined) updateData.failures = sanitizeOptional(input.failures);
+        if (input.lessons_learned !== undefined) updateData.lessons_learned = sanitizeOptional(input.lessons_learned);
         if (input.discipline_score !== undefined) updateData.discipline_score = input.discipline_score;
         if (input.energy_score !== undefined) updateData.energy_score = input.energy_score;
 
@@ -186,6 +203,9 @@ export async function deleteReport(
     reportId: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { error } = await supabase
@@ -216,6 +236,9 @@ export async function getWeeklyAverageScores(
     }>
 > {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // Get last 7 days

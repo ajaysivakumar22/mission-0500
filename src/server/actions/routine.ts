@@ -5,7 +5,9 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateRoutineItem } from '@/lib/utils/validators';
 import { XP_CONFIG } from '@/lib/utils/xp';
 import { awardXP } from '@/server/services/xp-service';
-import { getUserSettings } from '@/server/actions/settings';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
+import { sanitizeText, sanitizeOptional } from '@/server/utils/sanitize';
+import { applyStrictModePenalty } from '@/server/utils/strict-mode';
 import type { ApiResponse, DailyRoutine, RoutineCreateInput, RoutineUpdateInput } from '@/types';
 
 export async function getRoutineForDate(
@@ -13,6 +15,9 @@ export async function getRoutineForDate(
     date: string
 ): Promise<ApiResponse<DailyRoutine[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -37,6 +42,9 @@ export async function addRoutineItem(
     input: RoutineCreateInput
 ): Promise<ApiResponse<DailyRoutine>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         if (!validateRoutineItem(input.item_name)) {
             return { success: false, error: 'Invalid routine item name' };
         }
@@ -59,9 +67,9 @@ export async function addRoutineItem(
             .insert({
                 user_id: userId,
                 routine_date: input.routine_date,
-                item_name: input.item_name,
+                item_name: sanitizeText(input.item_name),
                 item_order: input.item_order ?? nextOrder,
-                notes: input.notes,
+                notes: sanitizeOptional(input.notes),
             })
             .select()
             .single();
@@ -83,6 +91,9 @@ export async function updateRoutineItem(
     input: RoutineUpdateInput
 ): Promise<ApiResponse<DailyRoutine>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // Get the current item first
@@ -103,44 +114,23 @@ export async function updateRoutineItem(
             if (!validateRoutineItem(input.item_name)) {
                 return { success: false, error: 'Invalid routine item name' };
             }
-            updateData.item_name = input.item_name;
+            updateData.item_name = sanitizeText(input.item_name);
         }
 
         if (input.is_completed !== undefined) {
             updateData.is_completed = input.is_completed;
             updateData.completed_at = input.is_completed ? new Date().toISOString() : null;
 
-            // Award XP if completing, or Punish if uncompleting in Strict Mode
+            // Award XP if completing, or apply strict mode penalty if uncompleting
             if (input.is_completed && !currentItem.is_completed) {
                 await awardXP(userId, XP_CONFIG.ROUTINE_COMPLETION, `Completed routine: ${currentItem.item_name}`, currentItem.routine_date);
             } else if (!input.is_completed && currentItem.is_completed) {
-                // Check if they are in Strict Mode
-                const settingsResult = await getUserSettings(userId);
-                if (settingsResult.success && settingsResult.data?.strict_mode) {
-                    // Cooldown: Only 1 penalty per item per day
-                    const penaltyReason = `STRICT MODE PENALTY: Failed routine ${currentItem.item_name}`;
-                    const { data: existing } = await supabase
-                        .from('xp_records')
-                        .select('id')
-                        .eq('user_id', userId)
-                        .eq('reason', penaltyReason)
-                        .eq('related_date', currentItem.routine_date)
-                        .limit(1);
-
-                    if (!existing || existing.length === 0) {
-                        await awardXP(
-                            userId,
-                            XP_CONFIG.PUNISHMENT_MISSED_DAY,
-                            penaltyReason,
-                            currentItem.routine_date
-                        );
-                    }
-                }
+                await applyStrictModePenalty(userId, 'routine', currentItem.item_name, currentItem.routine_date);
             }
         }
 
         if (input.notes !== undefined) {
-            updateData.notes = input.notes;
+            updateData.notes = sanitizeOptional(input.notes);
         }
 
         if (input.item_order !== undefined) {
@@ -177,6 +167,9 @@ export async function deleteRoutineItem(
     itemId: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { error } = await supabase
@@ -201,6 +194,9 @@ export async function getRoutineCompletionPercentage(
     date: string
 ): Promise<ApiResponse<number>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase.rpc(
@@ -267,6 +263,9 @@ export async function initializeDefaultRoutine(
     date: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // Check if routine already exists for this date
@@ -338,6 +337,9 @@ export async function initializeRoutineFromTemplate(
     archetypeKey: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
         const { ROUTINE_TEMPLATES, DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
 

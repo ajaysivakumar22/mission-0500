@@ -6,6 +6,8 @@ import { cookies } from 'next/headers';
 import { validateEmail, validatePassword } from '@/lib/utils/validators';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
+import { sanitizeText } from '@/server/utils/sanitize';
 import type { ApiResponse } from '@/types';
 
 export async function signUp(
@@ -145,6 +147,9 @@ export async function getCurrentSession() {
 
 export async function getUserProfile(userId: string) {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized', data: null };
+
         const { data: user, error } = await supabaseAdmin
             .from('users')
             .select('*')
@@ -167,10 +172,13 @@ export async function updateUserProfile(
     avatarUrl?: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const { error } = await supabaseAdmin
             .from('users')
             .update({
-                full_name: fullName,
+                full_name: sanitizeText(fullName),
                 ...(avatarUrl && { avatar_url: avatarUrl }),
             })
             .eq('id', userId);

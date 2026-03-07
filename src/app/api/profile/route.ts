@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { getServerSession } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/utils/rate-limit';
 
 const PROFILE_RATE_LIMIT = { maxRequests: 10, windowSeconds: 60 };
@@ -9,6 +10,12 @@ export async function POST(request: NextRequest) {
     if (rateLimited) return rateLimited;
 
     try {
+        // Verify the caller is authenticated
+        const session = await getServerSession();
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { userId, email, fullName } = await request.json();
 
         if (!userId || !email || !fullName) {
@@ -16,6 +23,11 @@ export async function POST(request: NextRequest) {
                 { error: 'Missing required fields' },
                 { status: 400 }
             );
+        }
+
+        // Ensure the authenticated user can only create/update their own profile
+        if (session.user.id !== userId) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         // Create user profile using Admin client (bypasses RLS)

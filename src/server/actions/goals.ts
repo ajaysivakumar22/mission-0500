@@ -3,10 +3,17 @@
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateGoalTitle } from '@/lib/utils/validators';
-import type { ApiResponse, Goal, GoalCreateInput, GoalUpdateInput, GoalLog, GoalLogCreateInput } from '@/types';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
+import { sanitizeText, sanitizeOptional } from '@/server/utils/sanitize';
+import type { ApiResponse, Goal, GoalCreateInput, GoalUpdateInput, GoalLog, GoalLogCreateInput, GoalCategory } from '@/types';
+
+const VALID_CATEGORIES: GoalCategory[] = ['short_term', 'mid_term', 'long_term'];
 
 export async function getAllGoals(userId: string): Promise<ApiResponse<Goal[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -31,6 +38,13 @@ export async function getGoalsByCategory(
     category: string
 ): Promise<ApiResponse<Goal[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
+        if (!VALID_CATEGORIES.includes(category as GoalCategory)) {
+            return { success: false, error: 'Invalid category' };
+        }
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -53,6 +67,9 @@ export async function getGoalsByCategory(
 
 export async function getActiveGoalsCount(userId: string): Promise<ApiResponse<number>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { count, error } = await supabase
@@ -76,8 +93,15 @@ export async function createGoal(
     input: GoalCreateInput
 ): Promise<ApiResponse<Goal>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         if (!validateGoalTitle(input.title)) {
             return { success: false, error: 'Invalid goal title' };
+        }
+
+        if (!VALID_CATEGORIES.includes(input.category)) {
+            return { success: false, error: 'Invalid category. Must be short_term, mid_term, or long_term' };
         }
 
         const supabase = supabaseAdmin;
@@ -86,8 +110,8 @@ export async function createGoal(
             .from('goals')
             .insert({
                 user_id: userId,
-                title: input.title,
-                description: input.description,
+                title: sanitizeText(input.title),
+                description: sanitizeOptional(input.description),
                 category: input.category,
                 target_date: input.target_date,
                 progress_percentage: input.progress_percentage || 0,
@@ -112,6 +136,9 @@ export async function updateGoal(
     input: GoalUpdateInput
 ): Promise<ApiResponse<Goal>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         if (input.title && !validateGoalTitle(input.title)) {
@@ -126,8 +153,8 @@ export async function updateGoal(
 
         const updateData: Partial<Goal> = {};
 
-        if (input.title !== undefined) updateData.title = input.title;
-        if (input.description !== undefined) updateData.description = input.description;
+        if (input.title !== undefined) updateData.title = sanitizeText(input.title);
+        if (input.description !== undefined) updateData.description = sanitizeOptional(input.description);
         if (input.progress_percentage !== undefined) updateData.progress_percentage = input.progress_percentage;
         if (input.target_date !== undefined) updateData.target_date = input.target_date;
         if (input.is_archived !== undefined) updateData.is_archived = input.is_archived;
@@ -156,6 +183,9 @@ export async function deleteGoal(
     goalId: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // First delete all goal logs
@@ -188,6 +218,9 @@ export async function archiveGoal(
     goalId: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { error } = await supabase
@@ -209,14 +242,18 @@ export async function archiveGoal(
 
 // Goal Logs
 
-export async function getGoalLogs(goalId: string): Promise<ApiResponse<GoalLog[]>> {
+export async function getGoalLogs(userId: string, goalId: string): Promise<ApiResponse<GoalLog[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
             .from('goal_logs')
             .select('*')
             .eq('goal_id', goalId)
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -234,6 +271,9 @@ export async function addGoalLog(
     input: GoalLogCreateInput
 ): Promise<ApiResponse<GoalLog>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         if (!input.entry_text || input.entry_text.trim().length === 0) {
             return { success: false, error: 'Goal log entry is required' };
         }
@@ -282,7 +322,7 @@ export async function addGoalLog(
             .insert({
                 user_id: userId,
                 goal_id: input.goal_id,
-                entry_text: input.entry_text.trim(),
+                entry_text: sanitizeText(input.entry_text.trim()),
                 progress_increment: input.progress_increment || 0,
             })
             .select()

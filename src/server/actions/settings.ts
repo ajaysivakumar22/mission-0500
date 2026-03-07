@@ -1,7 +1,11 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
 import type { ApiResponse } from '@/types';
+import type { ThemeType } from '@/lib/context/ThemeContext';
+
+const VALID_THEMES: ThemeType[] = ['operator', 'scholar', 'athlete', 'protagonist'];
 
 export interface UserSettings {
     user_id: string;
@@ -64,10 +68,24 @@ export async function updateUserSettings(
     settings: Partial<UserSettings>
 ): Promise<ApiResponse<UserSettings>> {
     try {
-        // Upsert the settings
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
+        // Validate theme if provided
+        if (settings.theme && !VALID_THEMES.includes(settings.theme as ThemeType)) {
+            return { success: false, error: 'Invalid theme' };
+        }
+
+        // Whitelist allowed fields to prevent injection of arbitrary DB columns
+        const safeSettings: Record<string, unknown> = { user_id: userId, updated_at: new Date().toISOString() };
+        if (settings.strict_mode !== undefined) safeSettings.strict_mode = settings.strict_mode;
+        if (settings.theme !== undefined) safeSettings.theme = settings.theme;
+        if (settings.timezone !== undefined) safeSettings.timezone = settings.timezone;
+        if (settings.onboarding_completed !== undefined) safeSettings.onboarding_completed = settings.onboarding_completed;
+
         const { data, error } = await supabaseAdmin
             .from('user_settings')
-            .upsert({ user_id: userId, ...settings, updated_at: new Date().toISOString() })
+            .upsert(safeSettings)
             .select()
             .single();
 

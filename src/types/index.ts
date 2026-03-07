@@ -16,9 +16,10 @@ export interface UserSettings {
     id: string;
     user_id: string;
     theme: string;
-    countdown_target?: string;
-    countdown_date?: string;
-    notifications_enabled: boolean;
+    strict_mode?: boolean;
+    timezone?: string;
+    onboarding_completed?: boolean;
+    is_premium?: boolean;
     created_at: string;
     updated_at: string;
 }

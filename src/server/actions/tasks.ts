@@ -5,14 +5,21 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { validateTaskTitle } from '@/lib/utils/validators';
 import { XP_CONFIG } from '@/lib/utils/xp';
 import { awardXP } from '@/server/services/xp-service';
-import { getUserSettings } from '@/server/actions/settings';
-import type { ApiResponse, DailyTask, TaskCreateInput, TaskUpdateInput } from '@/types';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
+import { sanitizeText, sanitizeOptional } from '@/server/utils/sanitize';
+import { applyStrictModePenalty } from '@/server/utils/strict-mode';
+import type { ApiResponse, DailyTask, TaskCreateInput, TaskUpdateInput, TaskPriority } from '@/types';
+
+const VALID_PRIORITIES: TaskPriority[] = ['low', 'medium', 'high'];
 
 export async function getTasksForDate(
     userId: string,
     date: string
 ): Promise<ApiResponse<DailyTask[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -34,6 +41,9 @@ export async function getTasksForDate(
 
 export async function getAllTasks(userId: string): Promise<ApiResponse<DailyTask[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -57,8 +67,16 @@ export async function addTask(
     input: TaskCreateInput
 ): Promise<ApiResponse<DailyTask>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         if (!validateTaskTitle(input.title)) {
             return { success: false, error: 'Invalid task title' };
+        }
+
+        const priority = input.priority || 'medium';
+        if (!VALID_PRIORITIES.includes(priority)) {
+            return { success: false, error: 'Invalid priority. Must be low, medium, or high' };
         }
 
         const supabase = supabaseAdmin;
@@ -68,9 +86,9 @@ export async function addTask(
             .insert({
                 user_id: userId,
                 task_date: input.task_date,
-                title: input.title,
-                description: input.description,
-                priority: input.priority || 'medium',
+                title: sanitizeText(input.title),
+                description: sanitizeOptional(input.description),
+                priority,
                 goal_id: input.goal_id,
             })
             .select()
@@ -93,6 +111,9 @@ export async function updateTask(
     input: TaskUpdateInput
 ): Promise<ApiResponse<DailyTask>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // Get the current task
@@ -113,14 +134,17 @@ export async function updateTask(
             if (!validateTaskTitle(input.title)) {
                 return { success: false, error: 'Invalid task title' };
             }
-            updateData.title = input.title;
+            updateData.title = sanitizeText(input.title);
         }
 
         if (input.description !== undefined) {
-            updateData.description = input.description;
+            updateData.description = sanitizeOptional(input.description);
         }
 
         if (input.priority !== undefined) {
+            if (!VALID_PRIORITIES.includes(input.priority)) {
+                return { success: false, error: 'Invalid priority. Must be low, medium, or high' };
+            }
             updateData.priority = input.priority;
         }
 
@@ -132,32 +156,11 @@ export async function updateTask(
             updateData.is_completed = input.is_completed;
             updateData.completed_at = input.is_completed ? new Date().toISOString() : null;
 
-            // Award XP if completing, or Punish if uncompleting in Strict Mode
+            // Award XP if completing, or apply strict mode penalty if uncompleting
             if (input.is_completed && !currentTask.is_completed) {
                 await awardXP(userId, XP_CONFIG.TASK_COMPLETION, `Completed task: ${currentTask.title}`, currentTask.task_date);
             } else if (!input.is_completed && currentTask.is_completed) {
-                // Check if they are in Strict Mode
-                const settingsResult = await getUserSettings(userId);
-                if (settingsResult.success && settingsResult.data?.strict_mode) {
-                    // Cooldown: Only 1 penalty per item per day
-                    const penaltyReason = `STRICT MODE PENALTY: Failed task ${currentTask.title}`;
-                    const { data: existing } = await supabase
-                        .from('xp_records')
-                        .select('id')
-                        .eq('user_id', userId)
-                        .eq('reason', penaltyReason)
-                        .eq('related_date', currentTask.task_date)
-                        .limit(1);
-
-                    if (!existing || existing.length === 0) {
-                        await awardXP(
-                            userId,
-                            XP_CONFIG.PUNISHMENT_MISSED_DAY,
-                            penaltyReason,
-                            currentTask.task_date
-                        );
-                    }
-                }
+                await applyStrictModePenalty(userId, 'task', currentTask.title, currentTask.task_date);
             }
         }
 
@@ -186,6 +189,9 @@ export async function deleteTask(
     taskId: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { error } = await supabase
@@ -210,6 +216,9 @@ export async function getTaskCompletionPercentage(
     date: string
 ): Promise<ApiResponse<number>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase.rpc(
@@ -229,6 +238,9 @@ export async function getTaskCompletionPercentage(
 
 export async function getCompletedTasksCount(userId: string): Promise<ApiResponse<number>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { count, error } = await supabase
