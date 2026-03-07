@@ -65,8 +65,7 @@ export default function OnboardingClient({ userId }: Props) {
 
             // Use window.location for a full page reload to pick up server-side changes
             window.location.href = '/dashboard';
-        } catch (error) {
-            console.error('Failed Onboarding', error);
+        } catch {
             setLoading(false);
         }
     };

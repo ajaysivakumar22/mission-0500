@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import {
     Users, MessageSquare, BarChart3, TrendingUp, IndianRupee, ShieldAlert,
-    Target, Activity, Zap, Search
+    Target, Activity, Zap, Search, Settings, FileText, Shield, Mail, Info, ExternalLink
 } from 'lucide-react';
+import Link from 'next/link';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar
@@ -31,7 +32,7 @@ export default function AdminDashboardClient({
     userGrowthData = [],
     revenueData = [],
 }: Props) {
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'revenue' | 'feedback'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'revenue' | 'feedback' | 'settings'>('overview');
     const [searchQuery, setSearchQuery] = useState('');
 
     const safeUsers = Array.isArray(initialUsers) ? initialUsers : [];
@@ -82,6 +83,9 @@ export default function AdminDashboardClient({
                     {safeFeedbacks.length > 0 && (
                         <span className="bg-accent text-black text-xs px-2 py-0.5 rounded-full font-bold">{safeFeedbacks.length}</span>
                     )}
+                </button>
+                <button onClick={() => setActiveTab('settings')} className={"flex items-center gap-2 px-5 py-2.5 font-bold rounded-lg transition-colors " + getBtnClass(activeTab === 'settings')}>
+                    <Settings className="w-5 h-5" /> Settings
                 </button>
             </div>
 
@@ -316,6 +320,102 @@ export default function AdminDashboardClient({
                             <p className="text-textMuted text-sm mt-1">User feedback will appear here when submitted.</p>
                         </div>
                     )}
+                </div>
+            )}
+            {/* ===================== SETTINGS TAB ===================== */}
+            {activeTab === 'settings' && (
+                <div className="space-y-8">
+                    {/* Platform Info */}
+                    <div className="bg-surface/50 border border-white/10 p-8 rounded-2xl">
+                        <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                            <Settings className="w-6 h-6 text-accent" /> Platform Configuration
+                        </h2>
+                        <p className="text-textMuted text-sm mb-6">
+                            Core platform settings and compliance pages for Razorpay payment gateway review.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-xl bg-background/50 border border-border">
+                                <p className="text-xs font-bold uppercase tracking-widest text-textMuted mb-1">Platform Name</p>
+                                <p className="text-lg font-black text-white">MISSION 0500</p>
+                            </div>
+                            <div className="p-5 rounded-xl bg-background/50 border border-border">
+                                <p className="text-xs font-bold uppercase tracking-widest text-textMuted mb-1">Contact Email</p>
+                                <p className="text-sm text-white break-all">mission0500commandcentre@gmail.com</p>
+                            </div>
+                            <div className="p-5 rounded-xl bg-background/50 border border-border">
+                                <p className="text-xs font-bold uppercase tracking-widest text-textMuted mb-1">Subscription Plan</p>
+                                <p className="text-lg font-black text-accent">Elite Protocol — ₹399/mo</p>
+                            </div>
+                            <div className="p-5 rounded-xl bg-background/50 border border-border">
+                                <p className="text-xs font-bold uppercase tracking-widest text-textMuted mb-1">Payment Gateway</p>
+                                <p className="text-lg font-bold text-white">Razorpay</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Legal & Compliance Pages */}
+                    <div className="bg-surface/50 border border-white/10 p-8 rounded-2xl">
+                        <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                            <Shield className="w-5 h-5 text-accent" /> Legal &amp; Compliance Pages
+                        </h2>
+                        <p className="text-textMuted text-sm mb-6">
+                            These pages are required for payment gateway approval and are publicly accessible.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {[
+                                { href: '/about', label: 'About', icon: Info, desc: 'Platform description and mission' },
+                                { href: '/services', label: 'Services', icon: Target, desc: 'What users receive after payment' },
+                                { href: '/contact', label: 'Contact', icon: Mail, desc: 'Support email and response times' },
+                                { href: '/privacy', label: 'Privacy Policy', icon: Shield, desc: 'Data collection, usage, and rights' },
+                                { href: '/terms', label: 'Terms & Conditions', icon: FileText, desc: 'Rules, IP, liability, governing law' },
+                                { href: '/refund', label: 'Refund Policy', icon: FileText, desc: 'Eligibility, timelines, cancellations' },
+                            ].map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    target="_blank"
+                                    className="flex items-start gap-3 p-5 rounded-xl bg-background/50 border border-border hover:border-accent/40 transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition">
+                                        <item.icon className="w-5 h-5 text-accent" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-white">{item.label}</span>
+                                            <ExternalLink className="w-3.5 h-3.5 text-textMuted opacity-0 group-hover:opacity-100 transition" />
+                                        </div>
+                                        <p className="text-xs text-textMuted mt-1">{item.desc}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Razorpay Compliance Checklist */}
+                    <div className="bg-surface/50 border border-accent/20 p-8 rounded-2xl">
+                        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <ShieldAlert className="w-5 h-5 text-accent" /> Razorpay Compliance Checklist
+                        </h2>
+                        <div className="space-y-3">
+                            {[
+                                { label: 'Service description page', status: true },
+                                { label: 'Privacy Policy', status: true },
+                                { label: 'Terms & Conditions', status: true },
+                                { label: 'Refund & Cancellation Policy', status: true },
+                                { label: 'Contact details visible', status: true },
+                                { label: 'Pricing clearly displayed', status: true },
+                            ].map((item) => (
+                                <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                        item.status ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                    }`}>
+                                        {item.status ? '✓' : '✗'}
+                                    </div>
+                                    <span className="text-sm text-white">{item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

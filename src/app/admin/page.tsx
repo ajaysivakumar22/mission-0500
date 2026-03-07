@@ -23,7 +23,7 @@ export default async function AdminPage() {
         );
         usersCount = count || 0;
     } catch (e) {
-        console.error('[ADMIN] Failed to fetch user count:', e);
+        // Failed to fetch user count — fallback to 0
     }
 
     // 2. Users list
@@ -39,7 +39,7 @@ export default async function AdminPage() {
         );
         users = data || [];
     } catch (e) {
-        console.error('[ADMIN] Failed to fetch users:', e);
+        // Failed to fetch users — fallback to empty
     }
 
     // 3. Feedbacks
@@ -54,7 +54,7 @@ export default async function AdminPage() {
         );
         feedbacks = data || [];
     } catch (e) {
-        console.error('[ADMIN] Failed to fetch feedbacks:', e);
+        // Failed to fetch feedbacks — fallback to empty
     }
 
     // 4. Subscriptions (with user email via join)
@@ -80,7 +80,7 @@ export default async function AdminPage() {
             return sum;
         }, 0);
     } catch (e) {
-        console.warn('[ADMIN] Subscriptions fetch failed:', e);
+        // Subscriptions fetch failed — fallback to empty
     }
 
     // 5. Build user growth chart data (signups per month from real created_at)
@@ -96,7 +96,7 @@ export default async function AdminPage() {
         }
         userGrowthData = Object.entries(monthlyCounts).map(([name, count]) => ({ name, users: count }));
     } catch (e) {
-        console.error('[ADMIN] Failed to build user growth data:', e);
+        // Failed to build user growth data — fallback to empty
     }
 
     // 6. Build revenue chart data (subscriptions per month)
@@ -113,7 +113,7 @@ export default async function AdminPage() {
         }
         revenueData = Object.entries(monthlyRevenue).map(([name, amount]) => ({ name, amount }));
     } catch (e) {
-        console.error('[ADMIN] Failed to build revenue data:', e);
+        // Failed to build revenue data — fallback to empty
     }
 
     return (

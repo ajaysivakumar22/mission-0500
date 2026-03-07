@@ -72,8 +72,6 @@ export default function LoginPage() {
                     return;
                 }
 
-                console.log('[AUTH] Starting signup for:', formData.email);
-
                 // Sign up using the browser Supabase client
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: formData.email,
@@ -84,8 +82,6 @@ export default function LoginPage() {
                         },
                     },
                 });
-
-                console.log('[AUTH] Signup result:', { error: authError?.message, hasSession: !!authData?.session, hasUser: !!authData?.user });
 
                 if (authError) {
                     setError(authError.message);
@@ -102,7 +98,6 @@ export default function LoginPage() {
 
                 // Create profile via API route (runs server-side with admin client)
                 try {
-                    console.log('[AUTH] Creating profile...');
                     await fetch('/api/profile', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -112,25 +107,20 @@ export default function LoginPage() {
                             fullName: formData.fullName,
                         }),
                     });
-                    console.log('[AUTH] Profile created');
                 } catch {
-                    console.warn('[AUTH] Profile creation via API failed, will retry on next login');
+                    // Profile creation via API failed, will retry on next login
                 }
 
                 // Signup succeeded with session — full page navigation to pick up cookies
-                console.log('[AUTH] Redirecting to /dashboard...');
                 window.location.href = '/dashboard';
                 return;
             } else {
-                console.log('[AUTH] Starting sign-in for:', formData.email);
 
                 // Sign in using the browser Supabase client
                 const { data, error: signInError } = await supabase.auth.signInWithPassword({
                     email: formData.email,
                     password: formData.password,
                 });
-
-                console.log('[AUTH] Sign-in result:', { error: signInError?.message, hasSession: !!data?.session, hasUser: !!data?.user });
 
                 if (signInError) {
                     setError(signInError.message);
@@ -145,12 +135,10 @@ export default function LoginPage() {
                 }
 
                 // Sign in succeeded — full page navigation to pick up cookies
-                console.log('[AUTH] Login successful! Checking role...');
                 try {
                     const { data: profile } = await supabase.from('users').select('role').eq('id', data.user!.id).single();
                     if (profile?.role === 'admin') {
                         document.cookie = "user-role=admin; path=/; max-age=86400";
-                        console.log('[AUTH] Redirecting to /admin...');
                         window.location.href = '/admin';
                         return;
                     } else {
@@ -161,12 +149,10 @@ export default function LoginPage() {
                     document.cookie = "user-role=user; path=/; max-age=86400";
                 }
 
-                console.log('[AUTH] Redirecting to /dashboard...');
                 window.location.href = '/dashboard';
                 return;
             }
         } catch (err: any) {
-            console.error('[AUTH] Unexpected error:', err);
             setError(err?.message || 'An unexpected error occurred. Please try again.');
             setIsLoading(false);
         }

@@ -16,7 +16,7 @@ export function SystemSyncer({ userId }: { userId: string }) {
                 // Update silently in background. If it fails, no problem, we will retry next session.
                 await updateUserSettings(userId, { timezone: tz });
             } catch (e) {
-                console.error("[SystemSyncer] Timezone sync failed", e);
+                // Timezone sync failed — will retry next session
             }
         };
 

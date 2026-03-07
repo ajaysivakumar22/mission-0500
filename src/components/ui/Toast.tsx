@@ -21,7 +21,7 @@ export function useToast() {
     const context = useContext(ToastContext);
     if (!context) {
         // Fallback for components outside provider — won't crash
-        return { toast: (message: string) => { console.warn('[Toast] No provider:', message); } };
+        return { toast: (_message: string) => { /* no-op outside provider */ } };
     }
     return context;
 }

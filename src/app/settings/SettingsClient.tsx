@@ -12,7 +12,8 @@ import { updateUserProfile, signOut } from '@/server/actions/auth';
 import { updateUserSettings } from '@/server/actions/settings';
 import { submitFeedback } from '@/server/actions/feedback';
 import { useTheme } from '@/lib/context/ThemeContext';
-import { LogOut, Save, ShieldAlert, Crown, Paintbrush, Zap, BookOpen, User, Target, Activity, MessageSquare } from 'lucide-react';
+import { LogOut, Save, ShieldAlert, Crown, Paintbrush, Zap, BookOpen, User, Target, Activity, MessageSquare, FileText, Shield, Mail, Info, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 interface SettingsClientProps {
     userId: string;
@@ -228,6 +229,39 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
                                             } shadow-md`}
                                     />
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Legal & Information */}
+                        <div className="rounded-2xl border border-white/10 bg-surface/80 p-8 backdrop-blur-md shadow-lg">
+                            <h2 className="mb-6 text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-textMuted uppercase tracking-wide">Legal &amp; Information</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    { href: '/about', label: 'About Mission 0500', icon: Info, desc: 'Our mission, story, and the founder behind the command center' },
+                                    { href: '/services', label: 'Services', icon: Target, desc: 'What we offer — free tier and Elite Protocol features' },
+                                    { href: '/contact', label: 'Contact Us', icon: Mail, desc: 'Get in touch with the Mission 0500 team' },
+                                    { href: '/privacy', label: 'Privacy Policy', icon: Shield, desc: 'How we collect, use, and protect your data' },
+                                    { href: '/terms', label: 'Terms & Conditions', icon: FileText, desc: 'Rules of engagement and acceptable use' },
+                                    { href: '/refund', label: 'Refund & Cancellation Policy', icon: FileText, desc: 'Eligibility, timelines, and cancellation rules' },
+                                ].map((item) => (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        target="_blank"
+                                        className="flex items-start gap-4 p-5 rounded-xl bg-background/50 border border-border hover:border-primary/50 transition-all group"
+                                    >
+                                        <div className="w-11 h-11 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/30 transition">
+                                            <item.icon className="w-5 h-5 text-accent" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-bold text-textMain">{item.label}</span>
+                                                <ExternalLink className="w-3 h-3 text-textMuted opacity-0 group-hover:opacity-100 transition" />
+                                            </div>
+                                            <p className="text-xs text-textMuted mt-1 leading-relaxed">{item.desc}</p>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
 

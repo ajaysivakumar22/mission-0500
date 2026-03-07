@@ -96,10 +96,10 @@ export default async function DashboardPage() {
 
         // Check and award any new medals in the background
         if (stats) {
-            checkAndAwardMedals(session.user.id, stats).catch(console.error);
+            checkAndAwardMedals(session.user.id, stats).catch(() => {});
         }
     } catch (error) {
-        console.warn('[DASHBOARD] Data fetch failed or timed out, showing empty dashboard:', error);
+        // Data fetch failed or timed out — show empty dashboard
     }
 
     const rank = calculateRank(totalXP);
