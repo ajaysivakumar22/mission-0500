@@ -1,0 +1,1 @@
+export default async function Template({ children }: { children: React.ReactNode }) { await new Promise((resolve) => setTimeout(resolve, 1500)); return <>{children}</>; }

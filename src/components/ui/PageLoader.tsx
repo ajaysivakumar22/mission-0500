@@ -16,7 +16,7 @@ export default function PageLoader() {
                 <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#0B1D13] shadow-[0_0_50px_rgba(255,214,10,0.15)]">
                     <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                        transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
                         className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#FFD60A] border-r-[#FFD60A]/30"
                     />
                     <div className="flex items-center justify-center">
@@ -39,17 +39,17 @@ export default function PageLoader() {
                     <div className="flex space-x-1">
                         <motion.div
                             animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ repeat: Infinity, duration: 1.5, delay: 0 }}
+                            transition={{ repeat: Infinity, duration: 2, delay: 0 }}
                             className="h-1.5 w-1.5 rounded-full bg-white/50"
                         />
                         <motion.div
                             animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ repeat: Infinity, duration: 1.5, delay: 0.2 }}
+                            transition={{ repeat: Infinity, duration: 2, delay: 0.3 }}
                             className="h-1.5 w-1.5 rounded-full bg-white/50"
                         />
                         <motion.div
                             animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ repeat: Infinity, duration: 1.5, delay: 0.4 }}
+                            transition={{ repeat: Infinity, duration: 2, delay: 0.6 }}
                             className="h-1.5 w-1.5 rounded-full bg-white/50"
                         />
                     </div>
