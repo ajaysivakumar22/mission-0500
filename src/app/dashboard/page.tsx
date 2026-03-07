@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getServerSession } from '@/lib/supabase/server';
 import { getDashboardStats, getHeatmapData } from '@/server/services/dashboard-service';
 import { getTotalXP } from '@/server/services/xp-service';
@@ -15,20 +16,30 @@ export default async function DashboardPage() {
         redirect('/login');
     }
 
+    const cookieStore = await cookies();
+    const userRoleCookie = cookieStore.get('user-role')?.value;
+
     const timeoutFallback = <T,>(promise: PromiseLike<T>, ms: number, fallback: T): Promise<T> =>
         Promise.race([Promise.resolve(promise), new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))]);
 
     // Check if admin is trying to access user dashboard
-    try {
-        const { data: profile } = await timeoutFallback(
-            supabaseAdmin.from('users').select('role').eq('id', session.user.id).single(),
-            3000,
-            { data: null } as any
-        );
-        if (profile?.role === 'admin') {
-            redirect('/admin');
-        }
-    } catch { /* continue as regular user */ }
+    let isAdmin = userRoleCookie === 'admin';
+    if (!isAdmin) {
+        try {
+            const { data: profile } = await timeoutFallback(
+                supabaseAdmin.from('users').select('role').eq('id', session.user.id).single(),
+                3000,
+                { data: null } as any
+            );
+            if (profile?.role === 'admin') {
+                isAdmin = true;
+            }
+        } catch { /* continue as regular user */ }
+    }
+
+    if (isAdmin) {
+        redirect('/admin');
+    }
 
     let userSettings: any = null;
     try {

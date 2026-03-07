@@ -11,9 +11,16 @@ export default async function AdminPage() {
     let userGrowthData: any[] = [];
     let revenueData: any[] = [];
 
+    const timeoutFallback = <T,>(promise: PromiseLike<T>, ms: number, fallback: T): Promise<T> =>
+        Promise.race([Promise.resolve(promise), new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))]);
+
     // 1. Total users count
     try {
-        const { count } = await supabaseAdmin.from('users').select('*', { count: 'exact', head: true });
+        const { count } = await timeoutFallback(
+            supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
+            3000,
+            { count: 0 } as any
+        );
         usersCount = count || 0;
     } catch (e) {
         console.error('[ADMIN] Failed to fetch user count:', e);
@@ -21,11 +28,15 @@ export default async function AdminPage() {
 
     // 2. Users list
     try {
-        const { data } = await supabaseAdmin
-            .from('users')
-            .select('id, email, full_name, created_at, role')
-            .order('created_at', { ascending: false })
-            .limit(100);
+        const { data } = await timeoutFallback(
+            supabaseAdmin
+                .from('users')
+                .select('id, email, full_name, created_at, role')
+                .order('created_at', { ascending: false })
+                .limit(100),
+            3000,
+            { data: [] } as any
+        );
         users = data || [];
     } catch (e) {
         console.error('[ADMIN] Failed to fetch users:', e);
@@ -33,10 +44,14 @@ export default async function AdminPage() {
 
     // 3. Feedbacks
     try {
-        const { data } = await supabaseAdmin
-            .from('user_feedbacks')
-            .select('id, user_id, category, message, status, created_at')
-            .order('created_at', { ascending: false });
+        const { data } = await timeoutFallback(
+            supabaseAdmin
+                .from('user_feedbacks')
+                .select('id, user_id, category, message, status, created_at')
+                .order('created_at', { ascending: false }),
+            3000,
+            { data: [] } as any
+        );
         feedbacks = data || [];
     } catch (e) {
         console.error('[ADMIN] Failed to fetch feedbacks:', e);
@@ -44,10 +59,14 @@ export default async function AdminPage() {
 
     // 4. Subscriptions (with user email via join)
     try {
-        const { data, count } = await supabaseAdmin
-            .from('user_subscriptions')
-            .select('id, user_id, tier, status, current_period_end, created_at, users(email)', { count: 'exact' })
-            .order('created_at', { ascending: false });
+        const { data, count } = await timeoutFallback(
+            supabaseAdmin
+                .from('user_subscriptions')
+                .select('id, user_id, tier, status, current_period_end, created_at, users(email)', { count: 'exact' })
+                .order('created_at', { ascending: false }),
+            3000,
+            { data: [], count: 0 } as any
+        );
 
         subscriptions = data || [];
         totalSubscriptions = (data || []).filter((s: any) => s.status === 'active').length;

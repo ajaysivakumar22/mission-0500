@@ -3,6 +3,7 @@ import { getServerSession } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { LogOut } from 'lucide-react';
 import { signOut } from '@/server/actions/auth';
+import { cookies } from 'next/headers';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
     const session = await getServerSession();
@@ -11,13 +12,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         redirect('/login');
     }
 
-    const { data: profile } = await supabaseAdmin
-        .from('users')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
+    const cookieStore = await cookies();
+    const userRoleCookie = cookieStore.get('user-role')?.value;
 
-    if (!profile || profile.role !== 'admin') {
+    let isAdmin = userRoleCookie === 'admin';
+
+    // Verify DB if not cached in cookie
+    if (!isAdmin) {
+        try {
+            const timeoutPromise = new Promise<{ data: any }>(resolve => setTimeout(() => resolve({ data: null }), 3000));
+            const { data: profile } = await Promise.race([
+                supabaseAdmin.from('users').select('role').eq('id', session.user.id).single(),
+                timeoutPromise
+            ]);
+
+            if (profile?.role === 'admin') {
+                isAdmin = true;
+            }
+        } catch { /* ignore network error */ }
+    }
+
+    if (!isAdmin) {
         redirect('/dashboard');
     }
 

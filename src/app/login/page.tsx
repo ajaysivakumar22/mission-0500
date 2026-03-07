@@ -149,12 +149,16 @@ export default function LoginPage() {
                 try {
                     const { data: profile } = await supabase.from('users').select('role').eq('id', data.user!.id).single();
                     if (profile?.role === 'admin') {
+                        document.cookie = "user-role=admin; path=/; max-age=86400";
                         console.log('[AUTH] Redirecting to /admin...');
                         window.location.href = '/admin';
                         return;
+                    } else {
+                        document.cookie = "user-role=user; path=/; max-age=86400";
                     }
                 } catch (e) {
                     // Safe fail
+                    document.cookie = "user-role=user; path=/; max-age=86400";
                 }
 
                 console.log('[AUTH] Redirecting to /dashboard...');
