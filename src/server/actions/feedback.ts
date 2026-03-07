@@ -3,6 +3,7 @@
 import { getServerSession } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
+import { sanitizeText } from '@/server/utils/sanitize';
 
 export async function submitFeedback(data: { category: string; message: string }) {
     try {
@@ -16,12 +17,11 @@ export async function submitFeedback(data: { category: string; message: string }
             .from('user_feedbacks')
             .insert({
                 user_id: session.user.id,
-                category: data.category,
-                message: data.message
+                category: sanitizeText(data.category),
+                message: sanitizeText(data.message)
             });
 
         if (error) {
-            console.error('Feedback insertion error:', error);
             return { success: false, error: 'Failed to submit feedback' };
         }
 

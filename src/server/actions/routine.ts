@@ -254,7 +254,7 @@ async function checkAndAwardFullDayBonus(
             }
         }
     } catch (error) {
-        console.error('Failed to check/award full day bonus:', error);
+        // Full day bonus failure is non-critical
     }
 }
 

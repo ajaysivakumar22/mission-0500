@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getServerSession } from '@/lib/supabase/server';
+import { sanitizeText } from '@/server/utils/sanitize';
 import { rateLimit } from '@/lib/utils/rate-limit';
 
 const PROFILE_RATE_LIMIT = { maxRequests: 10, windowSeconds: 60 };
@@ -34,13 +35,12 @@ export async function POST(request: NextRequest) {
         const { error: profileError } = await supabaseAdmin.from('users').upsert({
             id: userId,
             email,
-            full_name: fullName,
+            full_name: sanitizeText(fullName),
         });
 
         if (profileError) {
-            console.error('Profile creation error:', profileError);
             return NextResponse.json(
-                { error: profileError.message },
+                { error: 'Failed to create profile' },
                 { status: 500 }
             );
         }
@@ -63,9 +63,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        console.error('Profile API error:', error);
         return NextResponse.json(
-            { error: error.message || 'Internal server error' },
+            { error: 'Internal server error' },
             { status: 500 }
         );
     }

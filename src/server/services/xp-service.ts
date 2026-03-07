@@ -2,10 +2,14 @@
 
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateRank, type Rank } from '@/lib/utils/xp';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
 import type { ApiResponse, XPRecord } from '@/types';
 
 export async function getTotalXP(userId: string): Promise<ApiResponse<number>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase.rpc('get_user_total_xp', {
@@ -24,6 +28,9 @@ export async function getTotalXP(userId: string): Promise<ApiResponse<number>> {
 
 export async function getXPRecords(userId: string, limit = 10): Promise<ApiResponse<XPRecord[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -45,6 +52,9 @@ export async function getXPRecords(userId: string, limit = 10): Promise<ApiRespo
 
 export async function getUserRank(userId: string): Promise<ApiResponse<Rank>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const xpResponse = await getTotalXP(userId);
 
         if (!xpResponse.success || xpResponse.data === undefined) {
@@ -64,6 +74,9 @@ export async function getXPForDate(
     date: string
 ): Promise<ApiResponse<number>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { data, error } = await supabase
@@ -89,6 +102,9 @@ export async function getXPTrendForWeek(
     endDate: string
 ): Promise<ApiResponse<Record<string, number>>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const startDate = new Date(endDate);
@@ -126,7 +142,6 @@ export async function awardXP(
 ): Promise<void> {
     // Security: Validate XP amount is within allowed range
     if (amount < -100 || amount > 100) {
-        console.error(`Rejected XP award: amount ${amount} out of range (-100 to 100)`);
         return;
     }
 
@@ -140,6 +155,6 @@ export async function awardXP(
             related_date: relatedDate,
         });
     } catch (error) {
-        console.error('Failed to award XP:', error);
+        // XP award failure is non-critical, silently fail
     }
 }

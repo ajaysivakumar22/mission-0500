@@ -344,6 +344,9 @@ export async function deleteGoalLog(
     logId: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         const { error } = await supabase

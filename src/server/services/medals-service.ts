@@ -12,10 +12,8 @@ export async function checkAndAwardMedals(userId: string, stats: DashboardStats)
 
         if (fetchError) {
             if (fetchError.code === 'PGRST205') {
-                console.warn('user_medals table missing from schema cache - skipping background award logic');
-                return;
+                return; // user_medals table not yet available
             }
-            console.error('Failed to fetch earned medals', fetchError);
             return;
         }
 
@@ -69,14 +67,12 @@ export async function checkAndAwardMedals(userId: string, stats: DashboardStats)
                 .insert(newAwards);
 
             if (insertError) {
-                console.error('Failed to award new medals', insertError);
-            } else {
-                console.log(`Successfully awarded ${newAwards.length} new medals to user ${userId}`);
+                // Medal insert failure is non-critical
             }
         }
 
     } catch (error) {
-        console.error('Error in checkAndAwardMedals:', error);
+        // Medal checking failure is non-critical
     }
 }
 
@@ -90,7 +86,6 @@ export async function getEarnedMedals(userId: string) {
 
         if (error) {
             if (error.code === 'PGRST205') {
-                console.warn('user_medals table missing, returning empty array');
                 return { success: true, data: [] };
             }
             return { success: false, error: error.message };

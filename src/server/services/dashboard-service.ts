@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { calculateRank } from '@/lib/utils/xp';
+import { verifyCallerIdentity } from '@/server/utils/auth-guard';
 import type { ApiResponse, DashboardStats } from '@/types';
 
 export async function getDashboardStats(
@@ -9,6 +10,9 @@ export async function getDashboardStats(
     date: string
 ): Promise<ApiResponse<DashboardStats>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // Parallelize all 5 independent queries
@@ -45,6 +49,9 @@ export async function updateStreakForDate(
     date: string
 ): Promise<ApiResponse> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
 
         // Check if all routines are completed for this date
@@ -122,6 +129,9 @@ export async function getHeatmapData(
     days: number = 30
 ): Promise<ApiResponse<{ date: string; value: number }[]>> {
     try {
+        const verified = await verifyCallerIdentity(userId);
+        if (!verified) return { success: false, error: 'Unauthorized' };
+
         const supabase = supabaseAdmin;
         
         // Use a simple date offset approach

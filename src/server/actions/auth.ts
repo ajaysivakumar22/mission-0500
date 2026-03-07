@@ -33,7 +33,6 @@ export async function signUp(
         const supabase = await createClient();
 
         // Sign up with Supabase Auth
-        console.log('Attempting Supabase signup for:', email);
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password,
@@ -44,10 +43,7 @@ export async function signUp(
             },
         });
 
-        console.log('Signup result:', { authError, session: !!authData?.session, user: !!authData?.user });
-
         if (authError || !authData.user) {
-            console.error('Signup failed:', authError);
             return { success: false, error: authError?.message || 'Signup failed' };
         }
 
@@ -64,11 +60,10 @@ export async function signUp(
         const { error: profileError } = await supabaseAdmin.from('users').upsert({
             id: authData.user.id,
             email,
-            full_name: fullName,
+            full_name: sanitizeText(fullName),
         });
 
         if (profileError) {
-            console.error('Profile creation error:', profileError);
             return { success: false, error: `Failed to create user profile: ${profileError.message}` };
         }
 
@@ -76,7 +71,6 @@ export async function signUp(
         // or on first visit to /routine via initializeDefaultRoutine()
 
     } catch (error: any) {
-        console.error('Signup error:', error);
         return { success: false, error: error.message || 'An unexpected error occurred' };
     }
 
@@ -110,7 +104,6 @@ export async function signIn(
         }
 
     } catch (error: any) {
-        console.error('Signin error:', error);
         return { success: false, error: error.message || 'An unexpected error occurred' };
     }
 
