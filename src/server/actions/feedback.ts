@@ -1,21 +1,21 @@
 ﻿'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { getServerSession } from '@/lib/supabase/server';
+import { supabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function submitFeedback(data: { category: string; message: string }) {
     try {
-        const supabase = await createClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const session = await getServerSession();
 
-        if (authError || !user) {
+        if (!session || !session.user) {
             return { success: false, error: 'Unauthorized' };
         }
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
             .from('user_feedbacks')
             .insert({
-                user_id: user.id,
+                user_id: session.user.id,
                 category: data.category,
                 message: data.message
             });

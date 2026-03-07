@@ -15,31 +15,47 @@ export default async function DashboardPage() {
         redirect('/login');
     }
 
-    // Check if admin is trying to access user dashboard
-    const { data: profile } = await supabaseAdmin.from('users').select('role').eq('id', session.user.id).single();
-    if (profile?.role === 'admin') {
-        redirect('/admin');
-    }
+    const timeoutFallback = <T,>(promise: PromiseLike<T>, ms: number, fallback: T): Promise<T> =>
+        Promise.race([Promise.resolve(promise), new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))]);
 
-    const { data: userSettings } = await getUserSettings(session.user.id);
+    // Check if admin is trying to access user dashboard
+    try {
+        const { data: profile } = await timeoutFallback(
+            supabaseAdmin.from('users').select('role').eq('id', session.user.id).single(),
+            3000,
+            { data: null } as any
+        );
+        if (profile?.role === 'admin') {
+            redirect('/admin');
+        }
+    } catch { /* continue as regular user */ }
+
+    let userSettings: any = null;
+    try {
+        const result = await timeoutFallback(getUserSettings(session.user.id), 3000, { data: null } as any);
+        userSettings = result?.data;
+    } catch { /* continue without settings */ }
     
     // Only redirect to onboarding if the column exists and is explicitly false
-    // Also check if user already has data (returning user before onboarding was added)
     if (userSettings && userSettings.onboarding_completed === false) {
-        // Check if user already has existing routines/goals (pre-onboarding user)
-        const { count } = await supabaseAdmin
-            .from('daily_routines')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', session.user.id)
-            .limit(1);
-        
-        // Only redirect if this is a truly new user with no data
-        if (!count || count === 0) {
-            redirect('/onboarding');
-        }
+        try {
+            const { count } = await timeoutFallback(
+                supabaseAdmin.from('daily_routines').select('id', { count: 'exact', head: true }).eq('user_id', session.user.id).limit(1),
+                3000,
+                { count: 1 } as any
+            );
+            if (!count || count === 0) {
+                redirect('/onboarding');
+            }
+        } catch { /* skip onboarding check */ }
     }
 
-    const today = await getServerDate(session.user.id);
+    let today: string;
+    try {
+        today = await timeoutFallback(getServerDate(session.user.id), 3000, new Date().toISOString().slice(0, 10));
+    } catch {
+        today = new Date().toISOString().slice(0, 10);
+    }
 
     // Wrap data fetching with a timeout to prevent hanging when
     // the server cannot reach Supabase (network connectivity issue).
@@ -80,13 +96,17 @@ export default async function DashboardPage() {
     // Check if user already set today's objective (server-side, not localStorage)
     let hasTodayObjective = false;
     try {
-        const { data: objectives } = await supabaseAdmin
-            .from('daily_tasks')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .eq('task_date', today)
-            .like('title', 'MAIN OBJECTIVE:%')
-            .limit(1);
+        const { data: objectives } = await timeoutFallback(
+            supabaseAdmin
+                .from('daily_tasks')
+                .select('id')
+                .eq('user_id', session.user.id)
+                .eq('task_date', today)
+                .like('title', 'MAIN OBJECTIVE:%')
+                .limit(1),
+            3000,
+            { data: null } as any
+        );
         hasTodayObjective = !!(objectives && objectives.length > 0);
     } catch { /* fallback to not showing modal */ }
 

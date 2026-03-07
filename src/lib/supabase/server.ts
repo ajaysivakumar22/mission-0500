@@ -1,8 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-const SUPABASE_PROJECT_REF = process.env.NEXT_PUBLIC_SUPABASE_URL?.match(/https:\/\/([^.]+)/)?.[1] || '';
-
 export async function createClient() {
     const cookieStore = await cookies();
 
@@ -46,31 +44,11 @@ function parseJwtPayload(token: string): any {
 }
 
 /**
- * Get the user session by validating the JWT with Supabase servers.
- * Uses supabase.auth.getUser() for proper server-side validation.
- * Falls back to local JWT parsing if the network call fails.
+ * Get the user session by parsing the JWT from cookies locally.
+ * No network calls — instant and works even when Node.js can't reach Supabase.
  */
 export async function getServerSession() {
-    try {
-        const supabase = await createClient();
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (error || !user) {
-            return null;
-        }
-
-        return {
-            user: {
-                id: user.id,
-                email: user.email || '',
-                user_metadata: user.user_metadata || {},
-                role: user.role || 'authenticated',
-            }
-        };
-    } catch {
-        // Fallback to local JWT parsing if network is unavailable
-        return getServerSessionFromJwt();
-    }
+    return getServerSessionFromJwt();
 }
 
 /**
@@ -82,7 +60,7 @@ async function getServerSessionFromJwt() {
     const allCookies = cookieStore.getAll();
 
     const authCookies = allCookies
-        .filter(c => c.name.startsWith(`sb-${SUPABASE_PROJECT_REF}-auth-token`))
+        .filter(c => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
         .sort((a, b) => a.name.localeCompare(b.name));
 
     if (authCookies.length === 0) {

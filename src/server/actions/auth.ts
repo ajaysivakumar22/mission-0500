@@ -1,6 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { validateEmail, validatePassword } from '@/lib/utils/validators';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -115,21 +117,17 @@ export async function signIn(
 }
 
 export async function signOut(): Promise<ApiResponse> {
-    try {
-        const supabase = await createClient();
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            console.error('Signout error:', error);
-            return { success: false, error: error.message };
+    // Clear auth cookies directly — no network call to Supabase needed.
+    const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+    for (const cookie of allCookies) {
+        if (cookie.name.startsWith('sb-') && cookie.name.includes('-auth-token')) {
+            cookieStore.delete(cookie.name);
         }
-    } catch (error: any) {
-        console.error('Signout error:', error);
-        return { success: false, error: error.message || 'Failed to sign out' };
     }
 
     revalidatePath('/', 'layout');
-    return { success: true };
+    redirect('/login');
 }
 
 export async function getCurrentSession() {

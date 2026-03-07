@@ -7,12 +7,17 @@ export default async function RootPage() {
     const session = await getServerSession();
 
     if (session?.user) {
-        const { data } = await supabaseAdmin.from('users').select('role').eq('id', session.user.id).single();
-        if (data?.role === 'admin') {
-            redirect('/admin');
-        } else {
-            redirect('/dashboard');
-        }
+        try {
+            const { data } = await Promise.race([
+                supabaseAdmin.from('users').select('role').eq('id', session.user.id).single(),
+                new Promise<{ data: null }>((resolve) => setTimeout(() => resolve({ data: null }), 3000)),
+            ]);
+            if (data?.role === 'admin') {
+                redirect('/admin');
+            }
+        } catch { /* fall through to dashboard redirect */ }
+
+        redirect('/dashboard');
     }
 
     return <LandingPage />;
