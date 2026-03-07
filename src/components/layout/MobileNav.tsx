@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from '@/server/actions/auth';
 import {
     LayoutDashboard,
     RotateCcw,
@@ -59,19 +58,28 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
 
                 <div className="h-8 w-px bg-border/60 mx-1"></div>
 
-                <form action={async () => { await signOut(); }} className="flex">
-                    <button
-                        type="submit"
-                        className="group relative flex items-center justify-center rounded-xl p-3 transition-all duration-300 hover:bg-red-900/20"
-                    >
-                        <div className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-red-500/30 bg-[#0B1D13] px-3 py-1.5 text-xs font-bold tracking-widest text-red-500 opacity-0 transition-all duration-300 group-hover:-top-12 group-hover:opacity-100 shadow-xl">
-                            LOGOUT
-                            <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-red-500/30 bg-[#0B1D13]"></div>
-                        </div>
+                <button
+                    type="button"
+                    onClick={() => {
+                        // Clear all Supabase auth cookies instantly (no server round-trip)
+                        document.cookie.split(';').forEach(c => {
+                            const name = c.trim().split('=')[0];
+                            if (name.startsWith('sb-') && name.includes('-auth-token')) {
+                                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+                            }
+                        });
+                        document.cookie = 'user-role=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+                        window.location.href = '/login';
+                    }}
+                    className="group relative flex items-center justify-center rounded-xl p-3 transition-all duration-300 hover:bg-red-900/20"
+                >
+                    <div className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-red-500/30 bg-[#0B1D13] px-3 py-1.5 text-xs font-bold tracking-widest text-red-500 opacity-0 transition-all duration-300 group-hover:-top-12 group-hover:opacity-100 shadow-xl">
+                        LOGOUT
+                        <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-red-500/30 bg-[#0B1D13]"></div>
+                    </div>
 
-                        <LogOut className="h-6 w-6 text-[#6B7280] transition-colors duration-300 group-hover:text-red-500" />
-                    </button>
-                </form>
+                    <LogOut className="h-6 w-6 text-[#6B7280] transition-colors duration-300 group-hover:text-red-500" />
+                </button>
             </div>
         </nav>
     );

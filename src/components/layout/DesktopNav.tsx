@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from '@/server/actions/auth';
 import {
     LayoutDashboard,
     RotateCcw,
@@ -58,15 +57,23 @@ export function DesktopNav() {
             </div>
 
             {/* Logout Button */}
-            <form action={async () => { await signOut(); }}>
-                <button
-                    type="submit"
-                    className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-textMuted hover:bg-surface hover:text-textMain"
-                >
-                    <LogOut className="mr-3 h-5 w-5" />
-                    Logout
-                </button>
-            </form>
+            <button
+                type="button"
+                onClick={() => {
+                    document.cookie.split(';').forEach(c => {
+                        const name = c.trim().split('=')[0];
+                        if (name.startsWith('sb-') && name.includes('-auth-token')) {
+                            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+                        }
+                    });
+                    document.cookie = 'user-role=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+                    window.location.href = '/login';
+                }}
+                className="flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium text-textMuted hover:bg-surface hover:text-textMain"
+            >
+                <LogOut className="mr-3 h-5 w-5" />
+                Logout
+            </button>
         </nav>
     );
 }
