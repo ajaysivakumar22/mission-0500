@@ -27,6 +27,6 @@ export async function submitFeedback(data: { category: string; message: string }
 
         return { success: true };
     } catch (e: any) {
-        return { success: false, error: e.message };
+        return { success: false, error: 'Failed to submit feedback' };
     }
 }

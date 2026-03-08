@@ -64,14 +64,14 @@ export async function signUp(
         });
 
         if (profileError) {
-            return { success: false, error: `Failed to create user profile: ${profileError.message}` };
+            return { success: false, error: 'Failed to create user profile' };
         }
 
         // Routines are initialized during onboarding archetype selection
         // or on first visit to /routine via initializeDefaultRoutine()
 
     } catch (error: any) {
-        return { success: false, error: error.message || 'An unexpected error occurred' };
+        return { success: false, error: 'An unexpected error occurred' };
     }
 
     revalidatePath('/', 'layout');
@@ -104,7 +104,7 @@ export async function signIn(
         }
 
     } catch (error: any) {
-        return { success: false, error: error.message || 'An unexpected error occurred' };
+        return { success: false, error: 'An unexpected error occurred' };
     }
 
     revalidatePath('/', 'layout');
@@ -150,7 +150,7 @@ export async function getUserProfile(userId: string) {
             .single();
 
         if (error) {
-            return { success: false, error: error.message, data: null };
+            return { success: false, error: 'Failed to fetch user profile', data: null };
         }
 
         return { success: true, data: user };
@@ -177,7 +177,7 @@ export async function updateUserProfile(
             .eq('id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update profile' };
         }
 
         revalidatePath('/settings');
