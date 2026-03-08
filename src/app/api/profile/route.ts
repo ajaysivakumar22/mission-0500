@@ -7,7 +7,7 @@ import { rateLimit } from '@/lib/utils/rate-limit';
 const PROFILE_RATE_LIMIT = { maxRequests: 10, windowSeconds: 60 };
 
 export async function POST(request: NextRequest) {
-    const rateLimited = rateLimit(request, PROFILE_RATE_LIMIT);
+    const rateLimited = await rateLimit(request, PROFILE_RATE_LIMIT);
     if (rateLimited) return rateLimited;
 
     try {
