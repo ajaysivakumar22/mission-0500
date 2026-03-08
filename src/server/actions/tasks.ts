@@ -30,7 +30,7 @@ export async function getTasksForDate(
             .order('created_at', { ascending: false });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch tasks' };
         }
 
         return { success: true, data: data || [] };
@@ -53,7 +53,7 @@ export async function getAllTasks(userId: string): Promise<ApiResponse<DailyTask
             .order('task_date', { ascending: false });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch tasks' };
         }
 
         return { success: true, data: data || [] };
@@ -95,7 +95,7 @@ export async function addTask(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to create task' };
         }
 
         revalidatePath('/tasks');
@@ -173,7 +173,7 @@ export async function updateTask(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update task' };
         }
 
         revalidatePath('/tasks');
@@ -201,7 +201,7 @@ export async function deleteTask(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to delete task' };
         }
 
         revalidatePath('/tasks');
@@ -227,7 +227,7 @@ export async function getTaskCompletionPercentage(
         );
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to calculate completion percentage' };
         }
 
         return { success: true, data: data || 0 };
@@ -250,7 +250,7 @@ export async function getCompletedTasksCount(userId: string): Promise<ApiRespons
             .eq('is_completed', true);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch completed tasks count' };
         }
 
         return { success: true, data: count || 0 };

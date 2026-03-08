@@ -115,7 +115,7 @@ export async function updateStreakForDate(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update streak' };
         }
 
         return { success: true };

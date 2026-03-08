@@ -28,7 +28,7 @@ export async function getRoutineForDate(
             .order('item_order', { ascending: true });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch routine' };
         }
 
         return { success: true, data: data || [] };
@@ -75,7 +75,7 @@ export async function addRoutineItem(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to add routine item' };
         }
 
         revalidatePath('/routine');
@@ -146,7 +146,7 @@ export async function updateRoutineItem(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update routine item' };
         }
 
         // Check for full day completion bonus
@@ -179,7 +179,7 @@ export async function deleteRoutineItem(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to delete routine item' };
         }
 
         revalidatePath('/routine');
@@ -205,7 +205,7 @@ export async function getRoutineCompletionPercentage(
         );
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to calculate completion percentage' };
         }
 
         return { success: true, data: data || 0 };
@@ -322,7 +322,7 @@ export async function initializeDefaultRoutine(
             .insert(itemsToInsert);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to initialize routine' };
         }
 
         revalidatePath('/routine');
@@ -367,7 +367,7 @@ export async function initializeRoutineFromTemplate(
             .insert(routineItems);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to initialize routine from template' };
         }
 
         return { success: true };

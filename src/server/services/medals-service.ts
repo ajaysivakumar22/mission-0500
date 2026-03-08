@@ -88,7 +88,7 @@ export async function getEarnedMedals(userId: string) {
             if (error.code === 'PGRST205') {
                 return { success: true, data: [] };
             }
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch earned medals' };
         }
 
         return { success: true, data: data || [] };

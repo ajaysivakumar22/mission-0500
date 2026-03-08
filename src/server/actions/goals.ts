@@ -24,7 +24,7 @@ export async function getAllGoals(userId: string): Promise<ApiResponse<Goal[]>> 
             .order('created_at', { ascending: false });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch goals' };
         }
 
         return { success: true, data: data || [] };
@@ -56,7 +56,7 @@ export async function getGoalsByCategory(
             .order('created_at', { ascending: false });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch goals' };
         }
 
         return { success: true, data: data || [] };
@@ -79,7 +79,7 @@ export async function getActiveGoalsCount(userId: string): Promise<ApiResponse<n
             .eq('is_archived', false);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch goals count' };
         }
 
         return { success: true, data: count || 0 };
@@ -120,7 +120,7 @@ export async function createGoal(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to create goal' };
         }
 
         revalidatePath('/goals');
@@ -168,7 +168,7 @@ export async function updateGoal(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update goal' };
         }
 
         revalidatePath('/goals');
@@ -203,7 +203,7 @@ export async function deleteGoal(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to delete goal' };
         }
 
         revalidatePath('/goals');
@@ -230,7 +230,7 @@ export async function archiveGoal(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to archive goal' };
         }
 
         revalidatePath('/goals');
@@ -257,7 +257,7 @@ export async function getGoalLogs(userId: string, goalId: string): Promise<ApiRe
             .order('created_at', { ascending: false });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch goal logs' };
         }
 
         return { success: true, data: data || [] };
@@ -329,7 +329,7 @@ export async function addGoalLog(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to add goal log' };
         }
 
         revalidatePath('/goals');
@@ -356,7 +356,7 @@ export async function deleteGoalLog(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to delete goal log' };
         }
 
         revalidatePath('/goals');

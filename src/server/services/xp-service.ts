@@ -17,7 +17,7 @@ export async function getTotalXP(userId: string): Promise<ApiResponse<number>> {
         });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch total XP' };
         }
 
         return { success: true, data: data || 0 };
@@ -41,7 +41,7 @@ export async function getXPRecords(userId: string, limit = 10): Promise<ApiRespo
             .limit(limit);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch XP records' };
         }
 
         return { success: true, data: data || [] };
@@ -86,7 +86,7 @@ export async function getXPForDate(
             .eq('related_date', date);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch daily XP' };
         }
 
         const total = (data || []).reduce((sum, record) => sum + record.amount, 0);
@@ -118,7 +118,7 @@ export async function getXPTrendForWeek(
             .lte('created_at', new Date(endDate + 'T23:59:59').toISOString());
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch XP trend' };
         }
 
         // Group by date

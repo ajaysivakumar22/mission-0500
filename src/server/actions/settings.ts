@@ -43,7 +43,7 @@ export async function getUserSettings(userId: string): Promise<ApiResponse<UserS
                     data: { user_id: userId, strict_mode: false, theme: 'operator', onboarding_completed: false, is_premium: isPremium }
                 };
             }
-            return { success: false, error: settingsResponse.error.message };
+            return { success: false, error: 'Failed to fetch user settings' };
         }
 
         // Ensure onboarding_completed has a value even if column doesn't exist in DB yet
@@ -90,7 +90,7 @@ export async function updateUserSettings(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update settings' };
         }
 
         return { success: true, data };

@@ -30,7 +30,7 @@ export async function getReportForDate(
         }
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch report' };
         }
 
         return { success: true, data };
@@ -54,7 +54,7 @@ export async function getAllReports(userId: string): Promise<ApiResponse<DailyRe
             .limit(50);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch reports' };
         }
 
         return { success: true, data: data || [] };
@@ -83,7 +83,7 @@ export async function getReportsForDateRange(
             .order('report_date', { ascending: false });
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch reports' };
         }
 
         return { success: true, data: data || [] };
@@ -139,7 +139,7 @@ export async function createReport(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to create report' };
         }
 
         revalidatePath('/report');
@@ -187,7 +187,7 @@ export async function updateReport(
             .single();
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to update report' };
         }
 
         revalidatePath('/report');
@@ -215,7 +215,7 @@ export async function deleteReport(
             .eq('user_id', userId);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to delete report' };
         }
 
         revalidatePath('/report');
@@ -253,7 +253,7 @@ export async function getWeeklyAverageScores(
             .lte('report_date', endDate);
 
         if (error) {
-            return { success: false, error: error.message };
+            return { success: false, error: 'Failed to fetch weekly averages' };
         }
 
         if (!data || data.length === 0) {
