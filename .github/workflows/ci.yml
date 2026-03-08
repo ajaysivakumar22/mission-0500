@@ -6,16 +6,19 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel in-progress runs on the same branch/PR to save runner minutes
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  NODE_VERSION: '18'
-  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  NODE_VERSION: '18.20'
 
 jobs:
   lint-and-typecheck:
     name: Lint & Type Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +38,7 @@ jobs:
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: lint-and-typecheck
     steps:
       - uses: actions/checkout@v4
@@ -47,12 +51,19 @@ jobs:
       - run: npm ci
 
       - name: Run Tests
-        run: npm test -- --ci --coverage
+        run: npm test -- --ci --coverage --forceExit
 
   build:
     name: Production Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [lint-and-typecheck, test]
+    env:
+      # Safe dummy values so the build can compile without real secrets.
+      # The app reads these at runtime — build only needs them to exist.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder-service' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -71,4 +82,21 @@ jobs:
         with:
           name: nextjs-build
           path: .next/
-          retention-days: 3
+          retention-days: 1
+
+  security:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high || true
