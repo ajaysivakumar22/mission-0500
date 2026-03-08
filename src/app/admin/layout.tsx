@@ -1,9 +1,8 @@
 ﻿import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { LogOut } from 'lucide-react';
-import { signOut } from '@/server/actions/auth';
 import { cookies } from 'next/headers';
+import AdminLogoutButton from '@/components/layout/AdminLogoutButton';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
     const session = await getServerSession();
@@ -44,12 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                         MISSION 0500: COMMAND CENTER
                     </h1>
                     <div className="flex gap-4">
-                        <form action={async () => { 'use server'; await signOut(); }}>
-                            <button type="submit" className="text-sm font-bold text-red-500 hover:text-red-400 flex items-center gap-2 transition-colors">
-                                <LogOut className="w-4 h-4" />
-                                Logout
-                            </button>
-                        </form>
+                        <AdminLogoutButton />
                     </div>
                 </div>
             </header>
