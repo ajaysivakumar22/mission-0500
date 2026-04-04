@@ -328,7 +328,7 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
                                     className="px-12 py-6 text-lg font-black tracking-wider uppercase transition-transform hover:scale-105"
                                     onClick={() => toast('Elite Protocol payment integration launching soon. Stay ready, Soldier!', 'info')}
                                 >
-                                    Initiate Elite Upgrade (₹399/mo)
+                                    Initiate Elite Upgrade (₹100/mo)
                                 </Button>
                             </div>
                         </div>
