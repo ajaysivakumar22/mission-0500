@@ -83,12 +83,13 @@ CREATE TABLE daily_routines (
   routine_date DATE NOT NULL,
   item_name TEXT NOT NULL,
   item_order INTEGER DEFAULT 0,
+  category TEXT DEFAULT 'routine',
   is_completed BOOLEAN DEFAULT FALSE,
   completed_at TIMESTAMP WITH TIME ZONE,
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id, routine_date, item_name)
+  UNIQUE(user_id, routine_date, item_name, category)
 );
 
 ALTER TABLE daily_routines ENABLE ROW LEVEL SECURITY;

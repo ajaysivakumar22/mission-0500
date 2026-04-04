@@ -1,0 +1,13 @@
+﻿diff --git a/src/app/settings/SettingsClient.tsx b/src/app/settings/SettingsClient.tsx
+index 8102c31..eb3cb6b 100644
+--- a/src/app/settings/SettingsClient.tsx
++++ b/src/app/settings/SettingsClient.tsx
+@@ -328,7 +328,7 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
+                                     className="px-12 py-6 text-lg font-black tracking-wider uppercase transition-transform hover:scale-105"
+                                     onClick={() => toast('Elite Protocol payment integration launching soon. Stay ready, Soldier!', 'info')}
+                                 >
+-                                    Initiate Elite Upgrade (Γé╣399/mo)
++                                    Initiate Elite Upgrade (Γé╣100/mo)
+                                 </Button>
+                             </div>
+                         </div>

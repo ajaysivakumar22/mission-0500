@@ -69,6 +69,7 @@ export async function addRoutineItem(
                 routine_date: input.routine_date,
                 item_name: sanitizeText(input.item_name),
                 item_order: input.item_order ?? nextOrder,
+                category: input.category ?? 'routine',
                 notes: sanitizeOptional(input.notes),
             })
             .select()
@@ -131,6 +132,10 @@ export async function updateRoutineItem(
 
         if (input.notes !== undefined) {
             updateData.notes = sanitizeOptional(input.notes);
+        }
+
+        if (input.category !== undefined) {
+            updateData.category = input.category;
         }
 
         if (input.item_order !== undefined) {
@@ -283,7 +288,7 @@ export async function initializeDefaultRoutine(
         // Try copying from the most recent previous day's routine
         const { data: previousRoutine } = await supabase
             .from('daily_routines')
-            .select('item_name, item_order')
+            .select('item_name, item_order, category')
             .eq('user_id', userId)
             .lt('routine_date', date)
             .order('routine_date', { ascending: false })
@@ -293,11 +298,12 @@ export async function initializeDefaultRoutine(
         let itemsToInsert;
 
         if (previousRoutine && previousRoutine.length > 0) {
-            // Deduplicate by item_name (in case of multiple dates returned)
+            // Deduplicate by item_name and category (in case of multiple dates returned)
             const seen = new Set<string>();
             const uniqueItems = previousRoutine.filter(item => {
-                if (seen.has(item.item_name)) return false;
-                seen.add(item.item_name);
+                const key = `${item.category}-${item.item_name}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
                 return true;
             });
             itemsToInsert = uniqueItems.map(item => ({
@@ -305,16 +311,11 @@ export async function initializeDefaultRoutine(
                 routine_date: date,
                 item_name: item.item_name,
                 item_order: item.item_order,
+                category: item.category || 'routine',
             }));
         } else {
-            // Fallback to default template for brand-new users
-            const { DEFAULT_ROUTINE_ITEMS } = await import('@/lib/constants/xp-config');
-            itemsToInsert = DEFAULT_ROUTINE_ITEMS.map(item => ({
-                user_id: userId,
-                routine_date: date,
-                item_name: item.name,
-                item_order: item.order,
-            }));
+            // As per user request, we leave it empty instead of injecting default templates.
+            return { success: true };
         }
 
         const { error } = await supabase

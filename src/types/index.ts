@@ -31,6 +31,7 @@ export interface DailyRoutine {
     routine_date: string;
     item_name: string;
     item_order: number;
+    category: 'routine' | 'food_log';
     is_completed: boolean;
     completed_at?: string | null;
     notes?: string;
@@ -41,12 +42,14 @@ export interface DailyRoutine {
 export interface RoutineCreateInput {
     routine_date: string;
     item_name: string;
+    category?: 'routine' | 'food_log';
     item_order?: number;
     notes?: string;
 }
 
 export interface RoutineUpdateInput {
     item_name?: string;
+    category?: 'routine' | 'food_log';
     is_completed?: boolean;
     notes?: string;
     item_order?: number;
