@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/lib/context/ThemeContext';
 import { ToastProvider } from '@/components/ui/Toast';
 import { getServerSession } from '@/lib/supabase/server';
 import { SystemSyncer } from '@/components/layout/SystemSyncer';
+import { AuthListener } from '@/components/layout/AuthListener';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -24,6 +25,7 @@ export default async function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
+                <AuthListener />
                 {session?.user && <SystemSyncer userId={session.user.id} />}
                 <ThemeProvider>
                     <ToastProvider>
