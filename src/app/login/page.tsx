@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 export default function LoginPage() {
     const supabase = createClient();
     const searchParams = useSearchParams();
+    const router = useRouter();
     const [isSignUp, setIsSignUp] = useState(false);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +20,24 @@ export default function LoginPage() {
         fullName: '',
     });
     const [successMessage, setSuccessMessage] = useState('');
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PASSWORD RECOVERY HANDLER
+    // Supabase sends recovery emails with hash-based tokens that land on this
+    // page. The client detects them and fires PASSWORD_RECOVERY before any
+    // middleware can redirect the user away. We catch it here and send the
+    // user to the dedicated update-password page immediately.
+    // ─────────────────────────────────────────────────────────────────────────
+    useEffect(() => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    router.replace('/update-password');
+                }
+            }
+        );
+        return () => subscription.unsubscribe();
+    }, []);
 
     // Handle callback errors and success params
     useEffect(() => {
@@ -53,7 +72,10 @@ export default function LoginPage() {
                 return;
             }
             const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
-                redirectTo: `${window.location.origin}/api/auth/callback?next=/update-password`,
+                // redirectTo points back to /login where the PASSWORD_RECOVERY
+                // onAuthStateChange listener immediately redirects to /update-password.
+                // This handles Supabase hash-based recovery tokens correctly.
+                redirectTo: `${window.location.origin}/login`,
             });
             if (resetError) {
                 setError(resetError.message);

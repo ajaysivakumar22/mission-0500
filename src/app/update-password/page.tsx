@@ -15,13 +15,34 @@ export default function UpdatePasswordPage() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
-    // Verify we actually have a recovery session — if not, redirect to login
+    // Wait for Supabase to fire the PASSWORD_RECOVERY event from hash tokens.
+    // This is the authoritative signal that a recovery session is ready.
     useEffect(() => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    // Recovery session confirmed — form is now active
+                    // session is set automatically by the Supabase client
+                } else if (!session) {
+                    // No session and no recovery event — invalid link, send back
+                    router.replace('/login?error=auth_callback_failed');
+                }
+            }
+        );
+
+        // Also check for an existing session (PKCE flow already exchanged the code)
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (!session) {
-                router.replace('/login?error=auth_callback_failed');
+                // Give onAuthStateChange a moment to fire before giving up
+                setTimeout(() => {
+                    supabase.auth.getSession().then(({ data: { session: s } }) => {
+                        if (!s) router.replace('/login?error=auth_callback_failed');
+                    });
+                }, 1500);
             }
         });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
