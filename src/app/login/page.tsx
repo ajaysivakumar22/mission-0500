@@ -17,6 +17,7 @@ export default function LoginPage() {
         email: '',
         password: '',
         fullName: '',
+    });
     const [successMessage, setSuccessMessage] = useState('');
 
     // Handle callback errors and success params
