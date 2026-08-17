@@ -10,7 +10,6 @@ import { getRankEmoji, RANK_THRESHOLDS, getXPForNextRank } from '@/lib/utils/xp'
 import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { DisciplineHeatmap } from '@/components/ui/DisciplineHeatmap';
 import { Zap, Target, Award, RotateCcw, CheckSquare, Flame, Shield, ArrowUpRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import type { DashboardStats } from '@/types';
 import type { Rank } from '@/lib/utils/xp';
 
@@ -22,19 +21,6 @@ interface DashboardClientProps {
     heatmapData?: { date: string; value: number }[];
     hasTodayObjective?: boolean;
 }
-
-const containerVars = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: { staggerChildren: 0.1 }
-    }
-};
-
-const itemVars = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
-};
 
 export default function DashboardClient({ userId, stats, totalXP, rank, heatmapData, hasTodayObjective }: DashboardClientProps) {
     const nextRankXP = getXPForNextRank(rank);
@@ -53,165 +39,173 @@ export default function DashboardClient({ userId, stats, totalXP, rank, heatmapD
     return (
         <MainLayout>
             <MorningBriefingModal userId={userId} hasTodayObjective={hasTodayObjective} />
-            <motion.div 
-                variants={containerVars}
-                initial="hidden"
-                animate="show"
-                className="space-y-8"
-            >
+            <div className="space-y-8 animate-in fade-in duration-500">
                 <PageHeader
                     title="Command Headquarters"
                     subtitle="Welcome back, future Officer. Review your stats and prepare for the day's mission."
                 />
 
-                <motion.div variants={itemVars} className="mb-8">
+                <div className="mb-8">
                     <VisionBoardGrid />
-                </motion.div>
+                </div>
                 
                 {/* 30-Day Discipline Heatmap */}
                 {heatmapData && heatmapData.length > 0 && (
-                    <motion.div variants={itemVars} className="mb-8">
+                    <div className="mb-8">
                         <DisciplineHeatmap data={heatmapData} />
-                    </motion.div>
+                    </div>
                 )}
 
                 {/* Rank Section */}
-                <motion.div 
-                    variants={itemVars}
-                    className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-black/40 to-[#102a1b]/40 backdrop-blur-2xl p-8 text-center shadow-2xl"
-                >
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                    <div className="absolute -top-32 -right-32 w-64 h-64 bg-[#FFD60A]/10 rounded-full blur-[80px]"></div>
+                <div className="relative overflow-hidden rounded-2xl border border-[#FFD60A]/30 bg-gradient-to-br from-[#162B20] to-[#0B1D13] p-8 text-center shadow-[0_0_30px_rgba(255,214,10,0.05)]">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FFD60A] to-transparent opacity-50"></div>
 
-                    <motion.div 
-                        animate={{ y: [0, -10, 0] }} 
-                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                        className="text-6xl mb-6 drop-shadow-2xl flex justify-center"
-                    >
-                        {getRankEmoji(rank)}
-                    </motion.div>
-                    
+                    <div className="text-6xl mb-6 drop-shadow-2xl animate-bounce-slow flex justify-center">{getRankEmoji(rank)}</div>
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <Shield className="h-5 w-5 text-[#FFD60A]" />
                         <p className="text-sm font-bold tracking-widest text-[#9CA3AF] uppercase">Current Rank</p>
                         <Shield className="h-5 w-5 text-[#FFD60A]" />
                     </div>
-                    
-                    <div className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50 drop-shadow-sm uppercase tracking-tight mb-10">
-                        {rank}
-                    </div>
+                    <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFD60A] to-[#FFF3B0] drop-shadow-lg uppercase tracking-wider mb-8">{rank}</div>
 
                     {/* Progress to Next Rank */}
-                    <div className="max-w-xl mx-auto relative group">
-                        <div className="flex justify-between items-end mb-3 px-1">
+                    <div className="max-w-md mx-auto relative group">
+                        <div className="flex justify-between items-end mb-2">
                             <div className="text-left">
-                                <p className="text-xs text-white/50 uppercase tracking-wider font-bold mb-1">Total Experience</p>
+                                <p className="text-xs text-[#9CA3AF] uppercase tracking-wider font-bold mb-1">Total Experience</p>
                                 <p className="text-2xl font-black text-white flex items-center gap-1">
                                     <Zap className="h-5 w-5 text-[#FFD60A]" /> {totalXP}
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs text-white/50 uppercase tracking-wider font-bold mb-1">Next: {nextRankName}</p>
-                                <p className="text-sm font-bold text-white/90">
+                                <p className="text-xs text-[#9CA3AF] uppercase tracking-wider font-bold mb-1">Next: {nextRankName}</p>
+                                <p className="text-sm font-bold text-[#FFD60A]">
                                     {progressXP} / {requiredXP} XP
                                 </p>
                             </div>
                         </div>
                         {/* Progress Bar Container */}
-                        <div className="h-5 rounded-full bg-black/60 border border-white/5 overflow-hidden relative shadow-inner">
+                        <div className="h-4 rounded-full bg-black/60 border border-white/10 overflow-hidden relative">
                             {/* Inner Bar */}
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progressPercentage}%` }}
-                                transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
-                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FFD60A]/80 to-[#FFD60A] shadow-[0_0_15px_rgba(255,214,10,0.4)] relative"
+                            <div
+                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FFD60A]/80 to-[#FFD60A] shadow-[0_0_15px_rgba(255,214,10,0.5)] transition-all duration-1000 ease-out relative"
+                                style={{ width: `${progressPercentage}%` }}
                             >
-                                <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-r from-transparent to-white/30 animate-pulse"></div>
-                            </motion.div>
+                                <div className="absolute top-0 right-0 bottom-0 w-4 bg-white/30 blur-[2px] animate-pulse"></div>
+                            </div>
                         </div>
-                        <p className="mt-4 text-xs text-center text-white/40 font-medium tracking-wide">
-                            {progressPercentage === 100 ? 'Promotion available!' : `${100 - Math.round(progressPercentage)}% remaining until promotion`}
+                        <p className="mt-3 text-xs text-center text-[#9CA3AF] font-medium tracking-wide">
+                            {progressPercentage === 100 ? 'Promotion available!' : `${100 - Math.round(progressPercentage)}% remaining until promotion to ${nextRankName}`}
                         </p>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Key Stats Grid */}
-                <motion.div variants={containerVars} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <motion.div variants={itemVars}>
-                        <StatCard
-                            label="Routine Completion"
-                            value={stats?.routine_completion_percentage?.toFixed(0) || '0'}
-                            unit="%"
-                            icon={<RotateCcw className="h-8 w-8 text-blue-400" />}
-                        />
-                    </motion.div>
-                    <motion.div variants={itemVars}>
-                        <StatCard
-                            label="Tasks Completed"
-                            value={stats?.task_completion_percentage?.toFixed(0) || '0'}
-                            unit="%"
-                            icon={<CheckSquare className="h-8 w-8 text-green-400" />}
-                        />
-                    </motion.div>
-                    
-                    <motion.div variants={itemVars} className="h-full">
-                        <div className="h-full bg-gradient-to-br from-white/5 to-transparent rounded-3xl border border-white/10 backdrop-blur-md p-6">
-                            <InspirationalQuote />
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={itemVars} className={`relative ${isBurning ? 'animate-pulse' : ''}`}>
-                        {isBurning && <div className="absolute inset-0 bg-orange-500/10 blur-2xl rounded-3xl"></div>}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <StatCard
+                        label="Routine Completion"
+                        value={stats?.routine_completion_percentage?.toFixed(0) || '0'}
+                        unit="%"
+                        icon={<RotateCcw className="h-8 w-8" />}
+                    />
+                    <StatCard
+                        label="Tasks Completed"
+                        value={stats?.task_completion_percentage?.toFixed(0) || '0'}
+                        unit="%"
+                        icon={<CheckSquare className="h-8 w-8" />}
+                    />
+                    <InspirationalQuote />
+                    <div className={`relative ${isBurning ? 'animate-pulse' : ''}`}>
+                        {isBurning && <div className="absolute inset-0 bg-orange-500/10 blur-xl rounded-xl"></div>}
                         <StatCard
                             label="Current Streak"
                             value={stats?.current_streak || 0}
                             unit=" days"
                             icon={<Flame className={`h-8 w-8 ${hasActiveStreak ? (isBurning ? 'text-orange-500 animate-bounce' : 'text-[#FFD60A]') : 'text-gray-500'}`} />}
                         />
-                    </motion.div>
-                    <motion.div variants={itemVars}>
-                        <StatCard
-                            label="Daily XP"
-                            value={totalXP}
-                            icon={<Zap className="h-8 w-8 text-[#FFD60A]" />}
-                        />
-                    </motion.div>
-                    <motion.div variants={itemVars}>
-                        <StatCard
-                            label="Rank Progress"
-                            value={rank}
-                            icon={<Award className="h-8 w-8 text-purple-400" />}
-                        />
-                    </motion.div>
-                </motion.div>
+                    </div>
+                    <StatCard
+                        label="Daily XP"
+                        value={totalXP}
+                        icon={<Zap className="h-8 w-8" />}
+                    />
+                    <StatCard
+                        label="Rank Progress"
+                        value={rank}
+                        icon={<Award className="h-8 w-8" />}
+                    />
+                </div>
 
                 {/* Quick Actions */}
-                <motion.div variants={itemVars} className="rounded-3xl border border-white/5 bg-black/40 backdrop-blur-xl p-8">
-                    <h3 className="mb-6 text-xl font-bold text-white tracking-wide">Quick Deployments</h3>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                        <Link href="/routine" className="group rounded-xl border border-white/5 bg-white/5 px-6 py-4 text-center font-medium text-white hover:bg-white/10 hover:scale-105 transition-all">
-                            <div className="text-2xl mb-2 group-hover:rotate-12 transition-transform">📋</div>
-                            Routine
+                <div className="rounded-xl border border-[#1E3A2A] bg-[#162B20] p-6">
+                    <h3 className="mb-4 text-lg font-bold text-[#E8E8E8]">Quick Actions</h3>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <Link
+                            href="/routine"
+                            className="rounded-lg border border-[#1E3A2A] bg-[#0B1D13] px-6 py-3 text-center font-medium text-[#FFD60A] hover:bg-[#162B20] transition-colors"
+                        >
+                            📋 View Routine
                         </Link>
-                        <Link href="/tasks" className="group rounded-xl border border-white/5 bg-white/5 px-6 py-4 text-center font-medium text-white hover:bg-white/10 hover:scale-105 transition-all">
-                            <div className="text-2xl mb-2 group-hover:rotate-12 transition-transform">✓</div>
-                            Tasks
+                        <Link
+                            href="/tasks"
+                            className="rounded-lg border border-[#1E3A2A] bg-[#0B1D13] px-6 py-3 text-center font-medium text-[#FFD60A] hover:bg-[#162B20] transition-colors"
+                        >
+                            ✓ View Tasks
                         </Link>
-                        <Link href="/goals" className="group rounded-xl border border-white/5 bg-white/5 px-6 py-4 text-center font-medium text-white hover:bg-white/10 hover:scale-105 transition-all">
-                            <div className="text-2xl mb-2 group-hover:rotate-12 transition-transform">🎯</div>
-                            Goals
+                        <Link
+                            href="/goals"
+                            className="rounded-lg border border-[#1E3A2A] bg-[#0B1D13] px-6 py-3 text-center font-medium text-[#FFD60A] hover:bg-[#162B20] transition-colors"
+                        >
+                            🎯 View Goals
                         </Link>
-                        <Link href="/report" className="group rounded-xl border border-white/5 bg-white/5 px-6 py-4 text-center font-medium text-white hover:bg-white/10 hover:scale-105 transition-all">
-                            <div className="text-2xl mb-2 group-hover:rotate-12 transition-transform">📝</div>
-                            Report
+                        <Link
+                            href="/report"
+                            className="rounded-lg border border-[#1E3A2A] bg-[#0B1D13] px-6 py-3 text-center font-medium text-[#FFD60A] hover:bg-[#162B20] transition-colors"
+                        >
+                            📝 Daily Report
                         </Link>
-                        <Link href="/settings" className="group rounded-xl border border-white/5 bg-white/5 px-6 py-4 text-center font-medium text-white hover:bg-white/10 hover:scale-105 transition-all">
-                            <div className="text-2xl mb-2 group-hover:rotate-12 transition-transform">⚙️</div>
-                            Settings
+                        <Link
+                            href="/settings"
+                            className="rounded-lg border border-[#1E3A2A] bg-[#0B1D13] px-6 py-3 text-center font-medium text-[#FFD60A] hover:bg-[#162B20] transition-colors"
+                        >
+                            ⚙️ Settings
                         </Link>
                     </div>
-                </motion.div>
-            </motion.div>
+                </div>
+
+                {/* Today's Performance */}
+                {stats && (
+                    <div className="rounded-xl border border-[#1E3A2A] bg-[#162B20] p-6">
+                        <h3 className="mb-4 text-lg font-bold text-[#E8E8E8]">Today&apos;s Performance</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-[#9CA3AF]">Routine Tasks</span>
+                                    <span className="font-bold text-[#FFD60A]">{stats.routine_completion_percentage.toFixed(0)}%</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-[#0B1D13] overflow-hidden">
+                                    <div
+                                        className="h-full bg-[#FFD60A] transition-all duration-300"
+                                        style={{ width: `${Math.min(stats.routine_completion_percentage, 100)}%` }}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-[#9CA3AF]">Daily Tasks</span>
+                                    <span className="font-bold text-[#FFD60A]">{stats.task_completion_percentage.toFixed(0)}%</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-[#0B1D13] overflow-hidden">
+                                    <div
+                                        className="h-full bg-[#FFD60A] transition-all duration-300"
+                                        style={{ width: `${Math.min(stats.task_completion_percentage, 100)}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </MainLayout>
     );
 }

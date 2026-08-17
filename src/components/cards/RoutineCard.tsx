@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
-import { Trash2, Edit2, GripVertical } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Trash2, Edit2 } from 'lucide-react';
 import type { DailyRoutine } from '@/types';
 
 interface RoutineCardProps {
@@ -34,7 +33,7 @@ export function RoutineCard({
     };
 
     const handleDelete = async () => {
-        if (confirm('Delete this item?')) {
+        if (confirm('Delete this routine item?')) {
             setIsUpdating(true);
             try {
                 await onDelete(item.id);
@@ -45,24 +44,14 @@ export function RoutineCard({
     };
 
     return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className={`group relative flex items-center gap-4 rounded-2xl border p-4 shadow-sm backdrop-blur-xl transition-[border-color,background-color] duration-500 overflow-hidden ${item.is_completed
-                    ? 'border-white/10 bg-[#162B20]/40'
-                    : 'border-white/5 bg-black/40 hover:border-white/20 hover:bg-black/60'
+        <div
+            className={`relative flex items-center gap-4 rounded-xl border p-4 transition-all duration-500 overflow-hidden ${item.is_completed
+                    ? 'border-[#FFD60A]/40 bg-[#162B20]/60 opacity-80 backdrop-blur-sm'
+                    : 'border-[#1E3A2A] bg-[#162B20] hover:border-[#1E3A2A]/80 hover:shadow-lg hover:-translate-y-0.5'
                 }`}
         >
             {/* Visual Feedback Completion Glow */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-[#FFD60A]/10 to-transparent transition-opacity duration-700 pointer-events-none ${item.is_completed ? 'opacity-100' : 'opacity-0'}`} />
-            
-            <div className="cursor-grab active:cursor-grabbing text-white/20 hover:text-white/50 transition-colors">
-                <GripVertical className="h-5 w-5" />
-            </div>
-
+            <div className={`absolute inset-0 bg-gradient-to-r from-[#FFD60A]/20 to-transparent transition-opacity duration-700 pointer-events-none ${item.is_completed ? 'opacity-100' : 'opacity-0'}`} />
             <Checkbox
                 checked={item.is_completed}
                 onChange={handleToggle}
@@ -70,28 +59,27 @@ export function RoutineCard({
                 className="flex-shrink-0"
             />
 
-            <div className="flex-1 min-w-0 relative z-10 transition-all duration-300">
+            <div className="flex-1 min-w-0 relative z-10 transition-transform duration-300">
                 <p
-                    className={`font-medium tracking-wide ${item.is_completed
-                        ? 'line-through text-white/40'
-                        : 'text-white/90'
+                    className={`font-medium ${item.is_completed
+                        ? 'line-through text-[#6B7280]'
+                        : 'text-[#E8E8E8]'
                         }`}
                 >
                     {item.item_name}
                 </p>
                 {item.notes && (
-                    <p className={`mt-1 text-sm ${item.is_completed ? 'text-white/20' : 'text-white/50'}`}>{item.notes}</p>
+                    <p className="mt-1 text-sm text-[#9CA3AF]">{item.notes}</p>
                 )}
             </div>
 
-            <div className="flex gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex gap-2 flex-shrink-0">
                 {onEdit && (
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => onEdit(item)}
                         disabled={isUpdating}
-                        className="h-8 w-8 p-0"
                     >
                         <Edit2 className="h-4 w-4" />
                     </Button>
@@ -101,11 +89,11 @@ export function RoutineCard({
                     size="sm"
                     onClick={handleDelete}
                     disabled={isUpdating}
-                    className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    className="text-red-500 hover:text-red-400"
                 >
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
-        </motion.div>
+        </div>
     );
 }
