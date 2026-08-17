@@ -53,7 +53,7 @@ export default function LoginPage() {
                 return;
             }
             const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
-                redirectTo: `${window.location.origin}/login`,
+                redirectTo: `${window.location.origin}/api/auth/callback?next=/update-password`,
             });
             if (resetError) {
                 setError(resetError.message);
