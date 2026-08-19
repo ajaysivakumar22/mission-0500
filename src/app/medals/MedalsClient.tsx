@@ -1,9 +1,7 @@
 'use client';
 
-import { MainLayout } from '@/components/layout/MainLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { MEDALS } from '@/lib/constants/medals';
-import { Medal as MedalIcon, Lock } from 'lucide-react';
+import { Medal as MedalIcon, Lock, Award, Shield, CheckCircle2 } from 'lucide-react';
 import type { Medal } from '@/lib/constants/medals';
 
 interface MedalsClientProps {
@@ -12,95 +10,152 @@ interface MedalsClientProps {
 
 export default function MedalsClient({ earnedMedals }: MedalsClientProps) {
     const earnedMedalIds = new Set(earnedMedals.map(m => m.medal_id));
-
-    // Calculate progression
     const totalMedals = MEDALS.length;
     const earnedCount = earnedMedalIds.size;
     const completionPercentage = Math.round((earnedCount / totalMedals) * 100);
 
-    return (
-        <MainLayout>
-            <div className="w-full space-y-8 animate-in fade-in duration-500">
-                <PageHeader
-                    title="Commendations Rack"
-                    subtitle="Elite operators are recognized for their relentless discipline and execution."
-                />
+    const earnedList = MEDALS.filter(m => earnedMedalIds.has(m.id));
+    const lockedList = MEDALS.filter(m => !earnedMedalIds.has(m.id));
 
-                {/* Progress Overview */}
-                <div className="rounded-2xl border border-[#FFD60A]/20 bg-gradient-to-br from-[#162B20] to-[#0B1D13] p-8 shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                            <MedalIcon className="h-8 w-8 text-[#FFD60A]" />
-                            <h2 className="text-2xl font-black text-[#E8E8E8] uppercase tracking-widest">
-                                Medals Acquired
-                            </h2>
+    return (
+        <div className="space-y-8 animate-slide-in">
+            {/* Page Header */}
+            <div className="border-b border-border pb-4">
+                <span className="font-mono-tech text-xs font-bold text-accent uppercase tracking-widest block mb-1">
+                    SERVICE RECORD
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-serif-quote font-bold text-textMain tracking-tight">
+                    Commendations Rack
+                </h1>
+                <p className="text-xs text-textSecondary mt-1">
+                    Recognizing relentless execution, daily consistency, and operational discipline.
+                </p>
+            </div>
+
+            {/* Commendations Overview Banner */}
+            <div className="card p-6 border-l-4 border-l-[#D6A52C] bg-gradient-to-r from-surface to-surface-muted">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-3.5">
+                        <div className="h-12 w-12 rounded-xl bg-[#D6A52C]/20 text-[#D6A52C] flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <Award className="h-6 w-6" />
                         </div>
-                        <span className="text-4xl font-black text-[#FFD60A] drop-shadow-md">
-                            {earnedCount} <span className="text-xl text-[#6B7280]">/ {totalMedals}</span>
-                        </span>
+                        <div>
+                            <span className="font-mono-tech text-[10px] text-textMuted uppercase tracking-widest block">
+                                COMMENDATION PROGRESS
+                            </span>
+                            <h2 className="text-xl font-bold text-textMain">Medals Acquired</h2>
+                        </div>
                     </div>
 
-                    <div className="h-4 rounded-full bg-[#0B1D13] border border-[#1E3A2A] overflow-hidden relative">
-                        <div
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FFD60A]/80 to-[#FFD60A] transition-all duration-1000"
-                            style={{ width: `${completionPercentage}%` }}
-                        >
-                            <div className="absolute inset-0 bg-white/20 blur-[2px] animate-pulse"></div>
-                        </div>
+                    <div className="text-left sm:text-right font-mono-tech">
+                        <span className="text-3xl font-black text-accent tabular-nums">{earnedCount}</span>
+                        <span className="text-sm text-textMuted font-normal"> / {totalMedals}</span>
                     </div>
                 </div>
 
-                {/* The Rack Grid */}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {MEDALS.map((medal: Medal) => {
-                        const isEarned = earnedMedalIds.has(medal.id);
-                        const earnedData = earnedMedals.find(m => m.medal_id === medal.id);
-
-                        return (
-                            <div
-                                key={medal.id}
-                                className={`relative overflow-hidden rounded-2xl border transition-all duration-500 p-6 ${isEarned
-                                        ? 'border-[#FFD60A]/40 bg-[#162B20]/90 shadow-[0_0_30px_rgba(255,214,10,0.1)] hover:scale-105 hover:shadow-[0_0_40px_rgba(255,214,10,0.2)]'
-                                        : 'border-[#1E3A2A]/40 bg-[#0B1D13]/60 grayscale opacity-60'
-                                    }`}
-                            >
-                                {/* Glowing Background Effect for Earned medals */}
-                                {isEarned && (
-                                    <div className={`absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br ${medal.color} opacity-20 blur-2xl`}></div>
-                                )}
-
-                                <div className="relative z-10 text-center">
-                                    <div className={`mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 shadow-xl ${isEarned ? 'border-[#FFD60A] bg-gradient-to-br ' + medal.color : 'border-[#1E3A2A] bg-[#162B20]'
-                                        }`}>
-                                        <span className="text-4xl drop-shadow-md">
-                                            {isEarned ? medal.icon : <Lock className="h-8 w-8 text-[#6B7280]" />}
-                                        </span>
-                                    </div>
-
-                                    <h3 className={`text-lg font-black uppercase tracking-wider mb-2 ${isEarned ? 'text-[#FFD60A]' : 'text-[#9CA3AF]'
-                                        }`}>
-                                        {medal.name}
-                                    </h3>
-
-                                    <p className="text-sm font-medium text-[#9CA3AF] mb-4 min-h-[40px]">
-                                        {medal.description}
-                                    </p>
-
-                                    {isEarned ? (
-                                        <div className="inline-block rounded-full bg-[#FFD60A]/10 px-3 py-1 text-xs font-bold text-[#FFD60A] border border-[#FFD60A]/20">
-                                            EARNED ON {new Date(earnedData!.earned_at).toLocaleDateString()}
-                                        </div>
-                                    ) : (
-                                        <div className="inline-block rounded-full bg-black/40 px-3 py-1 text-xs font-bold text-[#6B7280] border border-[#1E3A2A]">
-                                            LOCKED
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
+                <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-mono-tech text-textMuted">
+                        <span>Clearance Completion</span>
+                        <span className="font-bold text-accent">{completionPercentage}%</span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-surface-muted overflow-hidden border border-border">
+                        <div
+                            className="h-full bg-accent rounded-full transition-all duration-700"
+                            style={{ width: `${completionPercentage}%` }}
+                        />
+                    </div>
                 </div>
             </div>
-        </MainLayout>
+
+            {/* Section 1: Earned Commendations (Highlighted) */}
+            {earnedList.length > 0 && (
+                <section className="space-y-4">
+                    <div className="flex items-center gap-2 border-l-4 border-l-accent pl-3 py-0.5">
+                        <CheckCircle2 className="h-4 w-4 text-accent" />
+                        <h2 className="text-base font-bold text-textMain uppercase tracking-wide">
+                            Earned Commendations ({earnedList.length})
+                        </h2>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {earnedList.map((medal: Medal) => {
+                            const earnedData = earnedMedals.find(m => m.medal_id === medal.id);
+                            return (
+                                <div
+                                    key={medal.id}
+                                    className="card p-5 border-accent/40 bg-surface shadow-elevated hover-lift flex flex-col justify-between"
+                                >
+                                    <div>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-[#D6A52C] bg-[#D6A52C]/10 text-3xl shadow-sm">
+                                                {medal.icon}
+                                            </div>
+                                            <span className="inline-block rounded-full bg-accent-muted px-2.5 py-0.5 text-[10px] font-mono-tech font-bold text-accent">
+                                                EARNED
+                                            </span>
+                                        </div>
+
+                                        <h3 className="font-bold text-base text-textMain mb-1">
+                                            {medal.name}
+                                        </h3>
+                                        <p className="text-xs text-textSecondary leading-relaxed mb-4">
+                                            {medal.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="pt-3 border-t border-border flex items-center justify-between text-[11px] font-mono-tech text-textMuted">
+                                        <span>AWARDED DATE:</span>
+                                        <span className="font-bold text-accent">
+                                            {new Date(earnedData!.earned_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
+            {/* Section 2: Locked Commendations (Aspirational Silhouettes) */}
+            <section className="space-y-4">
+                <div className="flex items-center gap-2 border-l-4 border-l-textMuted pl-3 py-0.5">
+                    <Lock className="h-4 w-4 text-textMuted" />
+                    <h2 className="text-base font-bold text-textMain uppercase tracking-wide">
+                        Locked Commendations ({lockedList.length})
+                    </h2>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {lockedList.map((medal: Medal) => (
+                        <div
+                            key={medal.id}
+                            className="card-muted p-5 opacity-75 hover:opacity-100 transition-all border border-border flex flex-col justify-between"
+                        >
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface text-textMuted">
+                                        <Lock className="h-5 w-5 text-textMuted" />
+                                    </div>
+                                    <span className="inline-block rounded-full bg-surface px-2.5 py-0.5 text-[10px] font-mono-tech text-textMuted border border-border">
+                                        LOCKED
+                                    </span>
+                                </div>
+
+                                <h3 className="font-bold text-sm text-textMain mb-1">
+                                    {medal.name}
+                                </h3>
+                                <p className="text-xs text-textMuted leading-relaxed mb-3">
+                                    {medal.description}
+                                </p>
+                            </div>
+
+                            <div className="pt-2 border-t border-border/50 text-[10px] font-mono-tech text-textMuted">
+                                <span>STATUS: CLASSIFIED</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        </div>
     );
 }

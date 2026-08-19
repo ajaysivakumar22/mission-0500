@@ -1,31 +1,34 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getQuoteOfTheDay } from '@/lib/constants/motivational-quotes';
+import Link from 'next/link';
 
-interface HeaderProps {
-    title?: string;
-}
-
-export function Header({ title }: HeaderProps) {
-    const [quote, setQuote] = useState('');
+export function Header() {
+    const [dateStr, setDateStr] = useState('');
 
     useEffect(() => {
-        const today = new Date().toISOString().split('T')[0];
-        const dailyQuote = getQuoteOfTheDay(today);
-        setQuote(dailyQuote.text);
+        const today = new Date();
+        const d = today.getDate().toString().padStart(2, '0');
+        const m = today.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
+        const y = today.getFullYear();
+        setDateStr(`${d} ${m} ${y}`);
     }, []);
 
     return (
-        <div className="border-b border-[#1E3A2A] bg-[#162B20] px-6 py-4">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-[#E8E8E8]">
-                    {title || 'MISSION 0500'}
-                </h1>
+        <header className="border-b border-border bg-surface/90 backdrop-blur-sm px-4 py-3 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-3">
+                <Link href="/dashboard" className="flex items-center gap-2 group">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-accent text-white text-xs font-black">M</span>
+                    <div className="leading-none">
+                        <span className="text-xs font-black text-textMain tracking-tight">MISSION</span>
+                        <span className="text-xs font-mono-tech text-accent ml-1 tracking-widest">0500</span>
+                    </div>
+                </Link>
+
+                {dateStr && (
+                    <p className="text-xs font-mono-tech text-textMuted tracking-wider">{dateStr}</p>
+                )}
             </div>
-            {quote && (
-                <p className="mt-2 text-sm italic text-[#9CA3AF]">&quot;{quote}&quot;</p>
-            )}
-        </div>
+        </header>
     );
 }

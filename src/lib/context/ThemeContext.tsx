@@ -28,10 +28,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!mounted) return;
 
-        // Apply theme via CSS class on the body tag
-        document.body.className = '';
+        // Apply theme via CSS class on <html> (not body, to avoid wiping next/font class)
+        document.documentElement.className = '';
         if (theme !== 'operator') {
-            document.body.classList.add(`theme-${theme}`);
+            document.documentElement.classList.add(`theme-${theme}`);
         }
 
         // Sync with local storage

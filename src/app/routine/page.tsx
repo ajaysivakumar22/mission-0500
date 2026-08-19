@@ -1,7 +1,11 @@
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { getServerSession } from '@/lib/supabase/server';
 import { getRoutineForDate, initializeDefaultRoutine } from '@/server/actions/routine';
 import { getServerDate } from '@/server/utils/timezone';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { RoutineSkeleton } from '@/components/ui/Skeletons';
 import RoutineClient from './RoutineClient';
 
 export default async function RoutinePage() {
@@ -10,18 +14,31 @@ export default async function RoutinePage() {
         redirect('/login');
     }
 
-    const today = await getServerDate(session.user.id);
+    return (
+        <MainLayout>
+            <div className="space-y-8 animate-slide-in">
+                <PageHeader
+                    title="Daily Routine"
+                    subtitle="Execute your non-negotiable daily actions. Consistency compounds."
+                />
 
-    // Initialize default routine if needed
-    await initializeDefaultRoutine(session.user.id, today);
+                <Suspense fallback={<RoutineSkeleton />}>
+                    <RoutineSection userId={session.user.id} />
+                </Suspense>
+            </div>
+        </MainLayout>
+    );
+}
 
-    // Load routines
-    const result = await getRoutineForDate(session.user.id, today);
+async function RoutineSection({ userId }: { userId: string }) {
+    const today = await getServerDate(userId);
+    await initializeDefaultRoutine(userId, today);
+    const result = await getRoutineForDate(userId, today);
     const routines = result.success && result.data ? result.data : [];
 
     return (
         <RoutineClient
-            userId={session.user.id}
+            userId={userId}
             initialRoutines={routines}
         />
     );

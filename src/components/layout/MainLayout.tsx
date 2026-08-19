@@ -7,33 +7,37 @@ interface MainLayoutProps {
     showHeader?: boolean;
 }
 
+/**
+ * MainLayout — Application Shell
+ * 
+ * Desktop (lg+):
+ *   Left sidebar (240px) + Main content area (flex-1)
+ *   Header hidden — sidebar provides brand presence
+ * 
+ * Mobile (<lg):
+ *   Full width content
+ *   Thin header at top
+ *   Bottom island navigation
+ */
 export function MainLayout({ children, showHeader = true }: MainLayoutProps) {
     return (
-        <div className="flex h-screen flex-col bg-background text-textMain relative">
-            {/* Global Background Elements for Military Premium Feel */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-60 blur-3xl rounded-full translate-x-1/3 -translate-y-1/3"></div>
-                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-background via-transparent to-transparent opacity-90"></div>
-            </div>
+        <div className="flex min-h-screen bg-background text-textMain">
+            {/* Desktop Sidebar is rendered inside Navigation */}
+            <Navigation />
 
-            {/* Main Content Area */}
-            <div className="flex flex-1 flex-col overflow-hidden relative z-10">
-                {showHeader && <Header />}
+            {/* Content Column */}
+            <div className="flex flex-1 flex-col min-w-0">
+                {/* Slim Header — only visible on mobile */}
+                <div className="lg:hidden">
+                    {showHeader && <Header />}
+                </div>
 
-                {/* Scrollable Content */}
-                <main className="flex-1 overflow-y-auto pb-32">
-                    {/* Removed max-w-7xl to fill screen completely as requested */}
-                    <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+                {/* Main Content */}
+                <main className="flex-1 pb-24 lg:pb-8 pt-2">
+                    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6 transition-all duration-300">
                         {children}
                     </div>
                 </main>
-            </div>
-
-            {/* Navigation - Moved after main content with higher z-index to ensure clicks work! */}
-            <div className="z-50 relative pointer-events-none">
-                <div className="pointer-events-auto">
-                    <Navigation />
-                </div>
             </div>
         </div>
     );

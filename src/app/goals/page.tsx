@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from '@/lib/supabase/server';
 import { getAllGoals } from '@/server/actions/goals';
-import GoalsClient from './GoalsClient';
-
 import { getUserSettings } from '@/server/actions/settings';
+import { MainLayout } from '@/components/layout/MainLayout';
+import GoalsClient from './GoalsClient';
 
 export default async function GoalsPage() {
     const session = await getServerSession();
@@ -20,10 +20,12 @@ export default async function GoalsPage() {
     const isPremium = settingsResult.success ? settingsResult.data?.is_premium || false : false;
 
     return (
-        <GoalsClient
-            userId={session.user.id}
-            initialGoals={goals}
-            isPremium={isPremium}
-        />
+        <MainLayout>
+            <GoalsClient
+                userId={session.user.id}
+                initialGoals={goals}
+                isPremium={isPremium}
+            />
+        </MainLayout>
     );
 }

@@ -4,51 +4,44 @@
 
 @layer base {
   :root {
-    /* 1. The Operator (Military/Current) */
-    --theme-background: #0B1D13;
-    --theme-surface: #162B20;
-    --theme-border: #1E3A2A;
-    --theme-primary: #1B4332;
-    --theme-accent: #FFD60A;
-    /* Gold */
-    --theme-text-main: #E8E8E8;
-    --theme-text-muted: #9CA3AF;
-  }
+    /* ═══════════════════════════════════════════════════
+       MISSION 0500 — FIELD EDITORIAL COLOR SYSTEM
+       ═══════════════════════════════════════════════════ */
+    --theme-background:      #E7E0D2; /* Field Background */
+    --theme-surface:         #F3EDE1; /* Paper */
+    --theme-surface-muted:   #E0D9CB; /* Muted Sand */
+    --theme-surface-light:   #F8F4EB; /* Paper Light */
+    --theme-surface-dark:    #20382B; /* Deep Olive */
+    --theme-border:          #D3CBBD; /* Tactile Border */
+    --theme-border-strong:   #B8AFA0;
 
-  /* 2. The Scholar (Minimalist/Focus) */
-  .theme-scholar {
-    --theme-background: #0B0E14;
-    --theme-surface: #151B24;
-    --theme-border: #232D3B;
-    --theme-primary: #1D2A3B;
-    --theme-accent: #60A5FA;
-    /* Clean Blue */
-    --theme-text-main: #F1F5F9;
-    --theme-text-muted: #94A3B8;
-  }
+    --theme-ink:             #20231F; /* Primary Text */
+    --theme-text-main:       #20231F;
+    --theme-text-secondary:  #55564F; /* Ink Soft */
+    --theme-text-muted:      #86857B;
 
-  /* 3. The Athlete (High Energy) */
-  .theme-athlete {
-    --theme-background: #000000;
-    --theme-surface: #111111;
-    --theme-border: #222222;
-    --theme-primary: #2A0800;
-    --theme-accent: #FF3B30;
-    /* Aggressive Red */
-    --theme-text-main: #FFFFFF;
-    --theme-text-muted: #A1A1AA;
-  }
+    --theme-accent:          #D6A52C; /* Saffron */
+    --theme-accent-muted:    rgba(214, 165, 44, 0.15);
+    --theme-terracotta:      #B85C3D;
+    --theme-sage:            #71866B;
+    --theme-olive-soft:      #365441;
+    --theme-dusty-blue:      #58718A;
 
-  /* 4. The Protagonist (Anime/Story) */
-  .theme-protagonist {
-    --theme-background: #0D0814;
-    --theme-surface: #1A1025;
-    --theme-border: #2A183D;
-    --theme-primary: #3D1C5D;
-    --theme-accent: #D946EF;
-    /* Anime Purple/Pink */
-    --theme-text-main: #FAFAFA;
-    --theme-text-muted: #A78BFA;
+    --theme-success:         #71866B;
+    --theme-warning:         #D6A52C;
+    --theme-danger:          #C65C55;
+
+    /* Shadows */
+    --shadow-card:     0 1px 3px rgba(32, 35, 31, 0.05);
+    --shadow-elevated: 0 4px 14px rgba(32, 35, 31, 0.08);
+
+    --radius-card: 12px;
+    --radius-sm: 6px;
+
+    --duration-fast: 150ms;
+    --duration-base: 220ms;
+    --duration-slow: 320ms;
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -61,53 +54,72 @@
 html {
   scroll-behavior: smooth;
   background-color: var(--theme-background);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background-color: var(--theme-background);
   color: var(--theme-text-main);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  font-family: var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Atmospheric tactile grain texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperNoise)'/%3E%3C/svg%3E");
 }
 
-::-webkit-scrollbar-track {
-  background: var(--theme-background);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--theme-border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-primary);
-}
-
-/* Selection */
 ::selection {
-  background-color: var(--theme-primary);
-  color: var(--theme-accent);
+  background-color: var(--theme-accent-muted);
+  color: var(--theme-text-main);
 }
 
-/* Animations */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@layer components {
+  .font-mono-tech {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .font-serif-quote {
+    font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   }
-}
 
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out;
+  .card {
+    background: var(--theme-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .card-dark {
+    background: var(--theme-surface-dark);
+    color: #F8F4EB;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-card);
+  }
+
+  .card-muted {
+    background: var(--theme-surface-muted);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--radius-card);
+  }
+
+  .hover-lift {
+    transition: transform var(--duration-base) var(--ease-standard), box-shadow var(--duration-base) var(--ease-standard);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+  }
 }

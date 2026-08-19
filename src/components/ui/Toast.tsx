@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
-import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -20,31 +20,30 @@ const ToastContext = createContext<ToastContextType | null>(null);
 export function useToast() {
     const context = useContext(ToastContext);
     if (!context) {
-        // Fallback for components outside provider — won't crash
-        return { toast: (_message: string) => { /* no-op outside provider */ } };
+        return { toast: (_message: string) => { /* fallback for out-of-provider components */ } };
     }
     return context;
 }
 
-const icons: Record<ToastType, typeof CheckCircle> = {
-    success: CheckCircle,
-    error: XCircle,
+const icons: Record<ToastType, typeof CheckCircle2> = {
+    success: CheckCircle2,
+    error: AlertCircle,
     warning: AlertTriangle,
     info: Info,
 };
 
 const colors: Record<ToastType, string> = {
-    success: 'border-green-500/50 bg-green-900/80 text-green-100',
-    error: 'border-red-500/50 bg-red-900/80 text-red-100',
-    warning: 'border-yellow-500/50 bg-yellow-900/80 text-yellow-100',
-    info: 'border-blue-500/50 bg-blue-900/80 text-blue-100',
+    success: 'border-success/30 bg-surface text-textMain shadow-elevated',
+    error:   'border-danger/30 bg-surface text-textMain shadow-elevated',
+    warning: 'border-warning/30 bg-surface text-textMain shadow-elevated',
+    info:    'border-accent/30 bg-surface text-textMain shadow-elevated',
 };
 
 const iconColors: Record<ToastType, string> = {
-    success: 'text-green-400',
-    error: 'text-red-400',
-    warning: 'text-yellow-400',
-    info: 'text-blue-400',
+    success: 'text-success',
+    error:   'text-danger',
+    warning: 'text-warning',
+    info:    'text-accent',
 };
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
@@ -57,16 +56,17 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
 
     return (
         <div
-            className={`flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm animate-in slide-in-from-right duration-300 ${colors[toast.type]}`}
+            className={`flex items-start gap-3 rounded-card border px-4 py-3 shadow-card animate-slide-up transition-all ${colors[toast.type]}`}
             role="alert"
         >
-            <Icon className={`h-5 w-5 flex-shrink-0 ${iconColors[toast.type]}`} />
-            <p className="flex-1 text-sm font-medium">{toast.message}</p>
+            <Icon className={`h-4.5 w-4.5 mt-0.5 flex-shrink-0 ${iconColors[toast.type]}`} />
+            <p className="flex-1 text-sm font-medium leading-snug">{toast.message}</p>
             <button
                 onClick={() => onDismiss(toast.id)}
-                className="flex-shrink-0 rounded p-1 hover:bg-white/10 transition-colors"
+                className="flex-shrink-0 rounded p-1 text-textMuted hover:text-textMain hover:bg-surface-muted transition-colors"
+                aria-label="Dismiss notification"
             >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
             </button>
         </div>
     );
@@ -87,8 +87,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     return (
         <ToastContext.Provider value={{ toast: addToast }}>
             {children}
-            {/* Toast container — fixed top-right */}
-            <div className="fixed top-4 right-4 z-[200] flex flex-col gap-2 w-[360px] max-w-[calc(100vw-2rem)]">
+            {/* Toast container — fixed bottom-right (bottom center on mobile) */}
+            <div className="fixed bottom-5 right-5 z-[200] flex flex-col gap-2.5 w-[340px] max-w-[calc(100vw-2.5rem)] pointer-events-none [&>*]:pointer-events-auto">
                 {toasts.map(t => (
                     <ToastItem key={t.id} toast={t} onDismiss={dismiss} />
                 ))}

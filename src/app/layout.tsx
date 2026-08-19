@@ -7,7 +7,7 @@ import { SystemSyncer } from '@/components/layout/SystemSyncer';
 import { AuthListener } from '@/components/layout/AuthListener';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
     title: 'MISSION 0500 - Personal Command Center',
@@ -23,8 +23,8 @@ export default async function RootLayout({
     const session = await getServerSession();
     
     return (
-        <html lang="en">
-            <body className={inter.className}>
+        <html lang="en" className={inter.variable} suppressHydrationWarning>
+            <body>
                 <AuthListener />
                 {session?.user && <SystemSyncer userId={session.user.id} />}
                 <ThemeProvider>

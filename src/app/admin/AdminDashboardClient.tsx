@@ -127,11 +127,11 @@ export default function AdminDashboardClient({
                                 <div style={{ width: '100%', height: 300 }}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={safeGrowth}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                                            <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                                            <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                                            <Tooltip contentStyle={{ backgroundColor: '#0B1D13', borderColor: '#1E3A2A', borderRadius: '8px' }} itemStyle={{ color: '#22C55E', fontWeight: 'bold' }} />
-                                            <Bar dataKey="users" fill="#22C55E" radius={[4, 4, 0, 0]} />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#D3CBBD" vertical={false} />
+                                            <XAxis dataKey="name" stroke="#86857B" fontSize={12} tickLine={false} axisLine={false} />
+                                            <YAxis stroke="#86857B" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                                            <Tooltip contentStyle={{ backgroundColor: '#F3EDE1', borderColor: '#D3CBBD', borderRadius: '8px' }} itemStyle={{ color: '#71866B', fontWeight: 'bold' }} />
+                                            <Bar dataKey="users" fill="#71866B" radius={[4, 4, 0, 0]} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -140,8 +140,8 @@ export default function AdminDashboardClient({
                             )}
                         </div>
 
-                        <div className="bg-surface/50 border border-white/10 p-6 rounded-2xl">
-                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                        <div className="card p-6">
+                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-textMain">
                                 <TrendingUp className="text-accent w-5 h-5" /> Revenue (INR)
                             </h3>
                             {safeRevenue.length > 0 ? (
@@ -150,15 +150,15 @@ export default function AdminDashboardClient({
                                         <AreaChart data={safeRevenue}>
                                             <defs>
                                                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#FFD60A" stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor="#FFD60A" stopOpacity={0} />
+                                                    <stop offset="5%" stopColor="#D6A52C" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="#D6A52C" stopOpacity={0} />
                                                 </linearGradient>
                                             </defs>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                                            <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                                            <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val: number) => '\u20B9' + (val / 1000) + 'k'} />
-                                            <Tooltip contentStyle={{ backgroundColor: '#0B1D13', borderColor: '#FFD60A', borderRadius: '8px' }} itemStyle={{ color: '#FFD60A', fontWeight: 'bold' }} formatter={(value: any) => ['\u20B9' + Number(value || 0).toLocaleString('en-IN'), 'Revenue']} />
-                                            <Area type="monotone" dataKey="amount" stroke="#FFD60A" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#D3CBBD" vertical={false} />
+                                            <XAxis dataKey="name" stroke="#86857B" fontSize={12} tickLine={false} axisLine={false} />
+                                            <YAxis stroke="#86857B" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val: number) => '\u20B9' + (val / 1000) + 'k'} />
+                                            <Tooltip contentStyle={{ backgroundColor: '#F3EDE1', borderColor: '#D6A52C', borderRadius: '8px' }} itemStyle={{ color: '#D6A52C', fontWeight: 'bold' }} formatter={(value: any) => ['\u20B9' + Number(value || 0).toLocaleString('en-IN'), 'Revenue']} />
+                                            <Area type="monotone" dataKey="amount" stroke="#D6A52C" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>

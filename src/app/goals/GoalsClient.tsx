@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { GoalCard } from '@/components/cards/GoalCard';
 import { Button } from '@/components/ui/Button';
@@ -12,7 +10,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Dialog } from '@/components/ui/Dialog';
 import { useToast } from '@/components/ui/Toast';
 import { createGoal, deleteGoal, archiveGoal } from '@/server/actions/goals';
-import { Plus, Target } from 'lucide-react';
+import { Plus, Target, Lock, Compass, Mountain, MapPin, Flag } from 'lucide-react';
 import type { Goal } from '@/types';
 
 interface GoalsClientProps {
@@ -34,7 +32,6 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
 
     const handleAddGoal = async (e?: React.FormEvent) => {
         e?.preventDefault();
-
         if (!formData.title.trim()) {
             toast('Please enter a goal title', 'warning');
             return;
@@ -58,7 +55,6 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
 
     const handleArchiveGoal = async (id: string) => {
         const result = await archiveGoal(userId, id);
-
         if (result.success) {
             setGoals(prev => prev.filter(g => g.id !== id));
         }
@@ -66,13 +62,11 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
 
     const handleDeleteGoal = async (id: string) => {
         const result = await deleteGoal(userId, id);
-
         if (result.success) {
             setGoals(prev => prev.filter(g => g.id !== id));
         }
     };
 
-    // Group goals by category
     const categorized = {
         short_term: goals.filter(g => g.category === 'short_term'),
         mid_term: goals.filter(g => g.category === 'mid_term'),
@@ -80,187 +74,204 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
     };
 
     return (
-        <MainLayout>
-            <div className="space-y-8 animate-in fade-in duration-500">
-                <PageHeader
-                    title="Strategic Objectives"
-                    subtitle="Define your targets. Relentlessly pursue them until victory is achieved."
-                />
-
-                <InspirationalQuote />
-
-                {!isPremium ? (
-                    <div className="relative overflow-hidden rounded-3xl border border-accent/40 bg-surface p-10 text-center shadow-[0_0_50px_rgba(var(--theme-accent),0.1)] backdrop-blur-md animate-in zoom-in duration-500">
-                        {/* Glowing background */}
-                        <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent opacity-10 blur-[100px]"></div>
-
-                        <div className="relative z-10 flex flex-col items-center py-8">
-                            <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-accent bg-background shadow-[0_0_40px_rgba(var(--theme-accent),0.2)]">
-                                <Target className="h-12 w-12 text-accent" />
-                            </div>
-
-                            <h2 className="mb-4 text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-accent to-white uppercase tracking-widest">
-                                STRATEGIC COMMAND LOCKED
-                            </h2>
-                            <p className="mx-auto mb-10 max-w-xl text-lg font-medium text-textMuted leading-relaxed">
-                                True power requires long-term vision. The Goals Protocol is restricted to <span className="text-accent">Elite Status</span> operators. Upgrade now to build your multi-year deployment strategy.
-                            </p>
-
-                            <Button
-                                variant="primary"
-                                className="px-10 py-5 text-xl font-black tracking-widest uppercase shadow-[0_0_20px_rgba(var(--theme-accent),0.3)] hover:shadow-[0_0_40px_rgba(var(--theme-accent),0.5)] transition-all hover:scale-105"
-                                onClick={() => window.location.href = '/settings?tab=elite'}
-                            >
-                                Initiate Elite Upgrade
-                            </Button>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        {/* Add Button */}
-                        <Button
-                            onClick={() => setIsDialogOpen(true)}
-                            variant="primary"
-                            className="w-full gap-2"
-                        >
-                            <Plus className="h-5 w-5" />
-                            Create New Goal
-                        </Button>
-
-                        {/* Short-term Goals */}
-                        <section>
-                            <h2 className="mb-4 text-xl font-bold text-textMain relative inline-block">
-                                Short-term Goals
-                                <span className="ml-2 rounded-full bg-accent/20 px-2.5 py-0.5 text-xs font-bold text-accent align-middle">{categorized.short_term.length}</span>
-                            </h2>
-                            <div className="space-y-3">
-                                {categorized.short_term.length === 0 ? (
-                                    <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-center backdrop-blur-sm">
-                                        <Target className="h-6 w-6 text-textMuted mx-auto mb-2 opacity-50" />
-                                        <p className="text-sm font-bold text-white uppercase tracking-wider">No Short-Term Objectives</p>
-                                    </div>
-                                ) : (
-                                    categorized.short_term.map(goal => (
-                                        <GoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            onDelete={handleDeleteGoal}
-                                            onArchive={handleArchiveGoal}
-                                        />
-                                    ))
-                                )}
-                            </div>
-                        </section>
-
-                        {/* Mid-term Goals */}
-                        <section>
-                            <h2 className="mb-4 text-xl font-bold text-textMain relative inline-block">
-                                Mid-term Goals
-                                <span className="ml-2 rounded-full bg-accent/20 px-2.5 py-0.5 text-xs font-bold text-accent align-middle">{categorized.mid_term.length}</span>
-                            </h2>
-                            <div className="space-y-3">
-                                {categorized.mid_term.length === 0 ? (
-                                    <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-center backdrop-blur-sm">
-                                        <Target className="h-6 w-6 text-textMuted mx-auto mb-2 opacity-50" />
-                                        <p className="text-sm font-bold text-white uppercase tracking-wider">No Mid-Term Objectives</p>
-                                    </div>
-                                ) : (
-                                    categorized.mid_term.map(goal => (
-                                        <GoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            onDelete={handleDeleteGoal}
-                                            onArchive={handleArchiveGoal}
-                                        />
-                                    ))
-                                )}
-                            </div>
-                        </section>
-
-                        {/* Long-term Goals */}
-                        <section>
-                            <h2 className="mb-4 text-xl font-bold text-textMain relative inline-block">
-                                Long-term Goals
-                                <span className="ml-2 rounded-full bg-accent/20 px-2.5 py-0.5 text-xs font-bold text-accent align-middle">{categorized.long_term.length}</span>
-                            </h2>
-                            <div className="space-y-3">
-                                {categorized.long_term.length === 0 ? (
-                                    <div className="rounded-2xl border border-dashed border-white/20 bg-black/20 p-6 text-center backdrop-blur-sm">
-                                        <Target className="h-6 w-6 text-textMuted mx-auto mb-2 opacity-50" />
-                                        <p className="text-sm font-bold text-white uppercase tracking-wider">No Long-Term Objectives</p>
-                                    </div>
-                                ) : (
-                                    categorized.long_term.map(goal => (
-                                        <GoalCard
-                                            key={goal.id}
-                                            goal={goal}
-                                            onDelete={handleDeleteGoal}
-                                            onArchive={handleArchiveGoal}
-                                        />
-                                    ))
-                                )}
-                            </div>
-                        </section>
-                    </>
+        <div className="space-y-8 animate-slide-in">
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
+                <div>
+                    <span className="font-mono-tech text-xs font-bold text-accent uppercase tracking-widest block mb-1">
+                        STRATEGIC COMMAND
+                    </span>
+                    <h1 className="text-2xl sm:text-3xl font-serif-quote font-bold text-textMain tracking-tight">
+                        Strategic Objectives
+                    </h1>
+                    <p className="text-xs text-textSecondary mt-1">
+                        Choose the mountain before you start climbing.
+                    </p>
+                </div>
+                {isPremium && (
+                    <Button
+                        onClick={() => setIsDialogOpen(true)}
+                        variant="primary"
+                        className="gap-2 self-start sm:self-auto"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Declare Objective
+                    </Button>
                 )}
-
-                {/* Dialog */}
-                <Dialog
-                    isOpen={isDialogOpen}
-                    onClose={() => setIsDialogOpen(false)}
-                    title="Create New Goal"
-                    footer={
-                        <>
-                            <Button
-                                variant="ghost"
-                                onClick={() => setIsDialogOpen(false)}
-                                className="flex-1"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="primary"
-                                onClick={() => handleAddGoal()}
-                                className="flex-1"
-                            >
-                                Create
-                            </Button>
-                        </>
-                    }
-                >
-                    <form onSubmit={handleAddGoal} className="space-y-4">
-                        <Input
-                            label="Goal Title"
-                            placeholder="e.g., Complete certification"
-                            value={formData.title}
-                            onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                        />
-                        <Textarea
-                            label="Description"
-                            placeholder="Describe your goal..."
-                            value={formData.description}
-                            onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            rows={3}
-                        />
-                        <Select
-                            label="Category"
-                            value={formData.category}
-                            onChange={e => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
-                            options={[
-                                { value: 'short_term', label: 'Short-term (< 3 months)' },
-                                { value: 'mid_term', label: 'Mid-term (3-6 months)' },
-                                { value: 'long_term', label: 'Long-term (> 6 months)' },
-                            ]}
-                        />
-                        <Input
-                            label="Target Date (optional)"
-                            type="date"
-                            value={formData.target_date}
-                            onChange={e => setFormData(prev => ({ ...prev, target_date: e.target.value }))}
-                        />
-                    </form>
-                </Dialog>
             </div>
-        </MainLayout>
+
+            <InspirationalQuote compact />
+
+            {!isPremium ? (
+                /* Aspirational Locked State for Non-Premium */
+                <div className="relative overflow-hidden rounded-2xl bg-[#20382B] text-[#F8F4EB] p-8 sm:p-12 border border-white/10 shadow-xl text-center space-y-6">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#D6A52C]/20 text-[#D6A52C]">
+                        <Mountain className="h-8 w-8" />
+                    </div>
+
+                    <div className="max-w-md mx-auto space-y-2">
+                        <span className="font-mono-tech text-xs text-[#D6A52C] uppercase tracking-widest font-bold block">
+                            ELITE CLEARANCE REQUIRED
+                        </span>
+                        <h2 className="text-2xl font-serif-quote font-bold text-white">
+                            Strategic Campaign Unlocked
+                        </h2>
+                        <p className="text-xs text-white/70 leading-relaxed font-medium">
+                            Multi-quarter directive mapping, short/mid/long term milestone tracking, and campaign progress telemetry are reserved for Elite status operators.
+                        </p>
+                    </div>
+
+                    <Button
+                        variant="primary"
+                        onClick={() => window.location.href = '/settings?tab=elite'}
+                        className="bg-[#D6A52C] text-[#20382B] hover:bg-[#c49526] font-bold px-8 py-3 rounded-xl"
+                    >
+                        Initiate Elite Upgrade (₹100/mo)
+                    </Button>
+                </div>
+            ) : (
+                <div className="space-y-8">
+
+                    {/* Section 1: Short-term Goals (Active Execution — Saffron #D6A52C) */}
+                    <section className="space-y-4">
+                        <div className="flex items-center justify-between border-l-4 border-l-[#D6A52C] pl-3 py-1">
+                            <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-[#D6A52C]" />
+                                <h2 className="text-base font-bold text-textMain uppercase tracking-wide">
+                                    Short-Term Campaign (&lt; 90 Days)
+                                </h2>
+                            </div>
+                            <span className="font-mono-tech text-xs font-bold text-accent bg-accent-muted px-2.5 py-0.5 rounded-md">
+                                {categorized.short_term.length} Active
+                            </span>
+                        </div>
+
+                        {categorized.short_term.length === 0 ? (
+                            <div className="card-muted p-8 text-center space-y-2">
+                                <Compass className="h-8 w-8 text-textMuted mx-auto opacity-60" />
+                                <p className="text-sm font-bold text-textMain">No Short-Term Objectives</p>
+                                <p className="text-xs text-textMuted max-w-sm mx-auto">
+                                    Establish non-negotiable 90-day targets to maintain tactical velocity.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {categorized.short_term.map(goal => (
+                                    <GoalCard key={goal.id} goal={goal} onDelete={handleDeleteGoal} onArchive={handleArchiveGoal} />
+                                ))}
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Section 2: Mid-term Goals (Planning — Dusty Blue #58718A) */}
+                    <section className="space-y-4">
+                        <div className="flex items-center justify-between border-l-4 border-l-[#58718A] pl-3 py-1">
+                            <div className="flex items-center gap-2">
+                                <Compass className="h-4 w-4 text-[#58718A]" />
+                                <h2 className="text-base font-bold text-textMain uppercase tracking-wide">
+                                    Mid-Term Deployment (3 - 6 Months)
+                                </h2>
+                            </div>
+                            <span className="font-mono-tech text-xs font-bold text-[#58718A] bg-[#58718A]/15 px-2.5 py-0.5 rounded-md">
+                                {categorized.mid_term.length} Planned
+                            </span>
+                        </div>
+
+                        {categorized.mid_term.length === 0 ? (
+                            <div className="card-muted p-8 text-center space-y-2">
+                                <Flag className="h-8 w-8 text-textMuted mx-auto opacity-60" />
+                                <p className="text-sm font-bold text-textMain">No Mid-Term Objectives</p>
+                                <p className="text-xs text-textMuted max-w-sm mx-auto">
+                                    Define mid-horizon targets that bridge daily routines to long-term vision.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {categorized.mid_term.map(goal => (
+                                    <GoalCard key={goal.id} goal={goal} onDelete={handleDeleteGoal} onArchive={handleArchiveGoal} />
+                                ))}
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Section 3: Long-term Goals (Strategic — Deep Olive #20382B) */}
+                    <section className="space-y-4">
+                        <div className="flex items-center justify-between border-l-4 border-l-[#20382B] pl-3 py-1">
+                            <div className="flex items-center gap-2">
+                                <Mountain className="h-4 w-4 text-[#20382B]" />
+                                <h2 className="text-base font-bold text-textMain uppercase tracking-wide">
+                                    Long-Term Vision (&gt; 6 Months)
+                                </h2>
+                            </div>
+                            <span className="font-mono-tech text-xs font-bold text-[#20382B] bg-[#20382B]/15 px-2.5 py-0.5 rounded-md">
+                                {categorized.long_term.length} Visionary
+                            </span>
+                        </div>
+
+                        {categorized.long_term.length === 0 ? (
+                            <div className="card-muted p-8 text-center space-y-2">
+                                <Mountain className="h-8 w-8 text-textMuted mx-auto opacity-60" />
+                                <p className="text-sm font-bold text-textMain">No Long-Term Vision Declared</p>
+                                <p className="text-xs text-textMuted max-w-sm mx-auto">
+                                    Set multi-year North Star goals that shape your lifestyle choices.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {categorized.long_term.map(goal => (
+                                    <GoalCard key={goal.id} goal={goal} onDelete={handleDeleteGoal} onArchive={handleArchiveGoal} />
+                                ))}
+                            </div>
+                        )}
+                    </section>
+
+                </div>
+            )}
+
+            {/* Create Goal Dialog */}
+            <Dialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                title="Declare Strategic Objective"
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="flex-1">Cancel</Button>
+                        <Button variant="primary" onClick={() => handleAddGoal()} className="flex-1">Lock In Goal</Button>
+                    </>
+                }
+            >
+                <form onSubmit={handleAddGoal} className="space-y-4">
+                    <Input
+                        label="Goal Title"
+                        placeholder="e.g., Launch SaaS product, Run marathon"
+                        value={formData.title}
+                        onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    />
+                    <Textarea
+                        label="Description"
+                        placeholder="Define success criteria..."
+                        value={formData.description}
+                        onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                        rows={3}
+                    />
+                    <Select
+                        label="Category"
+                        value={formData.category}
+                        onChange={e => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
+                        options={[
+                            { value: 'short_term', label: 'Short-term (< 90 days)' },
+                            { value: 'mid_term', label: 'Mid-term (3 - 6 months)' },
+                            { value: 'long_term', label: 'Long-term (> 6 months)' },
+                        ]}
+                    />
+                    <Input
+                        label="Target Date (optional)"
+                        type="date"
+                        value={formData.target_date}
+                        onChange={e => setFormData(prev => ({ ...prev, target_date: e.target.value }))}
+                    />
+                </form>
+            </Dialog>
+        </div>
     );
 }

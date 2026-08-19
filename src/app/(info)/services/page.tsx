@@ -9,80 +9,58 @@ export const metadata: Metadata = {
 
 export default function ServicesPage() {
     return (
-        <article>
+        <article className="space-y-10 animate-slide-in">
             {/* Heading */}
-            <div className="mb-12">
-                <p className="text-xs uppercase tracking-[0.3em] text-[#FFD60A] font-semibold mb-3">Operations Manual</p>
-                <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight mb-4">Our Services</h1>
-                <p className="text-lg text-[#9CA3AF] leading-relaxed max-w-2xl">
-                    Mission 0500 is a personal discipline command center. Here&apos;s everything you get access to.
+            <div>
+                <span className="font-mono-tech text-xs uppercase tracking-widest text-accent font-bold block mb-1">OPERATIONS MANUAL</span>
+                <h1 className="text-3xl sm:text-4xl font-serif-quote font-bold text-textMain tracking-tight mb-3">Our Services</h1>
+                <p className="text-base text-textSecondary leading-relaxed max-w-2xl">
+                    Mission 0500 is a personal discipline operating system. Here is the operational capability catalogue.
                 </p>
             </div>
 
             {/* How it works */}
-            <section className="mb-14">
-                <h2 className="text-2xl font-bold text-white uppercase tracking-wide mb-6">How It Works</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section className="space-y-4">
+                <h2 className="text-lg font-bold text-textMain">How It Works</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
-                        { step: '01', title: 'Enlist', desc: 'Create a free account, choose your archetype (Operator, Scholar, Builder, or Athlete), and set your primary directive.' },
-                        { step: '02', title: 'Execute', desc: 'Complete daily routines, manage tasks, log reports, and track goals. Every action earns XP toward your next rank.' },
-                        { step: '03', title: 'Dominate', desc: 'Build streaks, unlock medals, climb from Cadet to Commander, and achieve total accountability over your daily execution.' },
+                        { step: '01', title: 'Enlist', desc: 'Create your account, choose your operating profile (Operator, Scholar, Athlete, or Protagonist), and set your primary directive.' },
+                        { step: '02', title: 'Execute', desc: 'Complete daily routines, manage objectives, log after-action reports, and track goals. Earn XP toward operational clearance.' },
+                        { step: '03', title: 'Dominate', desc: 'Maintain execution streaks, unlock commendation medals, advance from Cadet to Commander, and conquer your goals.' },
                     ].map((s) => (
-                        <div key={s.step} className="p-5 rounded-xl bg-[#162B20] border border-[#1E3A2A] text-center">
-                            <div className="text-4xl font-black text-[#FFD60A]/20 mb-2">{s.step}</div>
-                            <h3 className="text-lg font-bold text-white uppercase mb-2">{s.title}</h3>
-                            <p className="text-sm text-[#9CA3AF]">{s.desc}</p>
+                        <div key={s.step} className="card p-5 text-center">
+                            <div className="font-mono-tech text-3xl font-black text-accent/30 mb-1">{s.step}</div>
+                            <h3 className="text-base font-bold text-textMain mb-1.5">{s.title}</h3>
+                            <p className="text-xs text-textSecondary leading-relaxed">{s.desc}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* Free tier features */}
-            <section className="mb-14">
-                <h2 className="text-2xl font-bold text-white uppercase tracking-wide mb-2">Free Tier — Phase 1 Authorisation</h2>
-                <p className="text-[#9CA3AF] mb-6">Everything you need to start building discipline. No credit card required.</p>
+            {/* Free Tier Features */}
+            <section className="space-y-4">
+                <div>
+                    <h2 className="text-lg font-bold text-textMain">Free Tier — Phase 1 Authorization</h2>
+                    <p className="text-xs text-textSecondary mt-0.5">Everything needed to build daily discipline. No payment required.</p>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[
-                        {
-                            icon: Clock,
-                            title: 'Daily Routines',
-                            desc: 'Create and track daily routines. Choose from 4 archetype-based templates (Operator, Scholar, Builder, Athlete) or build your own. Mark items complete each day.',
-                        },
-                        {
-                            icon: Target,
-                            title: 'Goal Tracking',
-                            desc: 'Set short-term and long-term goals. Log progress entries with notes. Monitor completion percentage and momentum.',
-                        },
-                        {
-                            icon: BarChart3,
-                            title: 'Daily Reports',
-                            desc: 'Submit daily after-action reports with self-assessed mood, energy, and discipline ratings. Write notes to reflect on your day.',
-                        },
-                        {
-                            icon: Zap,
-                            title: 'XP & Rank System',
-                            desc: 'Earn XP for completing routines, tasks, and reports. Progress through military ranks: Cadet → Senior Cadet → Officer → Commander.',
-                        },
-                        {
-                            icon: Trophy,
-                            title: 'Medals & Streaks',
-                            desc: 'Unlock achievement medals for milestones like 7-day streaks, 100 tasks completed, and more. Track your execution streak.',
-                        },
-                        {
-                            icon: Star,
-                            title: 'Task Management',
-                            desc: 'Create, prioritise, and manage daily tasks. Mark them complete and earn XP. Organise by priority level (low, medium, high, critical).',
-                        },
+                        { icon: Clock, title: 'Daily Routines', desc: 'Create and track non-negotiable routine checklists. Choose from 4 archetype templates or customize.' },
+                        { icon: Target, title: 'Goal Tracking', desc: 'Set short-term and long-term targets. Log progress notes and monitor momentum.' },
+                        { icon: BarChart3, title: 'Daily Reports', desc: 'Submit after-action reviews with self-assessed energy, discipline, and execution ratings.' },
+                        { icon: Zap, title: 'XP & Rank System', desc: 'Earn XP for completing routine items and objectives. Progress through clearance ranks.' },
+                        { icon: Trophy, title: 'Medals & Streaks', desc: 'Unlock achievement medals for consistency milestones and streak preservation.' },
+                        { icon: Star, title: 'Task Management', desc: 'Create, prioritize, and execute daily objectives with priority badges.' },
                     ].map((f) => (
-                        <div key={f.title} className="p-5 rounded-xl bg-[#162B20] border border-[#1E3A2A]">
+                        <div key={f.title} className="card-muted p-5">
                             <div className="flex items-start gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-[#0B1D13] border border-[#1E3A2A] flex items-center justify-center flex-shrink-0">
-                                    <f.icon className="w-4 h-4 text-[#FFD60A]" />
+                                <div className="w-8 h-8 rounded-lg bg-accent-muted flex items-center justify-center flex-shrink-0 text-accent mt-0.5">
+                                    <f.icon className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-white uppercase tracking-wide mb-1">{f.title}</h3>
-                                    <p className="text-sm text-[#9CA3AF] leading-relaxed">{f.desc}</p>
+                                    <h3 className="text-sm font-bold text-textMain mb-1">{f.title}</h3>
+                                    <p className="text-xs text-textSecondary leading-relaxed">{f.desc}</p>
                                 </div>
                             </div>
                         </div>
@@ -90,82 +68,42 @@ export default function ServicesPage() {
                 </div>
             </section>
 
-            {/* Premium tier */}
-            <section className="mb-14">
-                <h2 className="text-2xl font-bold text-white uppercase tracking-wide mb-2">Elite Protocol — ₹399/month</h2>
-                <p className="text-[#9CA3AF] mb-6">Unlock the full arsenal for maximum accountability and performance insights.</p>
-
-                <div className="p-6 rounded-xl bg-[#162B20] border border-[#FFD60A]/30">
-                    <div className="flex items-center gap-2 mb-5">
-                        <Shield className="w-5 h-5 text-[#FFD60A]" />
-                        <span className="text-[#FFD60A] font-bold uppercase tracking-wider text-sm">Premium Features</span>
-                    </div>
-                    <div className="space-y-4">
-                        {[
-                            {
-                                title: 'Strategic Goals Board',
-                                desc: 'Access yearly goal planning with advanced progress visualisation and milestone tracking.',
-                            },
-                            {
-                                title: 'Deep Telemetry',
-                                desc: 'Unlock historical data analytics and AI-powered performance forecasting. See trends across weeks and months.',
-                            },
-                            {
-                                title: 'Unlimited Flow',
-                                desc: 'Calendar sync integration and unlimited task/routine capacity for power users.',
-                            },
-                            {
-                                title: 'Strict Accountability Mode',
-                                desc: 'Enable XP penalties for missed routines and tasks. No excuses — this mode enforces real consequences for inaction.',
-                            },
-                        ].map((f) => (
-                            <div key={f.title} className="flex items-start gap-3 p-4 rounded-lg bg-[#0B1D13]/50 border border-[#1E3A2A]">
-                                <div className="w-2 h-2 rounded-full bg-[#FFD60A] mt-1.5 flex-shrink-0" />
-                                <div>
-                                    <h3 className="text-sm font-bold text-white mb-1">{f.title}</h3>
-                                    <p className="text-sm text-[#9CA3AF] leading-relaxed">{f.desc}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="mt-6 pt-4 border-t border-[#1E3A2A]">
-                        <p className="text-xs text-[#6B7280]">
-                            Payments processed securely via Razorpay. Cancel anytime from Settings. See our{' '}
-                            <a href="/refund" className="text-[#FFD60A] hover:underline">Refund Policy</a> for details.
-                        </p>
-                    </div>
+            {/* Premium Tier */}
+            <section className="card p-6 border-l-4 border-l-accent space-y-4">
+                <div>
+                    <span className="font-mono-tech text-xs text-accent font-bold uppercase tracking-widest block mb-1">PREMIUM UPGRADE</span>
+                    <h2 className="text-xl font-bold text-textMain">Elite Protocol — ₹100 / month</h2>
+                    <p className="text-xs text-textSecondary mt-0.5">Unlock strategic goals, 30-day telemetry, and strict mode.</p>
                 </div>
-            </section>
 
-            {/* What you get after payment */}
-            <section className="mb-14">
-                <h2 className="text-2xl font-bold text-white uppercase tracking-wide mb-4">What You Receive After Payment</h2>
-                <div className="p-5 rounded-xl bg-[#162B20] border border-[#1E3A2A] space-y-3 text-sm text-[#9CA3AF]">
-                    <p>Upon successful payment of the Elite Protocol subscription:</p>
-                    <ul className="list-disc list-inside space-y-1 ml-4">
-                        <li>Your account is <strong className="text-white">instantly upgraded</strong> to Elite Protocol status</li>
-                        <li>All premium features are <strong className="text-white">unlocked immediately</strong></li>
-                        <li>Your subscription status is visible in the <strong className="text-white">Settings</strong> page</li>
-                        <li>A payment confirmation is sent to your registered email by Razorpay</li>
-                        <li>Your subscription <strong className="text-white">renews automatically</strong> each month until cancelled</li>
-                    </ul>
-                    <p className="mt-4">
-                        This is a <strong className="text-white">digital service subscription</strong>. No physical goods are shipped. 
-                        Access is granted through the web application at the time of payment.
-                    </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                        { title: 'Strategic Goals Board', desc: 'Access multi-quarter strategic goal planning and campaign milestone tracking.' },
+                        { title: 'Deep Telemetry', desc: 'Unlock 30-day performance telemetry, CSV exports, and historical debrief analysis.' },
+                        { title: 'Unlimited Flow', desc: 'Expanded capacity for power users to manage multiple routine tracks.' },
+                        { title: 'Strict Accountability Mode', desc: 'Enable optional XP penalties for missed daily routine items.' },
+                    ].map((f) => (
+                        <div key={f.title} className="card-muted p-4 space-y-1">
+                            <div className="flex items-center gap-2">
+                                <Shield className="w-4 h-4 text-accent flex-shrink-0" />
+                                <h3 className="text-xs font-bold text-textMain">{f.title}</h3>
+                            </div>
+                            <p className="text-xs text-textSecondary leading-relaxed pl-6">{f.desc}</p>
+                        </div>
+                    ))}
                 </div>
             </section>
 
             {/* CTA */}
-            <section className="text-center p-8 rounded-xl bg-[#162B20] border border-[#1E3A2A]">
-                <h2 className="text-2xl font-bold text-white uppercase tracking-wide mb-3">Start Your Mission</h2>
-                <p className="text-[#9CA3AF] mb-6">Sign up free. Upgrade when you&apos;re ready for the next level.</p>
+            <section className="card p-6 text-center bg-[#20382B] text-[#F8F4EB] border border-white/10">
+                <h2 className="text-xl font-serif-quote font-bold text-white mb-2">Start Your Mission</h2>
+                <p className="text-xs text-white/70 mb-5">Free to enlist. No credit card required.</p>
                 <Link
                     href="/login"
-                    className="inline-flex items-center gap-2 bg-[#FFD60A] text-[#0B1D13] px-8 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-[#e6c209] transition"
+                    className="inline-flex items-center gap-2 bg-[#D6A52C] text-[#20382B] px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-[#c49526] transition shadow-md"
                 >
                     Enlist Now
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-4 h-4" />
                 </Link>
             </section>
         </article>

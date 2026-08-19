@@ -3,18 +3,30 @@ import React from 'react';
 interface PageHeaderProps {
     title: string;
     subtitle?: string;
+    category?: string;
+    action?: React.ReactNode;
 }
 
-export function PageHeader({ title, subtitle }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, category, action }: PageHeaderProps) {
     return (
-        <div className="mb-8 border-b border-white/10 pb-6 relative z-10">
-            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] tracking-tight uppercase drop-shadow-sm">
-                {title}
-            </h1>
-            {subtitle && (
-                <p className="mt-2 text-lg text-[#9CA3AF] max-w-2xl font-medium tracking-wide">
-                    {subtitle}
-                </p>
+        <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+                {category && (
+                    <p className="font-mono-tech text-xs font-bold uppercase tracking-widest text-accent mb-1">
+                        {category}
+                    </p>
+                )}
+                <h1 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">
+                    {title}
+                </h1>
+                {subtitle && (
+                    <p className="mt-1 text-sm text-textSecondary leading-relaxed max-w-2xl">
+                        {subtitle}
+                    </p>
+                )}
+            </div>
+            {action && (
+                <div className="flex-shrink-0">{action}</div>
             )}
         </div>
     );

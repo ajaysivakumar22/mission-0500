@@ -10,21 +10,21 @@ interface GridItemProps {
 
 function GridItem({ quote, author, bgImage, className = '' }: GridItemProps) {
     return (
-        <div className={`relative overflow-hidden rounded-2xl border border-white/5 shadow-xl group bg-black transition-all duration-500 hover:border-[#FFD60A]/30 hover:shadow-[0_0_25px_rgba(255,214,10,0.1)] ${className}`}>
+        <div className={`relative overflow-hidden rounded-2xl border border-border/50 shadow-xl group bg-surface transition-all duration-500 hover:border-accent/30 hover:shadow-[0_0_25px_rgba(var(--theme-accent),0.1)] ${className}`}>
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-[2000ms] opacity-60 group-hover:scale-110 group-hover:opacity-80"
                 style={{ backgroundImage: `url(${bgImage})` }}
             />
-            <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+            <div className="absolute inset-0 z-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
 
             {quote && (
                 <div className="absolute bottom-0 left-0 right-0 p-5 z-10 flex flex-col justify-end h-full">
-                    <Quote className="h-4 w-4 text-[#FFD60A]/50 mb-2 transform -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                    <p className="text-white font-serif font-bold text-lg md:text-xl leading-tight drop-shadow-lg mb-2">
+                    <Quote className="h-4 w-4 text-accent/50 mb-2 transform -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    <p className="text-textMain font-serif font-bold text-lg md:text-xl leading-tight drop-shadow-lg mb-2">
                         &quot;{quote}&quot;
                     </p>
-                    <span className="text-xs font-black text-[#FFD60A] tracking-widest uppercase items-center flex gap-2">
-                        <div className="w-3 h-0.5 bg-[#FFD60A]"></div>
+                    <span className="text-xs font-black text-accent tracking-widest uppercase items-center flex gap-2">
+                        <div className="w-3 h-0.5 bg-accent"></div>
                         {author}
                     </span>
                 </div>

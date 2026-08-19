@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Shield } from 'lucide-react';
 
 export default function UpdatePasswordPage() {
     const router = useRouter();
@@ -15,25 +16,19 @@ export default function UpdatePasswordPage() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
-    // Wait for Supabase to fire the PASSWORD_RECOVERY event from hash tokens.
-    // This is the authoritative signal that a recovery session is ready.
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => {
                 if (event === 'PASSWORD_RECOVERY') {
-                    // Recovery session confirmed — form is now active
-                    // session is set automatically by the Supabase client
+                    // Recovery session confirmed
                 } else if (!session) {
-                    // No session and no recovery event — invalid link, send back
                     router.replace('/login?error=auth_callback_failed');
                 }
             }
         );
 
-        // Also check for an existing session (PKCE flow already exchanged the code)
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (!session) {
-                // Give onAuthStateChange a moment to fire before giving up
                 setTimeout(() => {
                     supabase.auth.getSession().then(({ data: { session: s } }) => {
                         if (!s) router.replace('/login?error=auth_callback_failed');
@@ -43,7 +38,7 @@ export default function UpdatePasswordPage() {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [router, supabase.auth]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,111 +64,84 @@ export default function UpdatePasswordPage() {
         }
 
         setSuccess(true);
-        // Sign out so the recovery session is cleared, then redirect to login
         await supabase.auth.signOut();
         setTimeout(() => router.replace('/login'), 2000);
     };
 
     return (
-        <div
-            className="min-h-screen flex items-center justify-center relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #0B1D13 0%, #0f2a1a 50%, #0B1D13 100%)' }}
-        >
-            {/* Grid background */}
-            <div
-                className="absolute inset-0 opacity-10"
-                style={{
-                    backgroundImage: `
-                        linear-gradient(rgba(255,214,10,0.3) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,214,10,0.3) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '40px 40px',
-                }}
-            />
-
-            <div className="relative z-10 w-full max-w-md px-4">
-                {/* Title */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-black text-white tracking-tight mb-2">
-                        MISSION <span style={{ color: '#FFD60A' }}>0500</span>
-                    </h1>
-                    <p className="text-sm font-medium tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                        Set New Password
-                    </p>
+        <div className="min-h-screen bg-background text-textMain flex items-center justify-center p-4">
+            <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-8 shadow-elevated">
+                {/* Brand Header */}
+                <div className="flex items-center gap-3 justify-center mb-6">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#D6A52C] text-[#20382B] font-black">
+                        <Shield className="h-4 w-4 fill-[#20382B]" />
+                    </div>
+                    <div>
+                        <span className="font-mono-tech text-[10px] text-accent uppercase tracking-widest block leading-none">MISSION</span>
+                        <span className="text-lg font-black text-textMain tracking-wider block">0500</span>
+                    </div>
                 </div>
 
-                {/* Card */}
-                <div
-                    className="w-full rounded-2xl border p-8 backdrop-blur-xl"
-                    style={{
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        background: 'rgba(11, 29, 19, 0.7)',
-                        boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
-                    }}
-                >
-                    {success ? (
-                        <div className="text-center py-4">
-                            <div className="text-4xl mb-4">✅</div>
-                            <p className="text-white font-bold text-lg mb-2">Password Updated!</p>
-                            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                                Redirecting you to login...
-                            </p>
+                {success ? (
+                    <div className="text-center py-6">
+                        <div className="text-3xl mb-3">✅</div>
+                        <p className="text-textMain font-bold text-base mb-1">Password Updated!</p>
+                        <p className="text-xs text-textMuted">Redirecting you to sign in...</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="mb-6 text-center">
+                            <h2 className="text-xl font-bold text-textMain">Choose New Password</h2>
+                            <p className="text-xs text-textMuted mt-1">Set a secure password for your command center account.</p>
                         </div>
-                    ) : (
-                        <>
-                            <h2 className="text-2xl font-black text-white tracking-tight uppercase mb-6">
-                                Choose New Password
-                            </h2>
 
-                            {error && (
-                                <div className="mb-4 rounded-lg bg-red-900/60 border border-red-500/30 p-3 text-sm text-red-200">
-                                    {error}
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <Input
-                                    label="New Password"
-                                    name="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                                    placeholder="Min. 8 characters"
-                                    required
-                                />
-                                <Input
-                                    label="Confirm Password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
-                                    placeholder="Re-enter password"
-                                    required
-                                />
-                                <Button
-                                    type="submit"
-                                    variant="primary"
-                                    size="lg"
-                                    isLoading={isLoading}
-                                    className="w-full"
-                                >
-                                    Update Password
-                                </Button>
-                            </form>
-
-                            <div className="mt-4 text-center">
-                                <button
-                                    type="button"
-                                    onClick={() => router.replace('/login')}
-                                    className="text-sm transition-colors"
-                                    style={{ color: 'rgba(255,255,255,0.4)' }}
-                                >
-                                    Back to Login
-                                </button>
+                        {error && (
+                            <div className="mb-4 rounded-xl bg-danger/10 border border-danger/20 p-3 text-xs text-danger font-medium">
+                                {error}
                             </div>
-                        </>
-                    )}
-                </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <Input
+                                label="New Password"
+                                name="password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                                placeholder="Min. 8 characters"
+                                required
+                            />
+                            <Input
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+                                placeholder="Re-enter password"
+                                required
+                            />
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="lg"
+                                isLoading={isLoading}
+                                className="w-full"
+                            >
+                                Update Password
+                            </Button>
+                        </form>
+
+                        <div className="mt-6 text-center">
+                            <button
+                                type="button"
+                                onClick={() => router.replace('/login')}
+                                className="text-xs text-textMuted hover:text-accent transition-colors"
+                            >
+                                Back to Sign In
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

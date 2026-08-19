@@ -7,22 +7,25 @@ interface InputProps
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ label, error, className = '', ...props }, ref) => {
+    ({ label, error, className = '', id, ...props }, ref) => {
+        const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+
         return (
             <div className="w-full">
                 {label && (
-                    <label className="block text-sm font-medium text-[#E8E8E8] mb-2">
+                    <label htmlFor={inputId} className="block text-xs font-semibold uppercase tracking-wider text-textSecondary mb-1.5">
                         {label}
                     </label>
                 )}
                 <input
                     ref={ref}
+                    id={inputId}
                     suppressHydrationWarning
-                    className={`w-full rounded-lg border border-[#1E3A2A] bg-[#0B1D13] px-4 py-2 text-[#E8E8E8] placeholder-[#6B7280] focus:border-[#1B4332] focus:outline-none focus:ring-2 focus:ring-[#1B4332] focus:ring-opacity-20 ${className}`}
+                    className={`w-full rounded-lg border border-border bg-surface px-3.5 py-2 text-sm text-textMain placeholder:text-textMuted transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-50 disabled:bg-surface-muted ${error ? 'border-danger focus:border-danger focus:ring-danger/20' : ''} ${className}`}
                     {...props}
                 />
                 {error && (
-                    <p className="mt-1 text-sm text-red-500">{error}</p>
+                    <p className="mt-1.5 text-xs text-danger font-medium">{error}</p>
                 )}
             </div>
         );

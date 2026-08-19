@@ -1,41 +1,49 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Target, AlertCircle, CheckCircle2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { addTask } from '@/server/actions/tasks';
 import { signOut } from '@/server/actions/auth';
-import { LogOut } from 'lucide-react';
 
-export function MorningBriefingModal({ userId, hasTodayObjective }: { userId: string; hasTodayObjective?: boolean }) {
-    const [isOpen, setIsOpen] = useState(false);
+interface MorningBriefingWidgetProps {
+    userId: string;
+    hasTodayObjective?: boolean;
+}
+
+/**
+ * MorningBriefingWidget — replaces the old fullscreen blocking modal.
+ * Renders as an inline card at the top of the dashboard ONLY when no
+ * morning objective has been set today. Once set, it disappears cleanly.
+ */
+export function MorningBriefingModal({ userId, hasTodayObjective }: MorningBriefingWidgetProps) {
+    const [isVisible, setIsVisible] = useState(false);
+    const [isDone, setIsDone] = useState(false);
     const [objective, setObjective] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Server-side check is the primary guard
         if (hasTodayObjective) {
-            // Sync localStorage with server truth
             const today = new Date().toISOString().split('T')[0];
             localStorage.setItem('mission_0500_briefed_date', today);
             return;
         }
 
-        // Fallback: localStorage as secondary cache
         const today = new Date().toISOString().split('T')[0];
         const briefedDate = localStorage.getItem('mission_0500_briefed_date');
 
         if (briefedDate !== today) {
-            setIsOpen(true);
+            setIsVisible(true);
         }
     }, [hasTodayObjective]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!objective.trim()) {
-            setError('An officer does not skip their main objective.');
+            setError('What is the one thing you must complete today?');
             return;
         }
 
@@ -43,8 +51,6 @@ export function MorningBriefingModal({ userId, hasTodayObjective }: { userId: st
         setError(null);
 
         const today = new Date().toISOString().split('T')[0];
-
-        // Add as a High Priority task
         const result = await addTask(userId, {
             task_date: today,
             title: `MAIN OBJECTIVE: ${objective}`,
@@ -55,15 +61,14 @@ export function MorningBriefingModal({ userId, hasTodayObjective }: { userId: st
         setIsLoading(false);
 
         if (result.success) {
-            // Documenting that they completed the briefing today
             localStorage.setItem('mission_0500_briefed_date', today);
-            setIsOpen(false);
+            setIsDone(true);
+            setTimeout(() => setIsVisible(false), 1500);
         } else {
-            // Check for phantom session (foreign key constraint)
             if (result.error?.includes('foreign key constraint')) {
-                setError('Authentication conflict. Please sign out and log back in.');
+                setError('Session conflict. Please sign out and log back in.');
             } else {
-                setError(result.error || 'Failed to lock in objective. Try again.');
+                setError(result.error || 'Something went wrong. Try again.');
             }
         }
     };
@@ -73,62 +78,87 @@ export function MorningBriefingModal({ userId, hasTodayObjective }: { userId: st
         await signOut();
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-xl animate-in fade-in zoom-in duration-500">
-            <div className="w-full max-w-lg rounded-2xl border border-[#FFD60A]/30 bg-[#0B1D13] p-8 shadow-[0_0_60px_rgba(255,214,10,0.15)]">
+        <AnimatePresence>
+            {isVisible && (
+                <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="card p-6 border-l-4 border-l-accent"
+                >
+                    <AnimatePresence mode="wait">
+                        {isDone ? (
+                            <motion.div
+                                key="done"
+                                initial={{ opacity: 0, scale: 0.96 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="flex items-center gap-3 py-2"
+                            >
+                                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                                <p className="font-semibold text-textMain">Objective locked in. Let&apos;s go.</p>
+                            </motion.div>
+                        ) : (
+                            <motion.div key="form">
+                                <div className="flex items-start gap-3 mb-4">
+                                    <div className="mt-0.5 flex-shrink-0">
+                                        <Target className="h-5 w-5 text-accent" />
+                                    </div>
+                                    <div>
+                                        <h2 className="font-bold text-textMain mb-0.5">Morning Briefing</h2>
+                                        <p className="text-sm text-textSecondary">
+                                            What is the one thing you must complete today?
+                                        </p>
+                                    </div>
+                                </div>
 
-                <div className="mb-6 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#FFD60A] bg-[#162B20]/80">
-                        <Target className="h-8 w-8 text-[#FFD60A] animate-pulse" />
-                    </div>
-                    <h2 className="text-3xl font-black uppercase tracking-wider text-[#E8E8E8]">0500 Morning Briefing</h2>
-                    <p className="mt-2 text-sm font-medium tracking-wide text-[#9CA3AF]">
-                        IDENTIFY YOUR PRIMARY TARGET. WHAT IS THE SINGLE MOST IMPORTANT MISSION FOR TODAY?
-                    </p>
-                </div>
+                                <form onSubmit={handleSubmit} className="space-y-3">
+                                    <div>
+                                        <Input
+                                            placeholder="I will complete..."
+                                            value={objective}
+                                            onChange={e => {
+                                                setObjective(e.target.value);
+                                                if (error) setError(null);
+                                            }}
+                                            autoFocus
+                                            className="text-base"
+                                        />
+                                        {error && (
+                                            <p className="mt-1.5 flex items-center gap-1.5 text-sm text-danger">
+                                                <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                                                {error}
+                                            </p>
+                                        )}
+                                    </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <Input
-                            placeholder="I will complete the..."
-                            value={objective}
-                            onChange={(e) => {
-                                setObjective(e.target.value);
-                                if (error) setError(null);
-                            }}
-                            className="text-lg py-6"
-                            autoFocus
-                        />
-                        {error && (
-                            <p className="mt-2 flex items-center gap-1 text-sm text-red-500 font-bold">
-                                <AlertCircle className="h-4 w-4" /> {error}
-                            </p>
+                                    <div className="flex items-center gap-3">
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            disabled={isLoading}
+                                            className="flex-1 sm:flex-none"
+                                        >
+                                            {isLoading ? 'Setting...' : 'Set Objective'}
+                                        </Button>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleSignOut}
+                                            disabled={isLoading}
+                                            className="inline-flex items-center gap-1.5 text-xs text-textMuted hover:text-danger transition-colors"
+                                        >
+                                            <LogOut className="h-3 w-3" />
+                                            Sign out
+                                        </button>
+                                    </div>
+                                </form>
+                            </motion.div>
                         )}
-                    </div>
-
-                    <Button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full bg-[#FFD60A] text-black hover:bg-[#FFD60A]/80 font-black tracking-widest text-lg py-6 shadow-[0_0_20px_rgba(255,214,10,0.3)] hover:shadow-[0_0_40px_rgba(255,214,10,0.5)] transition-all duration-300 transform hover:scale-[1.02]"
-                    >
-                        {isLoading ? 'LOCKING TARGET...' : 'LOCK IN TARGET'}
-                    </Button>
-                </form>
-
-                {/* Escape Hatch for Phantom Sessions */}
-                <div className="mt-6 text-center">
-                    <button
-                        onClick={handleSignOut}
-                        disabled={isLoading}
-                        className="inline-flex items-center gap-2 text-xs font-bold text-[#6B7280] hover:text-red-400 transition-colors uppercase tracking-widest"
-                    >
-                        <LogOut className="h-3 w-3" />
-                        Abort / Sign Out
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </AnimatePresence>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 }

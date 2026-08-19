@@ -3,6 +3,7 @@ import { getServerSession } from '@/lib/supabase/server';
 import { getReportForDate, getAllReports } from '@/server/actions/reports';
 import { getUserSettings } from '@/server/actions/settings';
 import { getServerDate } from '@/server/utils/timezone';
+import { MainLayout } from '@/components/layout/MainLayout';
 import ReportClient from './ReportClient';
 
 export default async function ReportPage() {
@@ -13,7 +14,6 @@ export default async function ReportPage() {
 
     const today = await getServerDate(session.user.id);
 
-    // Fetch today's report, historical reports, and user settings concurrently
     const [todayResult, historyResult, settingsResult] = await Promise.all([
         getReportForDate(session.user.id, today),
         getAllReports(session.user.id),
@@ -25,11 +25,13 @@ export default async function ReportPage() {
     const isPremium = settingsResult.success ? settingsResult.data?.is_premium ?? false : false;
 
     return (
-        <ReportClient
-            userId={session.user.id}
-            initialReport={report}
-            allReports={allReports}
-            isPremium={isPremium}
-        />
+        <MainLayout>
+            <ReportClient
+                userId={session.user.id}
+                initialReport={report}
+                allReports={allReports}
+                isPremium={isPremium}
+            />
+        </MainLayout>
     );
 }

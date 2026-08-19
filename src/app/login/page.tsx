@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createClient } from '@/lib/supabase/client';
+import { Shield } from 'lucide-react';
 
 export default function LoginPage() {
     const supabase = createClient();
@@ -20,7 +21,6 @@ export default function LoginPage() {
     });
     const [successMessage, setSuccessMessage] = useState('');
 
-    // Handle callback errors and success params
     useEffect(() => {
         const errorParam = searchParams.get('error');
         const verified = searchParams.get('verified');
@@ -45,7 +45,6 @@ export default function LoginPage() {
         setError('');
         setSuccessMessage('');
 
-        // Handle forgot password
         if (isForgotPassword) {
             if (!formData.email.trim()) {
                 setError('Please enter your email address');
@@ -53,9 +52,6 @@ export default function LoginPage() {
                 return;
             }
             const { error: resetError } = await supabase.auth.resetPasswordForEmail(formData.email, {
-                // redirectTo points back to /login where the PASSWORD_RECOVERY
-                // onAuthStateChange listener immediately redirects to /update-password.
-                // This handles Supabase hash-based recovery tokens correctly.
                 redirectTo: `${window.location.origin}/login`,
             });
             if (resetError) {
@@ -75,14 +71,11 @@ export default function LoginPage() {
                     return;
                 }
 
-                // Sign up using the browser Supabase client
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: formData.email,
                     password: formData.password,
                     options: {
-                        data: {
-                            full_name: formData.fullName,
-                        },
+                        data: { full_name: formData.fullName },
                     },
                 });
 
@@ -93,13 +86,11 @@ export default function LoginPage() {
                 }
 
                 if (!authData.session) {
-                    // Email confirmation required
                     setSuccessMessage('Account created! Please check your email to confirm your account before logging in.');
                     setIsLoading(false);
                     return;
                 }
 
-                // Create profile via API route (runs server-side with admin client)
                 try {
                     await fetch('/api/profile', {
                         method: 'POST',
@@ -110,16 +101,11 @@ export default function LoginPage() {
                             fullName: formData.fullName,
                         }),
                     });
-                } catch {
-                    // Profile creation via API failed, will retry on next login
-                }
+                } catch {}
 
-                // Signup succeeded with session — full page navigation to pick up cookies
                 window.location.href = '/dashboard';
                 return;
             } else {
-
-                // Sign in using the browser Supabase client
                 const { data, error: signInError } = await supabase.auth.signInWithPassword({
                     email: formData.email,
                     password: formData.password,
@@ -137,7 +123,6 @@ export default function LoginPage() {
                     return;
                 }
 
-                // Sign in succeeded — full page navigation to pick up cookies
                 try {
                     const { data: profile } = await supabase.from('users').select('role').eq('id', data.user!.id).single();
                     if (profile?.role === 'admin') {
@@ -148,7 +133,6 @@ export default function LoginPage() {
                         document.cookie = "user-role=user; path=/; max-age=86400";
                     }
                 } catch (e) {
-                    // Safe fail
                     document.cookie = "user-role=user; path=/; max-age=86400";
                 }
 
@@ -162,60 +146,59 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-            {/* Background Image */}
-            <div
-                className="absolute inset-0 z-0 bg-cover bg-center"
-                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1544893700-1c759530db8f?q=80&w=2670&auto=format&fit=crop")' }}
-            >
-                {/* Dark Overlay for readability */}
-                <div className="absolute inset-0 bg-[#0B1D13]/80 backdrop-blur-[2px]"></div>
-            </div>
+        <div className="min-h-screen bg-background text-textMain flex items-center justify-center p-4">
+            <div className="w-full max-w-4xl rounded-2xl border border-border bg-surface overflow-hidden shadow-elevated flex flex-col md:flex-row">
 
-            <div className="relative z-10 flex flex-col items-center justify-center w-full px-4 max-w-7xl mx-auto lg:flex-row lg:gap-16">
+                {/* Left Identity Panel — Deep Olive (#20382B) */}
+                <div className="md:w-5/12 bg-[#20382B] text-[#F8F4EB] p-8 md:p-10 flex flex-col justify-between relative overflow-hidden">
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#D6A52C] text-[#20382B] font-black">
+                                <Shield className="h-5 w-5 fill-[#20382B]" />
+                            </div>
+                            <div>
+                                <span className="font-mono-tech text-xs text-[#D6A52C] uppercase tracking-widest block leading-none">MISSION</span>
+                                <span className="text-xl font-black text-white tracking-wider block">0500</span>
+                            </div>
+                        </div>
 
-                {/* Motivational Left Side (Visible primarily on desktop but stacks on mobile) */}
-                <div className="mb-12 text-center lg:mb-0 lg:w-1/2 lg:text-left">
-                    <h1 className="text-5xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-[#9CA3AF] tracking-tight drop-shadow-lg mb-4">
-                        MISSION<br /><span className="text-[#FFD60A]">0500</span>
-                    </h1>
-                    <p className="mt-4 text-xl text-[#E8E8E8] font-medium tracking-wide max-w-lg mx-auto lg:mx-0">
-                        Personal Discipline Command Center
-                    </p>
+                        <h1 className="text-2xl sm:text-3xl font-serif-quote font-bold text-white mb-2 leading-tight">
+                            Personal Command Center
+                        </h1>
+                        <p className="text-xs text-white/70 font-medium leading-relaxed mb-6">
+                            Discipline. Execution. Ambition. Conquering difficult targets every single morning.
+                        </p>
+                    </div>
 
-                    <div className="mt-8 lg:mt-16 hidden lg:block">
-                        <blockquote className="text-3xl font-serif italic text-white leading-relaxed mb-4 text-shadow-sm border-l-4 border-[#FFD60A] pl-6">
-                            &quot;Yeh Dil Maange Uniform!&quot;
+                    <div className="relative z-10 border-t border-white/10 pt-6">
+                        <blockquote className="text-base font-serif-quote italic text-white/90 leading-relaxed mb-2">
+                            &ldquo;Yeh Dil Maange Uniform!&rdquo;
                         </blockquote>
-                        <span className="text-xl font-bold text-[#FFD60A] tracking-widest uppercase drop-shadow-md ml-6 block">
-                            — Captain Vikram Batra
+                        <span className="font-mono-tech text-[10px] font-bold text-[#D6A52C] uppercase tracking-widest block">
+                            — Captain Vikram Batra, PVC
                         </span>
                     </div>
                 </div>
 
-                {/* Login Card Right Side */}
-                <div className="w-full max-w-md lg:w-1/2 rounded-2xl border border-white/10 bg-[#0B1D13]/60 p-8 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20">
-                    <div className="lg:hidden mb-8 text-center">
-                        <blockquote className="text-xl font-serif italic text-white leading-relaxed mb-2 text-shadow-sm">
-                            &quot;Yeh Dil Maange Uniform!&quot;
-                        </blockquote>
-                        <span className="text-sm font-bold text-[#FFD60A] tracking-widest uppercase">
-                            — Captain Vikram Batra
+                {/* Right Form Section */}
+                <div className="md:w-7/12 p-8 md:p-10 bg-surface flex flex-col justify-center">
+                    <div className="mb-6">
+                        <span className="font-mono-tech text-[10px] font-bold text-accent uppercase tracking-widest block mb-1">
+                            {isForgotPassword ? 'PASSWORD RECOVERY' : isSignUp ? 'ENLISTMENT' : 'AUTHENTICATION'}
                         </span>
+                        <h2 className="text-2xl font-black text-textMain tracking-tight">
+                            {isForgotPassword ? 'Reset Password' : isSignUp ? 'Create Command Account' : 'Sign In to Command Center'}
+                        </h2>
                     </div>
 
-                    <h2 className="mb-6 text-center text-3xl font-black text-white tracking-tight uppercase">
-                        {isForgotPassword ? 'Reset Password' : isSignUp ? 'Join the Mission' : 'Command Center'}
-                    </h2>
-
                     {error && (
-                        <div className="mb-4 rounded-lg bg-red-900 p-3 text-sm text-red-200">
+                        <div className="mb-4 rounded-xl bg-danger/10 border border-danger/20 p-3 text-xs text-danger font-medium">
                             {error}
                         </div>
                     )}
 
                     {successMessage && (
-                        <div className="mb-4 rounded-lg bg-green-900 p-3 text-sm text-green-200 font-medium animate-pulse">
+                        <div className="mb-4 rounded-xl bg-success/10 border border-success/20 p-3 text-xs text-success font-medium">
                             {successMessage}
                         </div>
                     )}
@@ -258,30 +241,29 @@ export default function LoginPage() {
                         <Button
                             type="submit"
                             variant="primary"
-                            size="lg"
                             isLoading={isLoading}
-                            className="w-full"
+                            className="w-full py-3"
                         >
-                            {isForgotPassword ? 'Send Reset Link' : isSignUp ? 'Create Account' : 'Login'}
+                            {isForgotPassword ? 'Send Reset Link' : isSignUp ? 'Create Account' : 'Sign In'}
                         </Button>
                     </form>
 
                     {!isSignUp && !isForgotPassword && (
-                        <div className="mt-3 text-center">
+                        <div className="mt-3 text-right">
                             <button
                                 type="button"
                                 onClick={() => { setIsForgotPassword(true); setError(''); setSuccessMessage(''); }}
-                                className="text-sm text-[#9CA3AF] hover:text-[#FFD60A] transition-colors"
+                                className="text-xs text-textMuted hover:text-accent transition-colors"
                             >
                                 Forgot Password?
                             </button>
                         </div>
                     )}
 
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-[#9CA3AF]">
-                            {isForgotPassword ? 'Remember your password?' : isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                        </p>
+                    <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs">
+                        <span className="text-textMuted">
+                            {isForgotPassword ? 'Remember password?' : isSignUp ? 'Already enroled?' : 'New operator?'}
+                        </span>
                         <button
                             type="button"
                             onClick={() => {
@@ -291,20 +273,13 @@ export default function LoginPage() {
                                 setSuccessMessage('');
                                 setFormData({ email: '', password: '', fullName: '' });
                             }}
-                            className="mt-2 text-[#FFD60A] hover:text-white transition-colors font-bold tracking-wide uppercase text-sm"
+                            className="font-bold text-accent hover:underline uppercase tracking-wide"
                         >
-                            {isForgotPassword ? 'Back to Sign In' : isSignUp ? 'Proceed to Sign In' : 'Initiate Enlistment (Sign Up)'}
+                            {isForgotPassword ? 'Back to Sign In' : isSignUp ? 'Sign In' : 'Enlist Now'}
                         </button>
                     </div>
                 </div>
 
-            </div>
-
-            {/* Footer Info */}
-            <div className="absolute bottom-4 left-0 right-0 text-center z-10 w-full">
-                <p className="text-xs text-white/50 tracking-widest uppercase font-semibold">
-                    Touch the Sky with Glory
-                </p>
             </div>
         </div>
     );

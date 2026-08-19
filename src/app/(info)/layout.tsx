@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Crosshair } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: {
@@ -11,18 +11,23 @@ export const metadata: Metadata = {
 
 export default function InfoLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="min-h-screen bg-[#0B1D13] text-[#E8E8E8]">
+        <div className="min-h-screen bg-background text-textMain flex flex-col justify-between">
             {/* Nav */}
-            <nav className="sticky top-0 z-50 bg-[#0B1D13]/90 backdrop-blur-md border-b border-[#1E3A2A]">
+            <nav className="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border">
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-                        <Crosshair className="w-6 h-6 text-[#FFD60A]" />
-                        <span className="text-lg font-black uppercase tracking-wider text-white">Mission 0500</span>
+                    <Link href="/" className="flex items-center gap-2.5 group">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#20382B] text-[#D6A52C]">
+                            <Shield className="h-4 w-4 fill-[#D6A52C]" />
+                        </div>
+                        <div>
+                            <span className="font-mono-tech text-[10px] text-accent uppercase tracking-widest block leading-none">MISSION</span>
+                            <span className="text-base font-black text-textMain tracking-wider block">0500</span>
+                        </div>
                     </Link>
                     <div className="flex items-center gap-3">
                         <Link
                             href="/login"
-                            className="text-sm font-bold bg-[#FFD60A] text-[#0B1D13] px-5 py-2 rounded-lg hover:bg-[#e6c209] transition uppercase tracking-wide"
+                            className="text-xs font-bold bg-[#D6A52C] text-[#20382B] px-4 py-2 rounded-xl hover:bg-[#c49526] transition shadow-sm uppercase tracking-wide"
                         >
                             Enlist Now
                         </Link>
@@ -31,48 +36,45 @@ export default function InfoLayout({ children }: { children: React.ReactNode }) 
             </nav>
 
             {/* Content */}
-            <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-16">
+            <main className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-12 flex-1 w-full">
                 {children}
             </main>
 
             {/* Footer */}
-            <footer className="border-t border-[#1E3A2A] bg-[#0d2317]">
-                <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-10">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <footer className="border-t border-border bg-surface py-10 px-6">
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-xs">
                         <div>
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFD60A] mb-4">Platform</h4>
-                            <ul className="space-y-2">
-                                <li><Link href="/about" className="text-sm text-[#9CA3AF] hover:text-white transition">About</Link></li>
-                                <li><Link href="/services" className="text-sm text-[#9CA3AF] hover:text-white transition">Services</Link></li>
-                                <li><Link href="/contact" className="text-sm text-[#9CA3AF] hover:text-white transition">Contact</Link></li>
+                            <span className="font-mono-tech text-accent uppercase font-bold tracking-widest block mb-3">Platform</span>
+                            <ul className="space-y-2 text-textSecondary font-medium">
+                                <li><Link href="/about" className="hover:text-textMain transition">About</Link></li>
+                                <li><Link href="/services" className="hover:text-textMain transition">Services</Link></li>
+                                <li><Link href="/contact" className="hover:text-textMain transition">Contact</Link></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFD60A] mb-4">Legal</h4>
-                            <ul className="space-y-2">
-                                <li><Link href="/privacy" className="text-sm text-[#9CA3AF] hover:text-white transition">Privacy Policy</Link></li>
-                                <li><Link href="/terms" className="text-sm text-[#9CA3AF] hover:text-white transition">Terms &amp; Conditions</Link></li>
-                                <li><Link href="/refund" className="text-sm text-[#9CA3AF] hover:text-white transition">Refund Policy</Link></li>
+                            <span className="font-mono-tech text-accent uppercase font-bold tracking-widest block mb-3">Legal</span>
+                            <ul className="space-y-2 text-textSecondary font-medium">
+                                <li><Link href="/privacy" className="hover:text-textMain transition">Privacy Policy</Link></li>
+                                <li><Link href="/terms" className="hover:text-textMain transition">Terms &amp; Conditions</Link></li>
+                                <li><Link href="/refund" className="hover:text-textMain transition">Refund Policy</Link></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFD60A] mb-4">Product</h4>
-                            <ul className="space-y-2">
-                                <li><Link href="/login" className="text-sm text-[#9CA3AF] hover:text-white transition">Sign In</Link></li>
-                                <li><Link href="/login" className="text-sm text-[#9CA3AF] hover:text-white transition">Enlist Now</Link></li>
+                            <span className="font-mono-tech text-accent uppercase font-bold tracking-widest block mb-3">Product</span>
+                            <ul className="space-y-2 text-textSecondary font-medium">
+                                <li><Link href="/login" className="hover:text-textMain transition">Sign In</Link></li>
+                                <li><Link href="/login" className="hover:text-textMain transition">Enlist Now</Link></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#FFD60A] mb-4">Contact</h4>
-                            <p className="text-sm text-[#9CA3AF] break-all">mission0500commandcentre@gmail.com</p>
+                            <span className="font-mono-tech text-accent uppercase font-bold tracking-widest block mb-3">Contact</span>
+                            <p className="text-textSecondary break-all font-mono-tech">mission0500commandcentre@gmail.com</p>
                         </div>
                     </div>
-                    <div className="border-t border-[#1E3A2A] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-2">
-                            <Crosshair className="w-4 h-4 text-[#FFD60A]" />
-                            <span className="text-sm font-bold uppercase tracking-wider text-[#6B7280]">Mission 0500</span>
-                        </div>
-                        <p className="text-xs text-[#4B5563]">&copy; {new Date().getFullYear()} Mission 0500. All rights reserved.</p>
+                    <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-textMuted font-mono-tech">
+                        <span>MISSION 0500 · PERSONAL DISCIPLINE OPERATING SYSTEM</span>
+                        <span>&copy; {new Date().getFullYear()} All rights reserved.</span>
                     </div>
                 </div>
             </footer>

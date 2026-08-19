@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
@@ -44,14 +45,16 @@ export function RoutineCard({
     };
 
     return (
-        <div
-            className={`relative flex items-center gap-4 rounded-xl border p-4 transition-all duration-500 overflow-hidden ${item.is_completed
-                    ? 'border-[#FFD60A]/40 bg-[#162B20]/60 opacity-80 backdrop-blur-sm'
-                    : 'border-[#1E3A2A] bg-[#162B20] hover:border-[#1E3A2A]/80 hover:shadow-lg hover:-translate-y-0.5'
-                }`}
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, x: -8 }}
+            transition={{ layout: { type: 'spring', bounce: 0.15, duration: 0.5 } }}
+            className={`flex items-center gap-3 px-5 py-4 group transition-colors duration-200 ${
+                item.is_completed ? 'bg-surface-muted/40' : 'hover:bg-surface-muted/30'
+            }`}
         >
-            {/* Visual Feedback Completion Glow */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-[#FFD60A]/20 to-transparent transition-opacity duration-700 pointer-events-none ${item.is_completed ? 'opacity-100' : 'opacity-0'}`} />
             <Checkbox
                 checked={item.is_completed}
                 onChange={handleToggle}
@@ -59,29 +62,28 @@ export function RoutineCard({
                 className="flex-shrink-0"
             />
 
-            <div className="flex-1 min-w-0 relative z-10 transition-transform duration-300">
-                <p
-                    className={`font-medium ${item.is_completed
-                        ? 'line-through text-[#6B7280]'
-                        : 'text-[#E8E8E8]'
-                        }`}
-                >
+            <div className="flex-1 min-w-0">
+                <p className={`font-medium text-sm leading-snug transition-all duration-300 ${
+                    item.is_completed ? 'line-through text-textMuted' : 'text-textMain'
+                }`}>
                     {item.item_name}
                 </p>
                 {item.notes && (
-                    <p className="mt-1 text-sm text-[#9CA3AF]">{item.notes}</p>
+                    <p className="mt-0.5 text-xs text-textMuted">{item.notes}</p>
                 )}
             </div>
 
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                 {onEdit && (
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => onEdit(item)}
                         disabled={isUpdating}
+                        className="h-7 w-7 p-0 text-textMuted hover:text-textMain"
+                        aria-label="Edit routine item"
                     >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                 )}
                 <Button
@@ -89,11 +91,12 @@ export function RoutineCard({
                     size="sm"
                     onClick={handleDelete}
                     disabled={isUpdating}
-                    className="text-red-500 hover:text-red-400"
+                    className="h-7 w-7 p-0 text-textMuted hover:text-danger"
+                    aria-label="Delete routine item"
                 >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                 </Button>
             </div>
-        </div>
+        </motion.div>
     );
 }
