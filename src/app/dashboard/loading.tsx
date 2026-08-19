@@ -1,7 +1,7 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Skeleton } from '@/components/ui/Skeletons';
 
-export default function Loading() {
+export default function DashboardLoading() {
     return (
         <MainLayout disableTransitionLine>
             <div className="space-y-6">

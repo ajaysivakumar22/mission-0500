@@ -80,8 +80,8 @@ export default function RoutineClient({ userId, initialRoutines }: RoutineClient
     };
 
     return (
-        <div className="space-y-6 animate-slide-in">
-            <InspirationalQuote />
+        <div className="space-y-6">
+            <InspirationalQuote pageKey="routine" />
 
             {/* Progress Summary */}
             <div className="card p-5">

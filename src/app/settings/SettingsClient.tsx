@@ -15,6 +15,8 @@ import {
     Sliders, CheckCircle2, ChevronRight, AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
+import { OperationalDate } from '@/components/ui/OperationalDate';
 
 interface SettingsClientProps {
     userId: string;
@@ -89,10 +91,7 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
             <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-border pb-3 gap-2">
                 <div>
                     <div className="flex items-center gap-2">
-                        <span className="font-mono-tech text-[10px] font-bold text-accent uppercase tracking-widest bg-[#20382B] text-[#D6A52C] px-2 py-0.5 rounded">
-                            SYSTEM CONTROL // SEC-05
-                        </span>
-                        <span className="text-[10px] font-mono-tech text-textMuted uppercase">REV 4.2</span>
+                        <OperationalDate label="SYSTEM CONTROL" />
                     </div>
                     <h1 className="text-2xl font-serif-quote font-bold text-textMain tracking-tight mt-1">
                         Officer Configuration
@@ -105,6 +104,8 @@ export default function SettingsClient({ userId, fullName, email, initialStrictM
                     </span>
                 </div>
             </div>
+
+            <InspirationalQuote compact pageKey="settings" />
 
             {/* Command Navigation Rail */}
             <div className="bg-[#20382B] rounded-xl p-1.5 flex items-center gap-1 shadow-inner border border-white/10">

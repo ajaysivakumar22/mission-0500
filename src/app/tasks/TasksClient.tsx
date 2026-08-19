@@ -14,6 +14,8 @@ import { addTask, updateTask, deleteTask } from '@/server/actions/tasks';
 import { Plus, Target, ShieldAlert, CheckCircle2, ListFilter } from 'lucide-react';
 import type { DailyTask } from '@/types';
 
+import { OperationalDate } from '@/components/ui/OperationalDate';
+
 interface TasksClientProps {
     userId: string;
     initialTasks: DailyTask[];
@@ -87,13 +89,13 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
     };
 
     return (
-        <div className="space-y-6 animate-slide-in">
+        <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
-                    <span className="font-mono-tech text-[10px] font-bold text-accent uppercase tracking-widest block">
-                        TACTICAL DISPATCH
-                    </span>
+                    <div className="mb-1">
+                        <OperationalDate label="TACTICAL DISPATCH" />
+                    </div>
                     <h1 className="text-2xl font-serif-quote font-bold text-textMain tracking-tight">
                         Execution Board
                     </h1>
@@ -104,7 +106,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                 </Button>
             </div>
 
-            <InspirationalQuote compact />
+            <InspirationalQuote compact pageKey="tasks" />
 
             {/* Execution Telemetry Overview */}
             <div className="card p-5 bg-gradient-to-r from-surface to-surface-muted border-l-4 border-l-accent">

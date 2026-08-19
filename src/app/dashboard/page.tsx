@@ -17,6 +17,10 @@ import { Skeleton } from '@/components/ui/Skeletons';
 import Link from 'next/link';
 import { RotateCcw, CheckSquare2, Target, FileText, Award, Star } from 'lucide-react';
 
+import { getFormattedDate, getWeekdayUpper, getDayOfYear } from '@/lib/utils/date';
+
+import { FutureOperationsCard } from '@/components/cards/FutureOperationsCard';
+
 export default async function DashboardPage() {
     const session = await getServerSession();
     if (!session?.user) {
@@ -41,21 +45,20 @@ export default async function DashboardPage() {
     const userFullName = (session.user.user_metadata?.full_name as string) || (session.user.user_metadata?.name as string) || '';
     const userFirstName = userFullName ? userFullName.split(' ')[0] : (session.user.email?.split('@')[0] || 'there');
 
-    // Format current date: e.g. "18 AUG 2026"
-    const today = new Date();
-    const formattedDate = `${today.getDate().toString().padStart(2, '0')} ${today.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()} ${today.getFullYear()}`;
-    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
+    const formattedDate = getFormattedDate();
+    const weekday = getWeekdayUpper();
+    const dayOfYear = getDayOfYear();
 
     return (
         <MainLayout>
-            <div className="space-y-6 animate-slide-in">
+            <div className="space-y-6">
 
-                {/* Top Header Greeting & Date Metadata (Matches Reference Target) */}
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-1">
+                {/* Top Header Greeting & Operational Hero Date Metadata */}
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-1 pb-2 border-b border-border/40">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                            <span className="font-mono-tech text-xs text-textMuted uppercase tracking-widest">MISSION 0500</span>
+                            <span className="font-mono-tech text-xs text-textMuted uppercase tracking-widest font-bold">TACTICAL COMMAND</span>
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-serif-quote font-bold text-textMain tracking-tight">
                             Good morning, {userFirstName}.
@@ -66,12 +69,12 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="text-left sm:text-right font-mono-tech">
-                        <span className="text-xs text-textMuted uppercase block tracking-wider font-semibold">
-                            {today.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()}
+                        <span className="text-xs text-textMuted uppercase block tracking-wider font-bold">
+                            {weekday}
                         </span>
                         <span className="text-lg font-black text-textMain tracking-wide">{formattedDate}</span>
                         <div className="flex items-center sm:justify-end gap-2 mt-0.5">
-                            <span className="inline-block bg-accent-muted text-accent px-1.5 py-0.5 rounded text-[10px] font-bold">
+                            <span className="inline-block bg-accent-muted text-accent border border-accent/20 px-2 py-0.5 rounded text-[10px] font-bold tracking-widest">
                                 DAY {dayOfYear}
                             </span>
                         </div>
@@ -102,39 +105,49 @@ export default async function DashboardPage() {
                         {/* Focus Area Card */}
                         <FocusAreaCard />
 
-                        {/* Daily Reminder Banner */}
-                        <div className="card p-6 bg-gradient-to-r from-surface to-surface-muted border-l-4 border-l-[#D6A52C] flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-[#D6A52C]/20 text-[#D6A52C] flex items-center justify-center flex-shrink-0">
-                                <Star className="h-6 w-6 fill-[#D6A52C]" />
+                        {/* Command Access Operational Action Dispatch */}
+                        <div className="card p-5 space-y-3">
+                            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                                <span className="font-mono-tech text-xs font-bold text-textMuted uppercase tracking-widest">
+                                    COMMAND ACCESS
+                                </span>
+                                <span className="text-[10px] font-mono-tech text-accent font-bold uppercase tracking-wider">
+                                    RAPID NAVIGATION
+                                </span>
                             </div>
-                            <div>
-                                <span className="font-mono-tech text-[10px] text-textMuted uppercase tracking-widest block mb-0.5">DAILY REMINDER</span>
-                                <p className="text-base font-serif-quote font-bold text-textMain leading-snug">
-                                    Small disciplines repeated daily create massive long-term results.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Quick Action Navigation Grid */}
-                        <div className="card p-5">
-                            <span className="font-mono-tech text-[10px] text-textMuted uppercase tracking-widest block mb-3">COMMAND ACCESS</span>
                             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                                 {[
-                                    { href: '/routine', label: 'Routine', icon: RotateCcw },
-                                    { href: '/tasks', label: 'Tasks', icon: CheckSquare2 },
-                                    { href: '/goals', label: 'Goals', icon: Target },
-                                    { href: '/report', label: 'Report', icon: FileText },
-                                    { href: '/medals', label: 'Medals', icon: Award },
-                                ].map(({ href, label, icon: Icon }) => (
+                                    { href: '/routine', label: 'Routine', sub: 'Daily Protocol', icon: RotateCcw },
+                                    { href: '/tasks', label: 'Tasks', sub: 'Objectives', icon: CheckSquare2 },
+                                    { href: '/goals', label: 'Goals', sub: 'Milestones', icon: Target },
+                                    { href: '/report', label: 'Report', sub: 'AAR Log', icon: FileText },
+                                    { href: '/medals', label: 'Medals', sub: 'Honors', icon: Award },
+                                ].map(({ href, label, sub, icon: Icon }) => (
                                     <Link
                                         key={href}
                                         href={href}
-                                        className="card-muted p-3.5 flex flex-col items-center gap-2 text-center hover:bg-surface hover:border-accent transition-all duration-200 group"
+                                        className="card-muted p-3.5 flex flex-col items-start gap-1.5 hover:bg-surface hover:border-accent hover-lift transition-all duration-200 group"
                                     >
-                                        <Icon className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
-                                        <span className="text-xs font-semibold text-textMain">{label}</span>
+                                        <div className="h-8 w-8 rounded-lg bg-accent/15 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-[#20382B] transition-colors">
+                                            <Icon className="h-4 w-4" />
+                                        </div>
+                                        <span className="text-xs font-bold text-textMain mt-1">{label}</span>
+                                        <span className="text-[10px] font-mono-tech text-textMuted">{sub}</span>
                                     </Link>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Daily Reminder Banner */}
+                        <div className="card p-5 bg-gradient-to-r from-surface to-surface-muted border-l-4 border-l-accent flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-accent/20 text-accent flex items-center justify-center flex-shrink-0">
+                                <Star className="h-5 w-5 fill-accent" />
+                            </div>
+                            <div>
+                                <span className="font-mono-tech text-[10px] text-textMuted uppercase tracking-widest block mb-0.5">DIRECTIVE</span>
+                                <p className="text-sm font-serif-quote font-bold text-textMain leading-snug">
+                                    Small disciplines repeated daily create massive long-term results.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -143,15 +156,20 @@ export default async function DashboardPage() {
                     <div className="space-y-6">
 
                         {/* Today's Quote Editorial Block */}
-                        <div>
-                            <span className="font-mono-tech text-[10px] text-textMuted uppercase tracking-widest block mb-2">TODAY&apos;S QUOTE</span>
-                            <InspirationalQuote compact />
+                        <div className="space-y-2">
+                            <span className="font-mono-tech text-xs font-bold text-textMuted uppercase tracking-widest block">
+                                TODAY&apos;S QUOTE
+                            </span>
+                            <InspirationalQuote compact pageKey="dashboard" />
                         </div>
 
                         {/* Discipline Heatmap (30 Days) */}
                         <Suspense fallback={<Skeleton className="h-36 w-full card" />}>
                             <DashboardHeatmapSection userId={userId} />
                         </Suspense>
+
+                        {/* Future Operations Module Preview */}
+                        <FutureOperationsCard />
 
                     </div>
 

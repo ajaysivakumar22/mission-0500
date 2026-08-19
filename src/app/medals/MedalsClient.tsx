@@ -3,6 +3,8 @@
 import { MEDALS } from '@/lib/constants/medals';
 import { Medal as MedalIcon, Lock, Award, Shield, CheckCircle2 } from 'lucide-react';
 import type { Medal } from '@/lib/constants/medals';
+import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
+import { OperationalDate } from '@/components/ui/OperationalDate';
 
 interface MedalsClientProps {
     earnedMedals: { medal_id: string; earned_at: string }[];
@@ -18,12 +20,12 @@ export default function MedalsClient({ earnedMedals }: MedalsClientProps) {
     const lockedList = MEDALS.filter(m => !earnedMedalIds.has(m.id));
 
     return (
-        <div className="space-y-8 animate-slide-in">
+        <div className="space-y-8">
             {/* Page Header */}
             <div className="border-b border-border pb-4">
-                <span className="font-mono-tech text-xs font-bold text-accent uppercase tracking-widest block mb-1">
-                    SERVICE RECORD
-                </span>
+                <div className="mb-1">
+                    <OperationalDate label="SERVICE RECORD" />
+                </div>
                 <h1 className="text-2xl sm:text-3xl font-serif-quote font-bold text-textMain tracking-tight">
                     Commendations Rack
                 </h1>
@@ -31,6 +33,8 @@ export default function MedalsClient({ earnedMedals }: MedalsClientProps) {
                     Recognizing relentless execution, daily consistency, and operational discipline.
                 </p>
             </div>
+
+            <InspirationalQuote compact pageKey="medals" />
 
             {/* Commendations Overview Banner */}
             <div className="card p-6 border-l-4 border-l-[#D6A52C] bg-gradient-to-r from-surface to-surface-muted">

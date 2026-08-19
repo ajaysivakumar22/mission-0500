@@ -151,68 +151,81 @@ export async function DashboardMetricsRow({ userId, today }: { userId: string; t
 export function FocusAreaCard() {
     return (
         <div className="card p-6 space-y-4">
-            <div className="flex items-center justify-between">
-                <span className="font-mono-tech text-xs font-bold text-textMuted uppercase tracking-widest">
-                    FOCUS PROFILE
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2">
+                    <span className="font-mono-tech text-xs font-bold text-textMuted uppercase tracking-widest">
+                        OPERATIONAL PILLARS
+                    </span>
+                </div>
+                <span className="text-[10px] font-mono-tech text-accent font-bold uppercase tracking-wider bg-accent-muted px-2 py-0.5 rounded">
+                    ACTIVE TARGETS
                 </span>
-                <span className="text-xs text-textMuted font-mono-tech">ACTIVE CYCLE</span>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3.5">
                 {/* Discipline - Sage */}
-                <div className="p-3.5 rounded-xl bg-surface-muted/50 border border-border">
+                <div className="p-3.5 rounded-xl bg-surface-muted/60 border border-border">
                     <div className="flex items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-[#71866B] text-white flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-lg bg-[#71866B] text-white flex items-center justify-center shadow-sm">
                                 <Target className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-textMain">Discipline</p>
-                                <p className="text-[11px] text-textMuted">Keep your promises to yourself.</p>
+                                <p className="text-xs font-bold text-textMain">Discipline Protocol</p>
+                                <p className="text-[11px] text-textMuted">Keep promises to yourself without exception.</p>
                             </div>
                         </div>
-                        <span className="text-xs font-bold font-mono-tech text-[#71866B]">72 / 100</span>
+                        <div className="text-right">
+                            <span className="text-xs font-bold font-mono-tech text-[#71866B] block">TARGET 85%</span>
+                            <span className="text-[10px] font-mono-tech text-textMuted uppercase">Daily Habit</span>
+                        </div>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-surface overflow-hidden">
-                        <div className="h-full bg-[#71866B] rounded-full w-[72%]" />
+                        <div className="h-full bg-[#71866B] rounded-full w-[85%]" />
                     </div>
                 </div>
 
                 {/* Execution - Dusty Blue */}
-                <div className="p-3.5 rounded-xl bg-surface-muted/50 border border-border">
+                <div className="p-3.5 rounded-xl bg-surface-muted/60 border border-border">
                     <div className="flex items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-[#58718A] text-white flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-lg bg-[#58718A] text-white flex items-center justify-center shadow-sm">
                                 <Compass className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-textMain">Execution</p>
-                                <p className="text-[11px] text-textMuted">Do it now. Not tomorrow.</p>
+                                <p className="text-xs font-bold text-textMain">Tactical Execution</p>
+                                <p className="text-[11px] text-textMuted">Execute high-priority objectives first.</p>
                             </div>
                         </div>
-                        <span className="text-xs font-bold font-mono-tech text-[#58718A]">68 / 100</span>
+                        <div className="text-right">
+                            <span className="text-xs font-bold font-mono-tech text-[#58718A] block">TARGET 80%</span>
+                            <span className="text-[10px] font-mono-tech text-textMuted uppercase">Focus Goal</span>
+                        </div>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-surface overflow-hidden">
-                        <div className="h-full bg-[#58718A] rounded-full w-[68%]" />
+                        <div className="h-full bg-[#58718A] rounded-full w-[80%]" />
                     </div>
                 </div>
 
                 {/* Learning - Terracotta */}
-                <div className="p-3.5 rounded-xl bg-surface-muted/50 border border-border">
+                <div className="p-3.5 rounded-xl bg-surface-muted/60 border border-border">
                     <div className="flex items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-[#B85C3D] text-white flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-lg bg-[#B85C3D] text-white flex items-center justify-center shadow-sm">
                                 <BookOpen className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-textMain">Learning</p>
-                                <p className="text-[11px] text-textMuted">Feed your mind daily.</p>
+                                <p className="text-xs font-bold text-textMain">Mental Mastery</p>
+                                <p className="text-[11px] text-textMuted">Feed your intellect with daily study &amp; reflection.</p>
                             </div>
                         </div>
-                        <span className="text-xs font-bold font-mono-tech text-[#B85C3D]">55 / 100</span>
+                        <div className="text-right">
+                            <span className="text-xs font-bold font-mono-tech text-[#B85C3D] block">TARGET 75%</span>
+                            <span className="text-[10px] font-mono-tech text-textMuted uppercase">Knowledge</span>
+                        </div>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-surface overflow-hidden">
-                        <div className="h-full bg-[#B85C3D] rounded-full w-[55%]" />
+                        <div className="h-full bg-[#B85C3D] rounded-full w-[75%]" />
                     </div>
                 </div>
             </div>

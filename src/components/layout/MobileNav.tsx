@@ -43,7 +43,7 @@ export function DesktopSidebar({ isAdmin = false }: { isAdmin?: boolean }) {
     if (isAdmin || pathname.startsWith('/admin')) return null;
 
     return (
-        <aside className="hidden lg:flex flex-col w-60 shrink-0 min-h-screen bg-[#20382B] text-[#F8F4EB] sticky top-0 z-30 shadow-xl">
+        <aside className="hidden lg:flex flex-col w-60 shrink-0 h-screen h-[100dvh] bg-[#20382B] text-[#F8F4EB] sticky top-0 z-30 shadow-xl">
             {/* Brand Logo Header */}
             <div className="px-6 py-6 border-b border-white/10">
                 <Link href="/dashboard" className="flex items-center gap-3 group">

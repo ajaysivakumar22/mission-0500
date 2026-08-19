@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/Toast';
 import { createGoal, deleteGoal, archiveGoal } from '@/server/actions/goals';
 import { Plus, Target, Lock, Compass, Mountain, MapPin, Flag } from 'lucide-react';
 import type { Goal } from '@/types';
+import { OperationalDate } from '@/components/ui/OperationalDate';
 
 interface GoalsClientProps {
     userId: string;
@@ -74,13 +75,13 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
     };
 
     return (
-        <div className="space-y-8 animate-slide-in">
+        <div className="space-y-8">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
                 <div>
-                    <span className="font-mono-tech text-xs font-bold text-accent uppercase tracking-widest block mb-1">
-                        STRATEGIC COMMAND
-                    </span>
+                    <div className="mb-1">
+                        <OperationalDate label="STRATEGIC COMMAND" />
+                    </div>
                     <h1 className="text-2xl sm:text-3xl font-serif-quote font-bold text-textMain tracking-tight">
                         Strategic Objectives
                     </h1>
@@ -100,7 +101,7 @@ export default function GoalsClient({ userId, initialGoals, isPremium }: GoalsCl
                 )}
             </div>
 
-            <InspirationalQuote compact />
+            <InspirationalQuote compact pageKey="goals" />
 
             {!isPremium ? (
                 /* Aspirational Locked State for Non-Premium */

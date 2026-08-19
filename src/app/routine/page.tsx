@@ -20,6 +20,8 @@ export default async function RoutinePage() {
                 <PageHeader
                     title="Daily Routine"
                     subtitle="Execute your non-negotiable daily actions. Consistency compounds."
+                    category="DAILY PROTOCOL"
+                    showOperationalDate
                 />
 
                 <Suspense fallback={<RoutineSkeleton />}>

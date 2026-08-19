@@ -10,6 +10,8 @@ import { InspirationalQuote } from '@/components/ui/InspirationalQuote';
 import { Save, History, Download, Lock, BarChart2, ClipboardCheck, BookOpen, Shield, Flame } from 'lucide-react';
 import type { DailyReport } from '@/types';
 
+import { OperationalDate } from '@/components/ui/OperationalDate';
+
 interface ReportClientProps {
     userId: string;
     initialReport: DailyReport | null;
@@ -89,20 +91,13 @@ export default function ReportClient({ userId, initialReport, allReports, isPrem
         { subject: 'Adaptation', A: adaptabilityScore, fullMark: 10 },
     ];
 
-    const todayDateFormatted = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
     return (
-        <div className="space-y-8 animate-slide-in">
+        <div className="space-y-8">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
                 <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono-tech text-xs font-bold text-accent uppercase tracking-widest">
-                            AFTER-ACTION REVIEW (AAR)
-                        </span>
-                        <span className="bg-surface-dark text-[#F8F4EB] text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded">
-                            {todayDateFormatted}
-                        </span>
+                    <div className="mb-1">
+                        <OperationalDate label="AFTER-ACTION REVIEW (AAR)" />
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-serif-quote font-bold text-textMain tracking-tight">
                         Daily Debrief &amp; Telemetry
@@ -137,7 +132,7 @@ export default function ReportClient({ userId, initialReport, allReports, isPrem
                 </div>
             </div>
 
-            <InspirationalQuote compact />
+            <InspirationalQuote compact pageKey="report" />
 
             {activeTab === 'today' ? (
                 <div className="grid gap-6 lg:grid-cols-3">

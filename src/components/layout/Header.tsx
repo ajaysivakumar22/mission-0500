@@ -2,16 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { getHeaderDateString } from '@/lib/utils/date';
 
 export function Header() {
     const [dateStr, setDateStr] = useState('');
 
     useEffect(() => {
-        const today = new Date();
-        const d = today.getDate().toString().padStart(2, '0');
-        const m = today.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase();
-        const y = today.getFullYear();
-        setDateStr(`${d} ${m} ${y}`);
+        setDateStr(getHeaderDateString());
     }, []);
 
     return (
