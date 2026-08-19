@@ -20,11 +20,11 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
                         type="checkbox"
                         checked={checked}
                         onChange={onChange}
-                        className={`appearance-none h-4.5 w-4.5 rounded border border-border bg-surface checked:bg-accent checked:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 focus:ring-offset-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${className}`}
+                        className={`appearance-none h-5 w-5 rounded-md border-2 border-border/80 bg-surface checked:bg-accent checked:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all ${className}`}
                         {...props}
                     />
                     {checked && (
-                        <Check className="absolute h-3 w-3 text-white pointer-events-none stroke-[3]" />
+                        <Check className="absolute h-3.5 w-3.5 text-[#20382B] pointer-events-none stroke-[3.5]" />
                     )}
                 </div>
                 {label && (

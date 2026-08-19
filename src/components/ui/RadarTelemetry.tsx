@@ -1,6 +1,7 @@
 'use client';
 
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { Shield } from 'lucide-react';
 
 interface RadarTelemetryProps {
     data: {
@@ -19,7 +20,15 @@ export function RadarTelemetry({ data }: RadarTelemetryProps) {
                 <div className="w-full h-full animate-[spin_10s_linear_infinite] opacity-20 bg-[conic-gradient(from_0deg_at_50%_50%,_rgba(255,214,10,0)_0deg,_rgba(255,214,10,0.4)_30deg,_rgba(255,214,10,0)_60deg)]"></div>
             </div>
 
-            <ResponsiveContainer width="100%" height="100%">
+            {/* Subtle central MISSION 0500 watermark insignia */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.08] select-none">
+                <div className="flex flex-col items-center justify-center text-[#D6A52C]">
+                    <Shield className="h-28 w-28 fill-[#D6A52C]" />
+                    <span className="text-[10px] font-mono-tech uppercase tracking-widest font-black mt-1 text-[#D6A52C]">MISSION 0500</span>
+                </div>
+            </div>
+
+            <ResponsiveContainer width="100%" height="100%" className="relative z-20">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
                     <PolarGrid stroke="#1E3A2A" strokeDasharray="3 3" />
                     <PolarAngleAxis

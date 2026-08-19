@@ -13,12 +13,40 @@ import { useToast } from '@/components/ui/Toast';
 import { addTask, updateTask, deleteTask } from '@/server/actions/tasks';
 import { Plus, Target, ShieldAlert, CheckCircle2, ListFilter } from 'lucide-react';
 import type { DailyTask } from '@/types';
-
 import { OperationalDate } from '@/components/ui/OperationalDate';
 
 interface TasksClientProps {
     userId: string;
     initialTasks: DailyTask[];
+}
+
+const PRIORITY_WEIGHT: Record<string, number> = {
+    high: 0,
+    medium: 1,
+    low: 2,
+};
+
+/**
+ * Stable sorting strategy for tasks:
+ * 1. Active tasks before completed tasks
+ * 2. High priority (0) -> Medium priority (1) -> Low priority (2)
+ * 3. Preserves original user input insertion order for equal priority tasks
+ */
+function sortTasksStably(taskList: DailyTask[]): DailyTask[] {
+    return taskList
+        .map((item, index) => ({ item, index }))
+        .sort((a, b) => {
+            const completionDiff = Number(a.item.is_completed) - Number(b.item.is_completed);
+            if (completionDiff !== 0) return completionDiff;
+
+            const weightA = PRIORITY_WEIGHT[a.item.priority] ?? 1;
+            const weightB = PRIORITY_WEIGHT[b.item.priority] ?? 1;
+            const priorityDiff = weightA - weightB;
+            if (priorityDiff !== 0) return priorityDiff;
+
+            return a.index - b.index;
+        })
+        .map(wrapper => wrapper.item);
 }
 
 export default function TasksClient({ userId, initialTasks }: TasksClientProps) {
@@ -39,6 +67,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
 
     const primaryTask = tasks.find(t => t.priority === 'high' && !t.is_completed) || tasks.find(t => !t.is_completed);
     const secondaryTasks = tasks.filter(t => t.id !== primaryTask?.id);
+    const sortedSecondaryTasks = sortTasksStably(secondaryTasks);
 
     const handleAddTask = async (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -119,7 +148,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                             {completedCount} of {tasks.length} objectives completed
                         </p>
                     </div>
-                    <span className="text-3xl font-black text-accent tabular-nums">{completionPercentage}%</span>
+                    <span className="text-3xl font-black text-[#D6A52C] tabular-nums">{completionPercentage}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-surface-muted overflow-hidden border border-border">
                     <motion.div
@@ -138,7 +167,7 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                         <div className="flex items-center gap-2">
                             <ShieldAlert className="h-4 w-4 text-[#D6A52C]" />
                             <span className="font-mono-tech text-[10px] text-[#D6A52C] uppercase tracking-widest font-bold">
-                                PRIMARY OBJECTIVE // HIGH PRIORITY
+                                PRIMARY OBJECTIVE // {primaryTask.priority.toUpperCase()} PRIORITY
                             </span>
                         </div>
                         <span className="font-mono-tech text-[10px] bg-[#D6A52C] text-[#20382B] font-bold px-2 py-0.5 rounded">
@@ -171,14 +200,14 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                 <div className="flex items-center gap-2 border-l-4 border-l-[#58718A] pl-3 py-0.5">
                     <ListFilter className="h-4 w-4 text-[#58718A]" />
                     <h2 className="text-base font-bold text-textMain uppercase tracking-wide">
-                        Secondary Directives ({secondaryTasks.length})
+                        Secondary Directives ({sortedSecondaryTasks.length})
                     </h2>
                 </div>
 
                 <div className="card overflow-hidden">
                     <motion.div layout className="divide-y divide-border">
                         <AnimatePresence mode="popLayout">
-                            {secondaryTasks.length === 0 && !primaryTask ? (
+                            {sortedSecondaryTasks.length === 0 && !primaryTask ? (
                                 <motion.div
                                     key="empty-state"
                                     initial={{ opacity: 0, scale: 0.98 }}
@@ -195,17 +224,15 @@ export default function TasksClient({ userId, initialTasks }: TasksClientProps) 
                                     </p>
                                 </motion.div>
                             ) : (
-                                secondaryTasks
-                                    .sort((a, b) => Number(a.is_completed) - Number(b.is_completed))
-                                    .map(task => (
-                                        <TaskCard
-                                            key={task.id}
-                                            task={task}
-                                            onToggle={handleToggleTask}
-                                            onDelete={handleDeleteTask}
-                                            onEdit={openDialog}
-                                        />
-                                    ))
+                                sortedSecondaryTasks.map(task => (
+                                    <TaskCard
+                                        key={task.id}
+                                        task={task}
+                                        onToggle={handleToggleTask}
+                                        onDelete={handleDeleteTask}
+                                        onEdit={openDialog}
+                                    />
+                                ))
                             )}
                         </AnimatePresence>
                     </motion.div>

@@ -4,8 +4,8 @@
     "description": "Personal Command Center & Discipline Tracker",
     "start_url": "/dashboard",
     "display": "standalone",
-    "background_color": "#051009",
-    "theme_color": "#FFD60A",
+    "background_color": "#20382B",
+    "theme_color": "#D6A52C",
     "icons": [
         {
             "src": "/icon.svg",

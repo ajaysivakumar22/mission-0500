@@ -1,16 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-    <!-- Dark Military Green Background -->
-    <rect width="512" height="512" rx="112" fill="#0B1D13"/>
+    <!-- Deep Olive Background (#20382B) -->
+    <rect width="512" height="512" rx="128" fill="#20382B"/>
     
-    <!-- Outer Gold Ring -->
-    <circle cx="256" cy="256" r="180" fill="none" stroke="#FFD60A" stroke-width="24" stroke-dasharray="16 16"/>
+    <!-- Saffron Gold Inner Shield Emblem Container (#D6A52C) -->
+    <rect x="40" y="40" width="432" height="432" rx="96" fill="#D6A52C"/>
     
-    <!-- Solid Inner Gold Ring -->
-    <circle cx="256" cy="256" r="140" fill="none" stroke="#FFD60A" stroke-width="8"/>
-    
-    <!-- Central Aim / Crosshair -->
-    <path d="M 256 160 L 256 352 M 160 256 L 352 256" stroke="#FFD60A" stroke-width="24" stroke-linecap="round"/>
-    
-    <!-- Center Dot -->
-    <circle cx="256" cy="256" r="24" fill="#FFD60A"/>
+    <!-- Official MISSION 0500 Deep Olive Shield Insignia -->
+    <g transform="translate(64, 64) scale(16)">
+        <path d="M 20 13 c 0 5 -3.5 7.5 -7.66 8.95 a 1 1 0 0 1 -0.67 0 C 7.5 20.5 4 18 4 13 V 6 a 1 1 0 0 1 1 -1 c 2 0 4.5 -1.2 6.24 -2.72 a 1.17 1.17 0 0 1 1.52 0 C 14.5 3.8 17 5 19 5 a 1 1 0 0 1 1 1 z" fill="#20382B"/>
+    </g>
 </svg>

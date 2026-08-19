@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2, RotateCcw } from 'lucide-react';
 import type { DailyRoutine } from '@/types';
 
 interface RoutineCardProps {
@@ -60,6 +60,7 @@ export function RoutineCard({
                 onChange={handleToggle}
                 disabled={isUpdating || isLoading}
                 className="flex-shrink-0"
+                title={item.is_completed ? "Click to mark incomplete" : "Click to mark complete"}
             />
 
             <div className="flex-1 min-w-0">
@@ -73,17 +74,32 @@ export function RoutineCard({
                 )}
             </div>
 
-            <div className="flex gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Clear Restore / Deselect Action Button for Completed Routine Items */}
+            {item.is_completed && (
+                <button
+                    type="button"
+                    onClick={handleToggle}
+                    disabled={isUpdating || isLoading}
+                    className="text-xs font-mono-tech uppercase font-bold text-accent hover:bg-accent/15 px-2.5 py-1 rounded-md border border-accent/30 flex items-center gap-1.5 transition-all shadow-xs flex-shrink-0"
+                    title="Mark incomplete / Restore routine item"
+                >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Restore</span>
+                </button>
+            )}
+
+            <div className="flex items-center gap-1.5 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
                 {onEdit && (
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => onEdit(item)}
                         disabled={isUpdating}
-                        className="h-7 w-7 p-0 text-textMuted hover:text-textMain"
+                        className="h-8.5 w-8.5 p-0 text-textMuted hover:text-textMain hover:bg-surface-muted border border-transparent hover:border-border rounded-lg transition-all"
                         aria-label="Edit routine item"
+                        title="Edit routine item"
                     >
-                        <Edit2 className="h-3.5 w-3.5" />
+                        <Edit2 className="h-4 w-4" />
                     </Button>
                 )}
                 <Button
@@ -91,10 +107,11 @@ export function RoutineCard({
                     size="sm"
                     onClick={handleDelete}
                     disabled={isUpdating}
-                    className="h-7 w-7 p-0 text-textMuted hover:text-danger"
+                    className="h-8.5 w-8.5 p-0 text-textMuted hover:text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded-lg transition-all"
                     aria-label="Delete routine item"
+                    title="Delete routine item"
                 >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
         </motion.div>

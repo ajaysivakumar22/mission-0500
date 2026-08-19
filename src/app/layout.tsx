@@ -13,6 +13,14 @@ export const metadata: Metadata = {
     title: 'MISSION 0500 - Personal Command Center',
     description: 'Personal discipline tracking and goal management system',
     manifest: '/manifest.json',
+    icons: {
+        icon: [
+            { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+            { url: '/icon.svg', type: 'image/svg+xml' },
+        ],
+        shortcut: '/favicon.ico',
+        apple: '/icon.svg',
+    },
 };
 
 export default async function RootLayout({
@@ -21,7 +29,7 @@ export default async function RootLayout({
     children: React.ReactNode;
 }) {
     const session = await getServerSession();
-    
+
     return (
         <html lang="en" className={inter.variable} suppressHydrationWarning>
             <body>
